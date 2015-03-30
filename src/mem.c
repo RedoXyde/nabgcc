@@ -1,4 +1,3 @@
-#include <intrinsics.h>
 #include "ML674061.h"
 #include "common.h"
 #include "mem.h"

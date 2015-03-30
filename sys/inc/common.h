@@ -12,28 +12,11 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-/*****************************************************/
-/*    common type definition                         */
-/*****************************************************/
-//~ typedef char    BYTE;   /* byte */
-//~ typedef short   HWORD;  /* half word */
-//~ typedef long    WORD;   /* word */
-
-//~ typedef unsigned char   uint8_t;  /* unsigned byte */
-//~ typedef unsigned short  uint16_t; /* unsigned half word */
-//~ typedef unsigned long   uint32_t;  /* unsigned word */
-
-//~ typedef unsigned char   uchar;
-//~ typedef unsigned short  ushort;
-//~ typedef unsigned long   ulong;
-//~ typedef unsigned long   uint;
-
-//~ typedef unsigned char   UCHAR;
-//~ typedef unsigned short  USHORT;
-//~ typedef unsigned long   ULONG;
-//~ typedef unsigned long   UINT;
 #include <stdint.h>
+#define __no_operation()  asm volatile("nop")
 
+#define __enable_interrupt() // FIXME
+#define __disable_interrupt() // FIXME
 /*****************************************************/
 /*    internal I/O input/output macro                */
 /*****************************************************/

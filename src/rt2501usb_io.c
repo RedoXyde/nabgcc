@@ -3,7 +3,6 @@
 	(c) 2006 Sebastien Bourdeauducq
 */
 
-#include <intrinsics.h>
 #include <stdio.h>
 #include "ML674061.h"
 #include "common.h"
@@ -21,7 +20,7 @@ unsigned int rt2501_read(PDEVINFO dev, short unsigned int reg)
 {
 	unsigned int val;
 	int ret;
-	
+
 	ret = usbh_control_transfer(dev,
 				 0,				/* pipe */
 				 RT2501_READMULTIMAC,		/* bRequest */
@@ -37,7 +36,7 @@ unsigned int rt2501_read(PDEVINFO dev, short unsigned int reg)
 int rt2501_write(PDEVINFO dev, short unsigned int reg, unsigned int val)
 {
 	int ret;
-	
+
 	ret = usbh_control_transfer(dev,
 				 0,				/* pipe */
 				 RT2501_WRITEMULTIMAC,		/* bRequest */
@@ -52,7 +51,7 @@ int rt2501_write(PDEVINFO dev, short unsigned int reg, unsigned int val)
 int rt2501_read_eeprom(PDEVINFO dev, short int address, void *buf, int len)
 {
 	int ret;
-	
+
 	ret = usbh_control_transfer(dev,
 				 0,				/* pipe */
 				 RT2501_READEEPROM,		/* bRequest */
@@ -67,38 +66,38 @@ int rt2501_read_eeprom(PDEVINFO dev, short int address, void *buf, int len)
 unsigned char rt2501_read_bbp(PDEVINFO dev, unsigned char reg)
 {
 	PHY_CSR3_STRUC csr;
-	
+
 	/* Wait until busy flag clears */
 	do {
 		csr.word = rt2501_read(dev, RT2501_PHY_CSR3);
 	} while(csr.field.Busy);
-	
+
 	/* Write register address */
 	csr.word = 0;
 	csr.field.fRead = 1;
 	csr.field.RegNum = reg;
 	csr.field.Busy = 1;
 	rt2501_write(dev, RT2501_PHY_CSR3, csr.word);
-	
+
 	/* Wait until busy flag clears, then we have the read value */
 	do {
 		csr.word = rt2501_read(dev, RT2501_PHY_CSR3);
 	} while(csr.field.Busy);
 
 	csr.word = rt2501_read(dev, RT2501_PHY_CSR3);
-	
+
 	return (csr.field.Value);
 }
 
 int rt2501_write_bbp(PDEVINFO dev, unsigned char reg, unsigned char val)
 {
 	PHY_CSR3_STRUC csr;
-	
+
 	/* Wait until busy flag clears */
 	do {
 		csr.word = rt2501_read(dev, RT2501_PHY_CSR3);
 	} while(csr.field.Busy);
-	
+
 	/* Write address and data */
 	csr.word = 0;
 	csr.field.RegNum = reg;
@@ -119,6 +118,6 @@ int rt2501_write_rf(PDEVINFO dev, unsigned int val)
 
 	/* Write value */
 	if(!rt2501_write(dev, RT2501_PHY_CSR4, val)) return 0;
-	
+
 	return 1;
 }

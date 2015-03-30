@@ -3,7 +3,6 @@
 	(c) 2006 Sebastien Bourdeauducq
 */
 
-#include <intrinsics.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

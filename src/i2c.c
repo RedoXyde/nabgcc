@@ -1,7 +1,6 @@
 #include "ML674061.h"
 #include "common.h"
 #include "i2c.h"
-#include "inarm.h"
 #include "delay.h"
 
 #include"hcd.h"

@@ -7,7 +7,6 @@
     Mar.31,2003 rev1.00
 *******************************************************************************/
 
-#include <intrinsics.h>
 #include <string.h>
 #include <stdio.h>
 #include "ML674061.h"

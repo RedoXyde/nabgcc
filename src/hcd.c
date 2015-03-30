@@ -6,7 +6,6 @@
     Mar.31,2003 rev1.00
 *******************************************************************************/
 
-#include <intrinsics.h>
 #include <string.h>
 #include <stdio.h>
 #include "ML674061.h"
@@ -945,4 +944,21 @@ void usbhost_interrupt(void)
 		}
 		put_wvalue(SttTrnsCnt, B_OHCIIRQ);
 	}
+}
+
+int32_t hcd_transfer_cancel(PURB urb)
+{
+	DBG_USB(" hcd_transfer_cancel:\n");
+
+	/* コントローラの状態確認 */
+	if (hcd_info.disabled) {
+		urb->status = URB_ABORT;
+		return urb->status;
+	}
+
+	if(((PHCD_ED)urb->ed)->flag == ED_LINK){
+		hcd_pause_ed((PHCD_ED)urb->ed);
+	}
+
+	return urb->status;
 }

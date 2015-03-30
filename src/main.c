@@ -27,7 +27,6 @@
 #include "ml60842.h"
 #include "hcdmem.h"
 #include "hcd.h"
-#include "inarm.h"
 #include "i2c.h"
 #include "rt2501usb.h"
 #include "rfid.h"

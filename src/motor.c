@@ -1,7 +1,6 @@
 #include "ML674061.h"
 #include "common.h"
 #include "motor.h"
-#include "inarm.h"
 
 /****************************************************************************/
 /*  Init the PWM module for driving the 2 DC brush motor and count position */

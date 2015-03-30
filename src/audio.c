@@ -3,7 +3,6 @@
 #include "audio.h"
 #include "spi.h"
 #include "delay.h"
-#include "inarm.h"
 #include "led.h"
 #include "uart.h"
 #include "vlog.h"

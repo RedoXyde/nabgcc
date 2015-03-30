@@ -1,7 +1,6 @@
 #include "ML674061.h"
 #include "common.h"
 #include "spi.h"
-#include "inarm.h"
 
 /****************************************************************************/
 /*  Initialization of the SPI peripheral                                    */

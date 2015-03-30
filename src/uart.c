@@ -18,7 +18,6 @@
 #include   "common.h"
 #include   "irq.h"
 #include   "uart.h"
-#include "inarm.h"
 #include "delay.h"
 #include "delay.h"
 #include<stdio.h>

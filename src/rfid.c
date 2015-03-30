@@ -3,7 +3,6 @@
 #include "rfid.h"
 #include "i2c.h"
 #include "delay.h"
-#include "inarm.h"
 #include "uart.h"
 #include "vlog.h"
 

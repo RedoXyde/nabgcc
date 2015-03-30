@@ -18,7 +18,6 @@
 #include   "ml60842.h"
 #include   "uart.h"
 #include "vlog.h"
-#include "inarm.h"
 #include <stdio.h>
 
 
