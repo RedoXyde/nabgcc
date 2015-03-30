@@ -6,6 +6,7 @@
 #include "inarm.h"
 #include "led.h"
 #include "uart.h"
+#include "vlog.h"
 
 
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
@@ -35,21 +36,21 @@
 /*          Input   :   Nothing                                             */
 /*          Output  :   return of the ADC result of channel #2 in 8bits     */
 /****************************************************************************/
-uchar get_adc_value(void)
+uint8_t get_adc_value(void)
 {
-  ushort adc_result;
+  uint16_t adc_result;
   //Start ADC for channel #2
   set_hbit(ADCON1, ADCON1_STS | ADCON1_CH2);
   //Wait for the ADC to be done
   while(get_hvalue(ADCON1) & ADCON1_STS);
   //Return the ADC in a 8bits result
   adc_result=get_hvalue(ADR2);
-  return (uchar)(adc_result>>2);
+  return (uint8_t)(adc_result>>2);
 }
 
-ushort vlsi_read_sci(uchar reg)
+uint16_t vlsi_read_sci(uint8_t reg)
 {
-    ushort received_short;
+    uint16_t received_short;
     while( !(INT_AUDIO_READ & INT_AUDIO_BIT) ) CLR_WDT;
     CS_AUDIO_SCI_CLEAR;
     WriteSPI(VS1003_READ);
@@ -62,7 +63,7 @@ ushort vlsi_read_sci(uchar reg)
     return received_short;
 }
 
-void vlsi_write_sci(uchar reg,ushort val)
+void vlsi_write_sci(uint8_t reg,uint16_t val)
 {
   while( !(INT_AUDIO_READ & INT_AUDIO_BIT) ) CLR_WDT;
   CS_AUDIO_SCI_CLEAR;
@@ -73,22 +74,22 @@ void vlsi_write_sci(uchar reg,ushort val)
   CS_AUDIO_SCI_SET;
 }
 
-int vlsi_feed_sdi(uchar* data,int len)
+int32_t vlsi_feed_sdi(uint8_t* data,int32_t len)
 {
-  int i=0;
+  int32_t i=0;
   CS_AUDIO_SDI_CLEAR;
   while((i<len)&&(INT_AUDIO_READ & INT_AUDIO_BIT)) WriteSPI(data[i++]);
   CS_AUDIO_SDI_SET;
   return i;
 }
 
-int vlsi_fifo_ready()
+int32_t vlsi_fifo_ready()
 {
   if (INT_AUDIO_READ & INT_AUDIO_BIT) return 1;
   return 0;
 }
 
-void vlsi_ampli(int on)
+void vlsi_ampli(int32_t on)
 {
   if (on)
   {
@@ -101,7 +102,7 @@ void vlsi_ampli(int on)
 }
 
 #define patchwma_len 10
-const int patchwma_data[patchwma_len]=
+const int32_t patchwma_data[patchwma_len]=
 {
 0x0207800e,0x02062801,0x02063f80,0x02060006,0x020653d7,
 0x020784fe,0x02062000,0x02060000,0x02063f05,0x0206c024
@@ -109,9 +110,10 @@ const int patchwma_data[patchwma_len]=
 
 void patchwma()
 {
-  for(int i=0;i<patchwma_len;i++)
+  int32_t i;
+  for(i=0;i<patchwma_len;i++)
   {
-    int k=patchwma_data[i];
+    int32_t k=patchwma_data[i];
     vlsi_write_sci(k>>16,k);
   }
 }
@@ -165,13 +167,13 @@ void init_vlsi(void)
 /*          Input   :   sampling frequency in Hz on 16bits, up to 48kHz     */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void init_adpcm_encode(ushort sampling_frequency,ushort gain)
+void init_adpcm_encode(uint16_t sampling_frequency,uint16_t gain)
 {
-  ushort config_frequency;
+  uint16_t config_frequency;
 
 //Sampling frequency up to 48kHz
 //XTALI id 12.288MHz x 4 = 49.152MHz and /256 => 192000
-  config_frequency=(ushort)(192000/sampling_frequency);
+  config_frequency=(uint16_t)(192000/sampling_frequency);
 
 //Config Sampling frequency
   vlsi_write_sci(VS1003_AICTRL0,config_frequency);
@@ -205,7 +207,7 @@ void stop_adpcm_encode(void)
 /*          Input   :   volume on 8bits ; the maximum is 0x00               */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void set_vlsi_volume(uchar volume)
+void set_vlsi_volume(uint8_t volume)
 {
 //Config VOLUME
   vlsi_write_sci(VS1003_VOLUME,(volume<<8)|volume);
@@ -215,18 +217,18 @@ void set_vlsi_volume(uchar volume)
 }
 
 
-int audioPlayFetch(char* dst,int ask);
-char* audioRecFeed_begin(int size);
+int32_t audioPlayFetch(char* dst,int32_t ask);
+char* audioRecFeed_begin(int32_t size);
 void audioRecFeed_end();
 
-uchar play_state=0;
+uint8_t play_state=0;
 
-uchar rec_state=0;
+uint8_t rec_state=0;
 
-void rec_start(int sampling_frequency,int gain)
+void rec_start(int32_t sampling_frequency,int32_t gain)
 {
   if (play_state) return;
-  putst_uart("rec_start\n");
+  consolestr("rec_start\n");
   clear_vlsi_fifo();
   TURN_OFF_AUDIO_AMPLIFIER;
   init_adpcm_encode(sampling_frequency,gain);
@@ -236,7 +238,7 @@ void rec_start(int sampling_frequency,int gain)
 void rec_stop()
 {
   if (!rec_state) return;
-  putst_uart("rec_stop\n");
+  consolestr("rec_stop\n");
   stop_adpcm_encode();
   TURN_OFF_AUDIO_AMPLIFIER;
   clear_vlsi_fifo();
@@ -249,7 +251,7 @@ void rec_check()
   if (!rec_state) return;
   //each audio block is 256bytes long, but the buffer fill information is
   //in 16bits word information
-//putst_uart("r");
+//consolestr("r");
   received_short=vlsi_read_sci(VS1003_HDAT1);
 
   //putint_uart(received_short);
@@ -270,12 +272,12 @@ void rec_check()
       }
 }
 
-int valtrytofeed=2048;
+int32_t valtrytofeed=2048;
 
-void play_start(int trytofeed)
+void play_start(int32_t trytofeed)
 {
   if (rec_state) return;
-  putst_uart("play_start\n");
+  consolestr("play_start\n");
   clear_vlsi_fifo();
   patchwma();
 
@@ -288,23 +290,23 @@ void play_start(int trytofeed)
 void play_stop()
 {
   if (!play_state) return;
-  putst_uart("play_stop\n");
+  consolestr("play_stop\n");
   TURN_OFF_AUDIO_AMPLIFIER;
   clear_vlsi_fifo();
   play_state=0;
 }
 
 #include"hcd.h"
-int audioPlayTryFeed(int ask);
-int audioPlayFetchByte();
+int32_t audioPlayTryFeed(int32_t ask);
+int32_t audioPlayFetchByte();
 
-void play_check(int nocb)
+void play_check(int32_t nocb)
 {
-  int empty=0;
-  int nb=0;
+  int32_t empty=0;
+  int32_t nb=0;
 
   if (!play_state) return;
-//putst_uart("<");
+//consolestr("<");
 
  if ( !(INT_AUDIO_READ & INT_AUDIO_BIT) ) return;  // buffer occupé
 
@@ -317,7 +319,7 @@ disable_ohci_irq();
   while((INT_AUDIO_READ & INT_AUDIO_BIT)&& (!empty))
   {
     CLR_WDT;
-    int val=audioPlayFetchByte();
+    int32_t val=audioPlayFetchByte();
     if ((val<0)&&(nb+nb>=valtrytofeed)&&(!nocb))
     {
       nocb=1-audioPlayTryFeed(valtrytofeed);
@@ -337,7 +339,7 @@ disable_ohci_irq();
       if (play_state==2) play_state=0;
     }
   }
-//  putst_uart(":");  putint_uart(nb);
+//  consolestr(":");  putint_uart(nb);
 enable_ohci_irq();
 
 }
@@ -356,7 +358,7 @@ void play_eof()
 /****************************************************************************/
 void clear_vlsi_fifo(void)
 {
-  putst_uart("clear_vlsi_fifo\n");
+  consolestr("clear_vlsi_fifo\n");
 //Config MODE
   vlsi_write_sci(VS1003_MODE,(VS1003_MODE_VALUE_H<<8)|VS1003_MODE_VALUE_L | SM_RESET);
 //  vlsi_write_sci(VS1003_MODE,0x0805);
@@ -383,9 +385,9 @@ void sw_reset_vlsi(void)
 /*          Input   :   Nothing                                             */
 /*          Output  :   return of HDAT1 and HDAT0                           */
 /****************************************************************************/
-ulong check_audio_file(void)
+uint32_t check_audio_file(void)
 {
-  ulong file_state=0x00000000;
+  uint32_t file_state=0x00000000;
 
   file_state=vlsi_read_sci(VS1003_HDAT1)<<16;
   file_state|=vlsi_read_sci(VS1003_HDAT0)&0xffff;
@@ -400,7 +402,7 @@ ulong check_audio_file(void)
 /*          Input   :   Nothing                                             */
 /*          Output  :   return the number of seconds decoded                */
 /****************************************************************************/
-ushort check_decode_time(void)
+uint16_t check_decode_time(void)
 {
   return vlsi_read_sci(VS1003_DECODE_TIME);
 }

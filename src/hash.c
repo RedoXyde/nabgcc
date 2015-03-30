@@ -4,6 +4,7 @@
 */
 
 #include <string.h>
+#include <stdint.h>
 
 #include "hash.h"
 
@@ -17,9 +18,9 @@
  */
 
 struct MD5_CTX {
-	unsigned int buf[4];
-	unsigned int bits[2];
-	unsigned char in[64];
+	uint32_t buf[4];
+	uint32_t bits[2];
+	uint8_t in[64];
 };
 
 /*
@@ -37,20 +38,20 @@ static void MD5Init(struct MD5_CTX *ctx)
 	ctx->bits[1] = 0;
 }
 
-static void MD5Transform(unsigned int buf[4], unsigned int in[16]);
+static void MD5Transform(uint32_t buf[4], uint32_t in[16]);
 
 /*
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-static void MD5Update(struct MD5_CTX *ctx, const unsigned char *buf, unsigned len)
+static void MD5Update(struct MD5_CTX *ctx, const uint8_t *buf, unsigned len)
 {
-	unsigned int t;
+	uint32_t t;
 
 	/* Update bitcount */
 
 	t = ctx->bits[0];
-	if ((ctx->bits[0] = t + ((unsigned int) len << 3)) < t)
+	if ((ctx->bits[0] = t + ((uint32_t) len << 3)) < t)
 		ctx->bits[1]++;     /* Carry from low to high */
 	ctx->bits[1] += len >> 29;
 
@@ -59,7 +60,7 @@ static void MD5Update(struct MD5_CTX *ctx, const unsigned char *buf, unsigned le
 	/* Handle any leading odd-sized chunks */
 
 	if (t) {
-		unsigned char *p = (unsigned char *) ctx->in + t;
+		uint8_t *p = (uint8_t *) ctx->in + t;
 
 		t = 64 - t;
 		if (len < t) {
@@ -67,7 +68,7 @@ static void MD5Update(struct MD5_CTX *ctx, const unsigned char *buf, unsigned le
 			return;
 		}
 		memcpy(p, buf, t);
-		MD5Transform(ctx->buf, (unsigned int *) ctx->in);
+		MD5Transform(ctx->buf, (uint32_t *) ctx->in);
 		buf += t;
 		len -= t;
 	}
@@ -75,7 +76,7 @@ static void MD5Update(struct MD5_CTX *ctx, const unsigned char *buf, unsigned le
 
 	while (len >= 64) {
 		memcpy(ctx->in, buf, 64);
-		MD5Transform(ctx->buf, (unsigned int *) ctx->in);
+		MD5Transform(ctx->buf, (uint32_t *) ctx->in);
 		buf += 64;
 		len -= 64;
 	}
@@ -89,10 +90,10 @@ static void MD5Update(struct MD5_CTX *ctx, const unsigned char *buf, unsigned le
  * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
-static void MD5Final(unsigned char digest[16], struct MD5_CTX *ctx)
+static void MD5Final(uint8_t digest[16], struct MD5_CTX *ctx)
 {
-	unsigned count;
-	unsigned char *p;
+	uint32_t count;
+	uint8_t *p;
 
 	/* Compute number of bytes mod 64 */
 	count = (ctx->bits[0] >> 3) & 0x3F;
@@ -109,7 +110,7 @@ static void MD5Final(unsigned char digest[16], struct MD5_CTX *ctx)
 	if (count < 8) {
 		/* Two lots of padding:  Pad the first block to 64 bytes */
 		memset(p, 0, count);
-		MD5Transform(ctx->buf, (unsigned int *) ctx->in);
+		MD5Transform(ctx->buf, (uint32_t *) ctx->in);
 
 		/* Now fill the next block with 56 bytes */
 		memset(ctx->in, 0, 56);
@@ -119,10 +120,10 @@ static void MD5Final(unsigned char digest[16], struct MD5_CTX *ctx)
 	}
 
 	/* Append length in bits and transform */
-	((unsigned int *) ctx->in)[14] = ctx->bits[0];
-	((unsigned int *) ctx->in)[15] = ctx->bits[1];
+	((uint32_t *) ctx->in)[14] = ctx->bits[0];
+	((uint32_t *) ctx->in)[15] = ctx->bits[1];
 
-	MD5Transform(ctx->buf, (unsigned int *) ctx->in);
+	MD5Transform(ctx->buf, (uint32_t *) ctx->in);
 	memcpy(digest, ctx->buf, 16);
 }
 
@@ -142,9 +143,9 @@ static void MD5Final(unsigned char digest[16], struct MD5_CTX *ctx)
  * reflect the addition of 16 longwords of new data.  MD5Update blocks
  * the data and converts bytes into longwords for this routine.
  */
-static void MD5Transform(unsigned int buf[4], unsigned int in[16])
+static void MD5Transform(uint32_t buf[4], uint32_t in[16])
 {
-	register unsigned int a, b, c, d;
+	register uint32_t a, b, c, d;
 
 	a = buf[0];
 	b = buf[1];
@@ -228,12 +229,12 @@ static void MD5Transform(unsigned int buf[4], unsigned int in[16])
 /* ===== end - public domain MD5 implementation ===== */
 
 
-void hmac_md5(const unsigned char *key, unsigned int key_len, const unsigned char *data, unsigned int data_len, unsigned char *mac)
+void hmac_md5(const uint8_t *key, uint32_t key_len, const uint8_t *data, uint32_t data_len, uint8_t *mac)
 {
 	struct MD5_CTX context;
-	unsigned char k_ipad[64]; /* inner padding - key XORd with ipad */
-	unsigned char k_opad[64]; /* outer padding - key XORd with opad */
-	unsigned char tk[16];
+	uint8_t k_ipad[64]; /* inner padding - key XORd with ipad */
+	uint8_t k_opad[64]; /* outer padding - key XORd with opad */
+	uint8_t tk[16];
 	int i;
 
 	/* if key is longer than 64 bytes, set it to key = MD5(key) */
@@ -273,16 +274,16 @@ void hmac_md5(const unsigned char *key, unsigned int key_len, const unsigned cha
 /* ===== begin - public domain SHA1 implementation ===== */
 
 struct SHA_CTX {
-	unsigned int H[5];
-	unsigned int W[80];
+	uint32_t H[5];
+	uint32_t W[80];
 	int lenW;
-	unsigned int sizeHi, sizeLo;
+	uint32_t sizeHi, sizeLo;
 };
 
 static void SHAInit(struct SHA_CTX *ctx)
 {
 	int i;
- 
+
 	ctx->lenW = 0;
 	ctx->sizeHi = ctx->sizeLo = 0;
 
@@ -292,7 +293,7 @@ static void SHAInit(struct SHA_CTX *ctx)
 	ctx->H[2] = 0x98badcfeL;
 	ctx->H[3] = 0x10325476L;
 	ctx->H[4] = 0xc3d2e1f0L;
- 
+
 	for (i = 0; i < 80; i++)
 		ctx->W[i] = 0;
 }
@@ -302,17 +303,17 @@ static void SHAInit(struct SHA_CTX *ctx)
 static void SHAHashBlock(struct SHA_CTX *ctx)
 {
 	int t;
-	unsigned int A,B,C,D,E,TEMP;
- 
+	uint32_t A,B,C,D,E,TEMP;
+
 	for (t = 16; t <= 79; t++)
 		ctx->W[t] = SHA_ROTL(ctx->W[t-3] ^ ctx->W[t-8] ^ ctx->W[t-14] ^ ctx->W[t-16], 1);
- 
+
 	A = ctx->H[0];
 	B = ctx->H[1];
 	C = ctx->H[2];
 	D = ctx->H[3];
 	E = ctx->H[4];
- 
+
 	for (t = 0; t <= 19; t++) {
 		TEMP = (SHA_ROTL(A,5) + (((C^D)&B)^D)     + E + ctx->W[t] + 0x5a827999L) & 0xffffffffL;
 		E = D; D = C; C = SHA_ROTL(B, 30); B = A; A = TEMP;
@@ -329,7 +330,7 @@ static void SHAHashBlock(struct SHA_CTX *ctx)
 		TEMP = (SHA_ROTL(A,5) + (B^C^D)           + E + ctx->W[t] + 0xca62c1d6L) & 0xffffffffL;
 		E = D; D = C; C = SHA_ROTL(B, 30); B = A; A = TEMP;
 	}
- 
+
 	ctx->H[0] += A;
 	ctx->H[1] += B;
 	ctx->H[2] += C;
@@ -337,14 +338,14 @@ static void SHAHashBlock(struct SHA_CTX *ctx)
 	ctx->H[4] += E;
 }
 
-static void SHAUpdate(struct SHA_CTX *ctx, const unsigned char *dataIn, int len)
+static void SHAUpdate(struct SHA_CTX *ctx, const uint8_t *dataIn, int len)
 {
 	int i;
- 
+
 	/* Read the data into W and process blocks as they get full */
 	for(i = 0; i < len; i++) {
 		ctx->W[ctx->lenW / 4] <<= 8;
-		ctx->W[ctx->lenW / 4] |= (unsigned int)dataIn[i];
+		ctx->W[ctx->lenW / 4] |= (uint32_t)dataIn[i];
 		if ((++ctx->lenW) % 64 == 0) {
 			SHAHashBlock(ctx);
 			ctx->lenW = 0;
@@ -355,42 +356,42 @@ static void SHAUpdate(struct SHA_CTX *ctx, const unsigned char *dataIn, int len)
 }
 
 
-static void SHAFinal(struct SHA_CTX *ctx, unsigned char hashout[20])
+static void SHAFinal(struct SHA_CTX *ctx, uint8_t hashout[20])
 {
-	unsigned char pad0x80 = 0x80;
-	unsigned char pad0x00 = 0x00;
-	unsigned char padlen[8];
+	uint8_t pad0x80 = 0x80;
+	uint8_t pad0x00 = 0x00;
+	uint8_t padlen[8];
 	int i;
- 
+
 	/* Pad with a binary 1 (e.g. 0x80), then zeroes, then length */
-	padlen[0] = (unsigned char)((ctx->sizeHi >> 24) & 255);
-	padlen[1] = (unsigned char)((ctx->sizeHi >> 16) & 255);
-	padlen[2] = (unsigned char)((ctx->sizeHi >> 8) & 255);
-	padlen[3] = (unsigned char)((ctx->sizeHi >> 0) & 255);
-	padlen[4] = (unsigned char)((ctx->sizeLo >> 24) & 255);
-	padlen[5] = (unsigned char)((ctx->sizeLo >> 16) & 255);
-	padlen[6] = (unsigned char)((ctx->sizeLo >> 8) & 255);
-	padlen[7] = (unsigned char)((ctx->sizeLo >> 0) & 255);
+	padlen[0] = (uint8_t)((ctx->sizeHi >> 24) & 255);
+	padlen[1] = (uint8_t)((ctx->sizeHi >> 16) & 255);
+	padlen[2] = (uint8_t)((ctx->sizeHi >> 8) & 255);
+	padlen[3] = (uint8_t)((ctx->sizeHi >> 0) & 255);
+	padlen[4] = (uint8_t)((ctx->sizeLo >> 24) & 255);
+	padlen[5] = (uint8_t)((ctx->sizeLo >> 16) & 255);
+	padlen[6] = (uint8_t)((ctx->sizeLo >> 8) & 255);
+	padlen[7] = (uint8_t)((ctx->sizeLo >> 0) & 255);
 	SHAUpdate(ctx, &pad0x80, 1);
 	while (ctx->lenW != 56)
 		SHAUpdate(ctx, &pad0x00, 1);
 	SHAUpdate(ctx, padlen, 8);
- 
+
 	/* Output hash */
 	for (i=0;i<20;i++) {
-		hashout[i] = (unsigned char)(ctx->H[i / 4] >> 24);
+		hashout[i] = (uint8_t)(ctx->H[i / 4] >> 24);
 		ctx->H[i / 4] <<= 8;
 	}
 }
 
 /* ===== end - public domain SHA1 implementation ===== */
 
-void hmac_sha1(const unsigned char *key, unsigned int key_len, const unsigned char *data, unsigned int data_len, unsigned char *mac)
+void hmac_sha1(const uint8_t *key, uint32_t key_len, const uint8_t *data, uint32_t data_len, uint8_t *mac)
 {
-	struct SHA_CTX context; 
-	unsigned char k_ipad[64]; /* inner padding - key XORd with ipad */
-	unsigned char k_opad[64]; /* outer padding - key XORd with opad */
-	unsigned char tk[20];
+	struct SHA_CTX context;
+	uint8_t k_ipad[64]; /* inner padding - key XORd with ipad */
+	uint8_t k_opad[64]; /* outer padding - key XORd with opad */
+	uint8_t tk[20];
 	int i;
 
 	if(key_len > 64) {
@@ -418,7 +419,7 @@ void hmac_sha1(const unsigned char *key, unsigned int key_len, const unsigned ch
 	SHAUpdate(&context, k_ipad, 64);	/* start with inner pad */
 	SHAUpdate(&context, data, data_len);	/* then text of datagram */
 	SHAFinal(&context, mac);		/* finish up 1st pass */
-	
+
 	/* perform outer SHA1 */
 	SHAInit(&context);			/* init context for 2nd pass */
 	SHAUpdate(&context, k_opad, 64);	/* start with outer pad */

@@ -11,64 +11,64 @@
 #define consolehx(val) printf("%x",val)
 #endif
 #ifdef VREAL
-#define consolestr(val) putst_uart(val)
+#define consolestr(val) putst_uart((uint8_t*)val)
 #define consolebin(val,len) putbin_uart(val,len)
 #define consoleint(val) putint_uart(val)
 #define consolehx(val) puthx_uart(val)
 #endif
 
-void logSecho(int p,int nl);
-void logIecho(int i,int nl);
+void logSecho(int32_t p,int32_t nl);
+void logIecho(int32_t i,int32_t nl);
 void logGC();
 
-void dump(uchar *src,int len);
+void dump(uint8_t *src,int32_t len);
 
-int sysLoad(char *dst,int i,int ldst,char *filename,int j,int len);
-int sysSave(char *dst,int i,int ldst,char *filename,int j,int len);
+int32_t sysLoad(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len);
+int32_t sysSave(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len);
 
-int sysTimems();
-int sysTime();
-int sysRand();
-void sysSrand(int seed);
+int32_t sysTimems();
+int32_t sysTime();
+int32_t sysRand();
+void sysSrand(int32_t seed);
 void sysReboot();
-void sysFlash(char* firmware,int len);
+void sysFlash(uint8_t *firmware,int32_t len);
 
-void mystrcpy(char *dst,char *src,int len);
+void mystrcpy(uint8_t *dst,uint8_t *src,int32_t len);
 
-void sysCpy(char *dst,int i,int ldst,char *src,int j,int lsrc,int len);
-int sysCmp(char *dst,int i,int ldst,char *src,int j,int lsrc,int len);
-int sysFind(char *dst,int i,int ldst,char *src,int j,int lsrc,int len);
-int sysFindrev(char *dst,int i,int ldst,char *src,int j,int lsrc,int len);
-int sysStrgetword(unsigned char *src,int len,int ind);
-void sysStrputword(unsigned char *src,int len,int ind,int val);
-int sysAtoi(char* src);
-int sysHtoi(char* src);
-void sysCtoa(int c);
-void sysItoa(int v);
-void sysItoh(int v);
-void sysCtoh(int c);
-void sysItobin2(int c);
-int sysListswitch(int p,int key);
-int sysListswitchstr(int p,char* key);
+void sysCpy(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len);
+int32_t sysCmp(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len);
+int32_t sysFind(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len);
+int32_t sysFindrev(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len);
+int32_t sysStrgetword(uint8_t *src,int32_t len,int32_t ind);
+void sysStrputword(uint8_t *src,int32_t len,int32_t ind,int32_t val);
+int32_t sysAtoi(uint8_t *src);
+int32_t sysHtoi(uint8_t *src);
+void sysCtoa(int32_t c);
+void sysItoa(int32_t v);
+void sysItoh(int32_t v);
+void sysCtoh(int32_t c);
+void sysItobin2(int32_t c);
+int32_t sysListswitch(int32_t p,int32_t key);
+int32_t sysListswitchstr(int32_t p,uint8_t *key);
 
 
-void sysLed(int led,int col);
-void sysMotorset(int motor,int sens);
-int sysMotorget(int motor);
-int sysButton2();
-int sysButton3();
+void sysLed(int32_t led,int32_t col);
+void sysMotorset(int32_t motor,int32_t sens);
+int32_t sysMotorget(int32_t motor);
+int32_t sysButton2();
+int32_t sysButton3();
 
-char* sysRfidget();
+uint8_t *sysRfidget();
 void sysRfidgetList();
-void sysRfidread(char* id,int bloc);
-int sysRfidwrite(char* id,int bloc,char* data);
+void sysRfidread(uint8_t *id,int32_t bloc);
+int32_t sysRfidwrite(uint8_t *id,int32_t bloc,uint8_t *data);
 
-int sysCrypt(char* src,int indexsrc,int len,int lensrc,unsigned int key,int alpha);
-int sysUncrypt(char* src,int indexsrc,int len,int lensrc,unsigned int key,int alpha);
+int32_t sysCrypt(uint8_t *src,int32_t indexsrc,int32_t len,int32_t lensrc,uint32_t key,int32_t alpha);
+int32_t sysUncrypt(uint8_t *src,int32_t indexsrc,int32_t len,int32_t lensrc,uint32_t key,int32_t alpha);
 
 // Prototype des fonction pour l'I2C
-int sysI2cRead(unsigned char addr_i2c, int bufsize);
-int sysI2cWrite(unsigned char addr_i2c, unsigned char *data, unsigned int bufsize);
+int32_t sysI2cRead(uint8_t addr_i2c, int32_t bufsize);
+int32_t sysI2cWrite(uint8_t addr_i2c, uint8_t *data, uint32_t bufsize);
 
 
 #endif

@@ -5,21 +5,21 @@
 #include"vloader.h"
 #include"vlog.h"
 
-void play_check(int nocb);
+void play_check(int32_t nocb);
 
 #ifdef VSIMU
-int vmem_heap[VMEM_LENGTH];
+int32_t vmem_heap[VMEM_LENGTH];
 #endif
 
 
-int vmem_heapindex;
-int *vmem_top;
-int vmem_stack;
-int vmem_start;
-int vmem_broken;
+int32_t vmem_heapindex;
+int32_t *vmem_top;
+int32_t vmem_stack;
+int32_t vmem_start;
+int32_t vmem_broken;
 
 // initialisation de la mémoire
-void vmemInit(int start)
+void vmemInit(int32_t start)
 {
 	vmem_top=&vmem_heap[VMEM_LENGTH];
 	vmem_stack=0;
@@ -27,9 +27,9 @@ void vmemInit(int start)
         vmem_broken=0;
 }
 
-void vmemSetstart(int start)
+void vmemSetstart(int32_t start)
 {
-	int size;
+	int32_t size;
 
 	if (start>=vmem_start-HEADER_LENGTH) return;
 
@@ -45,8 +45,8 @@ void vmemSetstart(int start)
 
 void vmemGCfirst()
 {
-	int i,k,j,n;
-	int first;
+	int32_t i,k,j,n;
+	int32_t first;
 
 	first=-1;
 	for(i=vmem_stack;i<0;i++)
@@ -93,7 +93,7 @@ void vmemGCfirst()
 }
 void dumpheap()
 {
-	int pos,realsize;
+	int32_t pos,realsize;
 
 	pos=vmem_start;
 
@@ -105,16 +105,16 @@ void dumpheap()
   if ((realsize<0)||(realsize>=VMEM_LENGTH))
   {
     consolestr("2.realsize out of range\n");
-    dump((char*)&vmem_heap[pos-32],128);
+    dump((uint8_t*)&vmem_heap[pos-32],128);
     return;
   }
-    dump((char*)&vmem_heap[pos],32);
+    dump((uint8_t*)&vmem_heap[pos],32);
 		pos+=realsize;
 	}
 }
 void vmemGCsecond()
 {
-	int pos,newpos,realsize;
+	int32_t pos,newpos,realsize;
 
 	pos=newpos=vmem_start;
 
@@ -125,7 +125,7 @@ void vmemGCsecond()
   {
     dumpheap();
 //    consolestr("2.realsize out of range\n");
-//    dump((char*)&vmem_heap[pos-32],128);
+//    dump((uint8_t*)&vmem_heap[pos-32],128);
   }
 */
                 if (HEADER_USED(pos))
@@ -139,8 +139,8 @@ void vmemGCsecond()
 
 void vmemGCthird()
 {
-	int i,k,j,n;
-	int first;
+	int32_t i,k,j,n;
+	int32_t first;
 
 	first=-1;
 	for(i=vmem_stack;i<0;i++)
@@ -186,7 +186,7 @@ void vmemGCthird()
 }
 void vmemGCfourth()
 {
-	int pos,newpos,realsize,i;
+	int32_t pos,newpos,realsize,i;
 
 	pos=newpos=vmem_start;
 
@@ -247,9 +247,9 @@ void vmemGC()
 //        dump(bytecode,32);
 }
 
-int vmemAllocBin(int size,int ext)
+int32_t vmemAllocBin(int32_t size,int32_t ext)
 {
-	int wsize,p;
+	int32_t wsize,p;
 	wsize=HEADER_LENGTH+((size+4)>>2);
 
 	if (VMEM_LENGTH+vmem_stack-vmem_heapindex-wsize<VMEM_GCTHRESHOLD)
@@ -272,20 +272,20 @@ int vmemAllocBin(int size,int ext)
 	return p;
 }
 
-int vmemAllocString(char *p,int len)
+int32_t vmemAllocString(uint8_t *p,int32_t len)
 {
-	int i;
-	char *q;
-	int iq=vmemAllocBin(len,0);
+	int32_t i;
+	uint8_t *q;
+	int32_t iq=vmemAllocBin(len,0);
 	if (iq<0) return iq;
 	q=VSTARTBIN(iq);
 	for(i=0;i<len;i++) q[i]=p[i];
 	return iq;
 }
 
-int vmemAllocTab(int size,int ext)
+int32_t vmemAllocTab(int32_t size,int32_t ext)
 {
-	int wsize,p;
+	int32_t wsize,p;
 	wsize=HEADER_LENGTH+size;
 
 	if (VMEM_LENGTH+vmem_stack-vmem_heapindex-wsize<VMEM_GCTHRESHOLD)
@@ -309,18 +309,18 @@ int vmemAllocTab(int size,int ext)
 	return p;
 }
 
-int vmemAllocTabClear(int size,int ext)
+int32_t vmemAllocTabClear(int32_t size,int32_t ext)
 {
-	int p=vmemAllocTab(size,ext);
+	int32_t p=vmemAllocTab(size,ext);
 	if (p>=0)
 	{
-		int i;
+		int32_t i;
 		for(i=0;i<size;i++)vmem_heap[p+HEADER_LENGTH+i]=NIL;
 	}
 	return p;
 }
 
-int vmemPush(int val)
+int32_t vmemPush(int32_t val)
 {
 	vmem_top[--vmem_stack]=val;
 	if (VMEM_LENGTH+vmem_stack-vmem_heapindex<VMEM_GCTHRESHOLD)
@@ -337,10 +337,10 @@ int vmemPush(int val)
 	return 0;
 }
 
-void vmemStacktotab(int n)
+void vmemStacktotab(int32_t n)
 {
-	int *q;
-	int p=vmemAllocTab(n,0);
+	int32_t *q;
+	int32_t p=vmemAllocTab(n,0);
 	q=VSTART(p);
 	while(n>0) q[--n]=VPULL();
 	VPUSH(PNTTOVAL(p));
@@ -350,7 +350,7 @@ void vmemStacktotab(int n)
 void vmemDumpHeap()
 {
 #ifdef VSIMU
-	int i,pos,realsize,n;
+	int32_t i,pos,realsize,n;
 #endif
 	consolestr("HEAP\n----\n");
 #ifdef VSIMU
@@ -372,7 +372,7 @@ void vmemDumpHeap()
 void vmemDumpStack()
 {
 #ifdef VSIMU
-	int i,k;
+	int32_t i,k;
 #endif
 	consolestr("STACK\n-----\n");
 #ifdef VSIMU

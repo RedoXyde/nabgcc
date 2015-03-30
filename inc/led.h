@@ -33,7 +33,7 @@
 /* Functions */
 /*************/
 void init_led_rgb_driver(void);
-void set_led_rgb(UWORD color);
-void set_led(UWORD led,UWORD color);
+void set_led_rgb(uint32_t color);
+void set_led(uint32_t led,uint32_t color);
 
 #endif

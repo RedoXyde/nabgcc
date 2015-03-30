@@ -8,8 +8,8 @@
 /* Functions */
 /*************/
 void init_pwm(void);
-void run_motor(uchar number, uchar speed, uchar rotation);
-void stop_motor(uchar number);
-ushort get_motor_position(uchar number);
+void run_motor(uint8_t number, uint8_t speed, uint8_t rotation);
+void stop_motor(uint8_t number);
+uint16_t get_motor_position(uint8_t number);
 
 #endif

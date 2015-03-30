@@ -17,13 +17,13 @@
 
 #include"vbc_str.h"
 /*
-void displaybc(int off,int base)
+void displaybc(int32_t off,int32_t base)
 {
-	int v;
-	char *p=bytecode+off;
-	char* spaces="         ";
-	int ind=off;
-	int i=*p;
+	int32_t v;
+	uint8_t *p=bytecode+off;
+	uint8_t * spaces="         ";
+	int32_t ind=off;
+	int32_t i=*p;
 	printf("%4d]",base);
 	if ((i<0)||(i>=MaxOpcode)) printf("%4d   ??\n",ind);
 	else if ((i==OPint))
@@ -60,9 +60,9 @@ void displaybc(int off,int base)
 */
 
 // test si dernier appel ?
-int TFCtest(int p,int pbase)
+int32_t TFCtest(int32_t p,int32_t pbase)
 {
-	int i;
+	int32_t i;
 	while(bytecode[p]!=OPret)
 	{
 		if (bytecode[p]==OPgoto)
@@ -77,8 +77,8 @@ int TFCtest(int p,int pbase)
 }
 
 
-int currentop=-1;
-int tron=0;
+int32_t currentop=-1;
+int32_t tron=0;
 
 // execute une fonction
 // la pile doit contenir la liste d'argument, puis la fonction
@@ -86,19 +86,19 @@ int tron=0;
 // on distingue le cas selon le fait que la valeur empilée est un pointeur ou un entier
 void interpGo()
 {
-	int pc=-1;
-	int pcbase=-1;
-	int callstack=1;
-	int callstackres=1;
-	int op=OPexec;
-	int cont;
+	int32_t pc=-1;
+	int32_t pcbase=-1;
+	int32_t callstack=1;
+	int32_t callstackres=1;
+	int32_t op=OPexec;
+	int32_t cont;
 	if (tron)
 	{
 		consolestr("go:");
 		consoleint(VSTACKGET(0));consolestr(".");
 		consoleint(vmem_stack);consolestr("/");
 	}
-	
+
 	if (vmem_broken) return;
 	while(1)
 	{
@@ -123,7 +123,7 @@ void interpGo()
 			{
 			case OPexec:
 				{
-					int p,npc,narg,nloc,i,fun;
+					int32_t p,npc,narg,nloc,i,fun;
 					p=VSTACKGET(0);
 					if (ISVALPNT(p))
 					{
@@ -138,7 +138,7 @@ void interpGo()
 						//					VPULL();
 					}
 					else fun=VALTOINT(p);
-					VPULL();
+					(void)VPULL();
 					if (fun<0)
 					{
 						op=-fun;
@@ -149,12 +149,12 @@ void interpGo()
 					narg=bytecode[npc];
 					nloc=loaderGetShort(bytecode+npc+1);
 					npc+=3;
-					
+
 					if (callstack<=0)
 					{
 						if (TFCtest(pc,pcbase))
 						{
-							int ncall;
+							int32_t ncall;
 							pc=VALTOINT(VCALLSTACKGET(callstackres,-3));
 							pcbase=VALTOINT(VCALLSTACKGET(callstackres,-2));
 							ncall=VALTOINT(VCALLSTACKGET(callstackres,-1));
@@ -164,7 +164,7 @@ void interpGo()
 							callstack=ncall;
 						}
 					}
-					
+
 					for(i=0;i<nloc;i++)VPUSH(NIL);
 					VPUSH(INTTOVAL(pc));
 					VPUSH(INTTOVAL(pcbase));
@@ -177,7 +177,7 @@ void interpGo()
 				break;
 			case OPret:
 				{
-					int ncall;
+					int32_t ncall;
 					pc=VALTOINT(VSTACKGET(4));
 					pcbase=VALTOINT(VSTACKGET(3));
 					ncall=VALTOINT(VSTACKGET(2));
@@ -304,15 +304,15 @@ void interpGo()
 				break;
 			case OPfetchb:
 				{
-					int i=255&bytecode[pc++];
-					int p=VSTACKGET(0);
+					int32_t i=255&bytecode[pc++];
+					int32_t p=VSTACKGET(0);
 					if (p!=NIL) VSTACKSET(0,VFETCH(VALTOPNT(p),i));
 				}
 				break;
 			case OPfetch:
 				{
-					int i=VPULL();
-					int p=VSTACKGET(0);
+					int32_t i=VPULL();
+					int32_t p=VSTACKGET(0);
 					if ((p==NIL)||(i==NIL)) VSTACKSET(0,NIL);
 					else
 					{
@@ -340,20 +340,20 @@ void interpGo()
 				break;
 			case OPsetlocal:
 				{
-					int v=VALTOINT(VPULL());
+					int32_t v=VALTOINT(VPULL());
 					VCALLSTACKSET(callstack,v,VPULL());
 				}
 				break;
 			case OPsetglobal:
 				VCALLSTACKSET(global_start,VALTOINT(VSTACKGET(1)),VSTACKGET(0));
 				VSTACKSET(1,VSTACKGET(0));
-				VPULL();
+				(void)VPULL();
 				break;
 			case OPsetstructb:
 				{
-					int i=255&bytecode[pc++];
-					int v=VPULL();
-					int p=VSTACKGET(0);
+					int32_t i=255&bytecode[pc++];
+					int32_t v=VPULL();
+					int32_t p=VSTACKGET(0);
 					if ((p!=NIL)&&(i!=NIL))
 					{
 						p=VALTOPNT(p);
@@ -363,9 +363,9 @@ void interpGo()
 				break;
 			case OPsetstruct:
 				{
-					int i=VPULL();
-					int v=VPULL();
-					int p=VSTACKGET(0);
+					int32_t i=VPULL();
+					int32_t v=VPULL();
+					int32_t p=VSTACKGET(0);
 					if ((p!=NIL)&&(i!=NIL))
 					{
 						i=VALTOINT(i);
@@ -376,26 +376,26 @@ void interpGo()
 				break;
 			case OPhd:
 				{
-					int p=VSTACKGET(0);
+					int32_t p=VSTACKGET(0);
 					if (p!=NIL) VSTACKSET(0,VFETCH(VALTOPNT(p),0));
 				}
 				break;
 			case OPtl:
 				{
-					int p=VSTACKGET(0);
+					int32_t p=VSTACKGET(0);
 					if (p!=NIL) VSTACKSET(0,VFETCH(VALTOPNT(p),1));
 				}
 				break;
 			case OPsetlocal2:
 				VCALLSTACKSET(callstack,VALTOINT(VSTACKGET(1)),VSTACKGET(0));
 				VSTACKSET(1,VSTACKGET(0));
-				VPULL();
+				(void)VPULL();
 				break;
 			case OPstore:
 				{
-					int v=VPULL();
-					int i=VPULL();
-					int p=VSTACKGET(0);
+					int32_t v=VPULL();
+					int32_t i=VPULL();
+					int32_t p=VSTACKGET(0);
 					if ((p!=NIL)&&(i!=NIL))
 					{
 						i=VALTOINT(i);
@@ -407,20 +407,20 @@ void interpGo()
 				break;
 			case OPcall:
 				{
-					int p=VSTACKGET(0);
+					int32_t p=VSTACKGET(0);
 					if (p==NIL)
 					{
 						VSTACKSET(1,NIL);
-						VPULL();
+						(void)VPULL();
 					}
 					else
 					{
-						int n;
+						int32_t n;
 						n=VSIZE(VALTOPNT(p));
-						if (n==0) VPULL();
+						if (n==0) (void)VPULL();
 						else
 						{
-							int i;
+							int32_t i;
 							for(i=1;i<n;i++) VPUSH(NIL);
 							p=VALTOPNT(VSTACKGET(n-1));
 							for(i=0;i<n;i++) VSTACKSET(n-1-i,VFETCH(p,i));
@@ -433,12 +433,12 @@ void interpGo()
 				break;
 			case OPcallrb:
 				{
-					int n=255&bytecode[pc++];
-					int valn=VSTACKGET(n);
+					int32_t n=255&bytecode[pc++];
+					int32_t valn=VSTACKGET(n);
 					if (valn==NIL) VDROPN(n);
 					else
 					{
-						int i;
+						int32_t i;
 						for(i=n;i>0;i--) VSTACKSET(i,VSTACKGET(i-1));
 						VSTACKSET(0,valn);
 						op=OPexec;
@@ -448,12 +448,12 @@ void interpGo()
 				break;
 			case OPcallr:
 				{
-					int n=VALTOINT(VPULL());
-					int valn=VSTACKGET(n);
+					int32_t n=VALTOINT(VPULL());
+					int32_t valn=VSTACKGET(n);
 					if (valn==NIL) VDROPN(n);
 					else
 					{
-						int i;
+						int32_t i;
 						for(i=n;i>0;i--) VSTACKSET(i,VSTACKGET(i-1));
 						VSTACKSET(0,valn);
 						op=OPexec;
@@ -463,7 +463,7 @@ void interpGo()
 				break;
 			case OPfirst:
 				{
-					int p=VSTACKGET(0);
+					int32_t p=VSTACKGET(0);
 					if (p!=NIL) VPUSH(VFETCH(VALTOPNT(p),0));
 					else VPUSH(NIL);
 				}
@@ -473,11 +473,11 @@ void interpGo()
 				break;
 			case OPtabnew:
 				{
-					int v=VPULL();
+					int32_t v=VPULL();
 					if (v==NIL) VSTACKSET(0,NIL);
 					else
 					{
-						int p,i,v0;
+						int32_t p,i,v0;
 						v=VALTOINT(v);
 						p=VMALLOC(v);
 						v0=VSTACKGET(0);
@@ -488,8 +488,8 @@ void interpGo()
 				break;
 			case OPfixarg:
 				{
-					int v=VSTACKGET(1);
-					if (v==NIL) VPULL();
+					int32_t v=VSTACKGET(1);
+					if (v==NIL) (void)VPULL();
 					else
 					{
 						if (ISVALPNT(v))
@@ -505,22 +505,22 @@ void interpGo()
 				break;
 			case OPabs:
 				{
-					int v=VALTOINT(VSTACKGET(0));
+					int32_t v=VALTOINT(VSTACKGET(0));
 					if (v<0) v=-v;
 					VSTACKSET(0,INTTOVAL(v));
 				}
 				break;
 			case OPmax:
 				{
-					int v=VALTOINT(VPULL());
-					int w=VALTOINT(VSTACKGET(0));
+					int32_t v=VALTOINT(VPULL());
+					int32_t w=VALTOINT(VSTACKGET(0));
 					VSTACKSET(0,INTTOVAL(v<w?w:v));
 				}
 				break;
 			case OPmin:
 				{
-					int v=VALTOINT(VPULL());
-					int w=VALTOINT(VSTACKGET(0));
+					int32_t v=VALTOINT(VPULL());
+					int32_t w=VALTOINT(VSTACKGET(0));
 					VSTACKSET(0,INTTOVAL(v>w?w:v));
 				}
 				break;
@@ -535,27 +535,27 @@ void interpGo()
 				break;
 			case OPstrnew:
 				{
-					int n=VALTOINT(VSTACKGET(0));
+					int32_t n=VALTOINT(VSTACKGET(0));
 					if (n<0) VSTACKSET(0,NIL);
 					else VSTACKSET(0,PNTTOVAL(VMALLOCBIN(n)));
 				}
 				break;
 			case OPstrset:
 				{
-					int v=VALTOINT(VPULL());
-					int n=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t v=VALTOINT(VPULL());
+					int32_t n=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(n>=0)&&(n<VSIZEBIN(p)))
 						(VSTARTBIN(p))[n]=v;
 				}
 				break;
 			case OPstrcpy:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -565,11 +565,11 @@ void interpGo()
 				break;
 			case OPvstrcmp:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL)
@@ -585,11 +585,11 @@ void interpGo()
 				break;
 			case OPstrfind:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -600,11 +600,11 @@ void interpGo()
 				break;
 			case OPstrfindrev:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VPULL();
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VPULL();
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -616,14 +616,14 @@ void interpGo()
 				break;
 			case OPstrlen:
 				{
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if (p!=NIL) VSTACKSET(0,INTTOVAL(VSIZEBIN(p)));
 				}
 				break;
 			case OPstrget:
 				{
-					int n=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t n=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p==NIL)||(n<0)||(n>=VSIZEBIN(p))) VSTACKSET(0,NIL);
 					else VSTACKSET(0,INTTOVAL(((VSTARTBIN(p))[n]&255)));
 				}
@@ -631,16 +631,16 @@ void interpGo()
 			case OPstrsub:
 				//				vmemDump();
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VSTACKGET(0));
 					if (q!=NIL)
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
 						if (start+len>VSIZEBIN(q)) len=VSIZEBIN(q)-start;
 						if ((start>=0)&&(len>=0))
 						{
-							int p=VMALLOCBIN(len);
+							int32_t p=VMALLOCBIN(len);
 							mystrcpy(VSTARTBIN(p),VSTARTBIN(VALTOPNT(VSTACKGET(0)))+start,len);
 							VSTACKSET(0,PNTTOVAL(p));
 						}
@@ -652,10 +652,10 @@ void interpGo()
 				break;
 			case OPstrcat:
 				{
-					int r;
-					int len=0;
-					int q=VALTOPNT(VSTACKGET(0));
-					int p=VALTOPNT(VSTACKGET(1));
+					int32_t r;
+					int32_t len=0;
+					int32_t q=VALTOPNT(VSTACKGET(0));
+					int32_t p=VALTOPNT(VSTACKGET(1));
 					if (p!=NIL) len+=VSIZEBIN(p);
 					if (q!=NIL) len+=VSIZEBIN(q);
 					r=VMALLOCBIN(len);
@@ -673,15 +673,15 @@ void interpGo()
 				break;
 			case OPtablen:
 				{
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if (p!=NIL) VSTACKSET(0,INTTOVAL(VSIZE(p)));
 				}
 				break;
 			case OPstrcatlist:
 				{
-					int r,q;
-					int len=0;
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t r,q;
+					int32_t len=0;
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					while(p!=NIL)
 					{
 						q=VALTOPNT(VFETCH(p,0));
@@ -707,11 +707,11 @@ void interpGo()
 				break;
 			case OPled:
 				sysLed(VALTOINT(VSTACKGET(1)),VALTOINT(VSTACKGET(0)));
-				VPULL();
+				(void)VPULL();
 				break;
 			case OPmotorset:
 				sysMotorset(VALTOINT(VSTACKGET(1)),VALTOINT(VSTACKGET(0)));
-				VPULL();
+				(void)VPULL();
 				break;
 			case OPmotorget:
 				VSTACKSET(0,INTTOVAL(sysMotorget(VALTOINT(VSTACKGET(0)))));
@@ -724,7 +724,7 @@ void interpGo()
 				break;
 			case OPplayStart:
 				{
-					int k;
+					int32_t k;
                                         VCALLSTACKSET(sys_start,SYS_CBPLAY,VPULL());
                                         k=VALTOINT(VPULL());
 					VPUSH(INTTOVAL(0));
@@ -733,9 +733,9 @@ void interpGo()
 				break;
 			case OPplayFeed:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VSTACKGET(0));
 					if (q!=NIL)
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -760,7 +760,7 @@ void interpGo()
 				break;
 			case OPrecStart:
 				{
-					int freq,gain;
+					int32_t freq,gain;
 					VCALLSTACKSET(sys_start,SYS_CBREC,VPULL());
 					gain=VALTOINT(VPULL());
 					freq=VALTOINT(VPULL());
@@ -774,21 +774,21 @@ void interpGo()
 				break;
 			case OPrecVol:
 				{
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VSTACKGET(0));
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VSTACKGET(0));
 					if (q!=NIL)
 					{
-						VSTACKSET(0,INTTOVAL(audioRecVol((unsigned char*)VSTARTBIN(q),VSIZEBIN(q),start)));
+						VSTACKSET(0,INTTOVAL(audioRecVol((uint8_t *)VSTARTBIN(q),VSIZEBIN(q),start)));
 					}
 				}
 				break;
 			case OPload:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(p)-index; else len=VALTOINT(len);
@@ -804,11 +804,11 @@ void interpGo()
 				break;
 			case OPsave:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(p)-index; else len=VALTOINT(len);
@@ -822,9 +822,9 @@ void interpGo()
 				consolestr("#################### OPbytecode"ENDLINE);
 				if (VSTACKGET(0)!=NIL)
 				{
-					char* q;
-					int env=-1;
-					int p=VALTOPNT(VCALLSTACKGET(sys_start,SYS_ENV));
+					uint8_t* q;
+					int32_t env=-1;
+					int32_t p=VALTOPNT(VCALLSTACKGET(sys_start,SYS_ENV));
 					audioPlayStop();
 					audioRecStop();
 					if (p!=NIL)
@@ -832,13 +832,13 @@ void interpGo()
 						env=VSIZEBIN(p);
 						memcpy(audioFifoPlay,VSTARTBIN(p),env);
 					}
-					
+
 					q=VSTARTBIN(VALTOPNT(VSTACKGET(0)));
 					//                                        dump(q+0x2df0,128);
-					
+
 					loaderInit(q);
 					//                          dump(&bytecode[0x2440],32);
-					
+
 					if (env>=0)
 					{
 						//                                          dump(audioFifoPlay,env);
@@ -871,31 +871,31 @@ void interpGo()
 				break;
 			case OPudpSend:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int dstport=VALTOINT(VPULL());
-					int p=VALTOPNT(VPULL());
-					int localport=VALTOINT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t dstport=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VPULL());
+					int32_t localport=VALTOINT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
 						if (start+len>VSIZEBIN(q)) len=VSIZEBIN(q)-start;
 						if ((start>=0)&&(len>=0))
 						{
-							int k=udpsend(localport,VSTARTBIN(p),dstport,VSTARTBIN(q)+start,len);
+							int32_t k=udpsend(localport,VSTARTBIN(p),dstport,VSTARTBIN(q)+start,len);
 							VSTACKSET(0,INTTOVAL(k));
 						}
 						else VSTACKSET(0,NIL);
 					}
 					else VSTACKSET(0,NIL);
-					
+
 				}
 				break;
 			case OPtcpOpen:
 				{
-					int port=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t port=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if (p!=NIL) VSTACKSET(0,INTTOVAL(tcpopen(VSTARTBIN(p),port)));
 				}
 				break;
@@ -904,10 +904,10 @@ void interpGo()
 				break;
 			case OPtcpSend:
 				{
-					int len=VPULL();
-					int start=VPULL();
-					int q=VALTOPNT(VPULL());
-					int tcp=VALTOINT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VPULL();
+					int32_t q=VALTOPNT(VPULL());
+					int32_t tcp=VALTOINT(VSTACKGET(0));
 					if (start==NIL) start=0;
 					else start=VALTOINT(start);
 					if (q!=NIL)
@@ -916,7 +916,7 @@ void interpGo()
 						if (start+len>VSIZEBIN(q)) len=VSIZEBIN(q)-start;
 						if ((start>=0)&&(len>=0))
 						{
-							int k;
+							int32_t k;
 							k=tcpsend(tcp,VSTARTBIN(q)+start,len);
 							if (k>=0) start+=k;
 							VSTACKSET(0,INTTOVAL(start));
@@ -931,13 +931,13 @@ void interpGo()
 				break;
 			case OPtcpListen:
 				{
-					int port=VALTOINT(VSTACKGET(0));
+					int32_t port=VALTOINT(VSTACKGET(0));
 					VSTACKSET(0,INTTOVAL(tcpservercreate(port)));
 				}
 				break;
 			case OPtcpEnable:
 				{
-					int enable=VALTOINT(VPULL());
+					int32_t enable=VALTOINT(VPULL());
 					tcpenable(VALTOINT(VSTACKGET(0)),enable);
 				}
 				break;
@@ -960,7 +960,7 @@ void interpGo()
 				break;
 			case OPrfidGet:
 				{
-					char *p;
+					uint8_t *p;
 					p=sysRfidget();
 					if (!p) VPUSH(NIL);
 					else VPUSH(PNTTOVAL(VMALLOCSTR(p,8)));
@@ -974,12 +974,12 @@ void interpGo()
 				break;
             case OPnetSend:
 				{
-					int speed=VALTOINT(VPULL());
-					int indmac=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int len=VPULL();
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t speed=VALTOINT(VPULL());
+					int32_t indmac=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t len=VPULL();
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(p)-index; else len=VALTOINT(len);
@@ -996,10 +996,10 @@ void interpGo()
 				break;
 			case OPnetChk:
 				{
-					int val=VALTOINT(VPULL());
-					int len=VPULL();
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t val=VALTOINT(VPULL());
+					int32_t len=VPULL();
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if (p!=NIL)
 					{
 						if (len==NIL) len=VSIZEBIN(p)-index; else len=VALTOINT(len);
@@ -1010,33 +1010,33 @@ void interpGo()
 				break;
 			case OPnetSetmode:
 				{
-					int chn=VALTOINT(VPULL());
-					int p=VALTOPNT(VPULL());
-					int md=VALTOINT(VSTACKGET(0));
-					char* ssid=(p==NIL)?NULL:VSTARTBIN(p);
+					int32_t chn=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VPULL());
+					int32_t md=VALTOINT(VSTACKGET(0));
+					uint8_t * ssid=(p==NIL)?NULL:VSTARTBIN(p);
 					netSetmode(md,ssid,chn);
 				}
 				break;
 			case OPnetScan:
 				{
-					int p=VALTOPNT(VPULL());
-					char* ssid=(p==NIL)?NULL:VSTARTBIN(p);
+					int32_t p=VALTOPNT(VPULL());
+					uint8_t * ssid=(p==NIL)?NULL:VSTARTBIN(p);
 					netScan(ssid);
 				}
 				break;
 			case OPnetAuth:
 				{
-					int key=VALTOPNT(VPULL());
-					int encrypt=VALTOINT(VPULL());
-					int authmode=VALTOINT(VPULL());
-					int scan=VALTOPNT(VSTACKGET(0));
+					int32_t key=VALTOPNT(VPULL());
+					int32_t encrypt=VALTOINT(VPULL());
+					int32_t authmode=VALTOINT(VPULL());
+					int32_t scan=VALTOPNT(VSTACKGET(0));
 					if (scan!=NIL)
 					{
-						int ssid=VALTOPNT(VFETCH(scan,0));
-						int mac=VALTOPNT(VFETCH(scan,1));
-						int bssid=VALTOPNT(VFETCH(scan,2));
-						int chn=VALTOINT(VFETCH(scan,4));
-						int rate=VALTOINT(VFETCH(scan,5));
+						int32_t ssid=VALTOPNT(VFETCH(scan,0));
+						int32_t mac=VALTOPNT(VFETCH(scan,1));
+						int32_t bssid=VALTOPNT(VFETCH(scan,2));
+						int32_t chn=VALTOINT(VFETCH(scan,4));
+						int32_t rate=VALTOINT(VFETCH(scan,5));
 						if ((mac!=NIL)&&(bssid!=NIL))
 						{
 							netAuth((ssid==NIL)?NULL:VSTARTBIN(ssid),VSTARTBIN(mac),
@@ -1048,36 +1048,36 @@ void interpGo()
 				break;
 			case OPnetSeqAdd:
 				{
-					int inc=VALTOINT(VPULL());
-					int seq=VALTOPNT(VPULL());
+					int32_t inc=VALTOINT(VPULL());
+					int32_t seq=VALTOPNT(VPULL());
 					if ((seq==NIL)||(VSIZEBIN(seq)<4)) VPUSH(NIL);
-					else netSeqAdd((unsigned char*)VSTARTBIN(seq),inc);
+					else netSeqAdd((uint8_t *)VSTARTBIN(seq),inc);
 				}
 				break;
 			case OPstrgetword:
 				{
-					int ind=VALTOINT(VPULL());
-					int src=VALTOPNT(VSTACKGET(0));
-					if (src!=NIL) VSTACKSET(0,INTTOVAL(sysStrgetword((unsigned char*)VSTARTBIN(src),VSIZEBIN(src),ind)));
+					int32_t ind=VALTOINT(VPULL());
+					int32_t src=VALTOPNT(VSTACKGET(0));
+					if (src!=NIL) VSTACKSET(0,INTTOVAL(sysStrgetword((uint8_t *)VSTARTBIN(src),VSIZEBIN(src),ind)));
 				}
 				break;
 			case OPstrputword:
 				{
-					int val=VALTOINT(VPULL());
-					int ind=VALTOINT(VPULL());
-					int src=VALTOPNT(VSTACKGET(0));
-					if (src!=NIL) sysStrputword((unsigned char*)VSTARTBIN(src),VSIZEBIN(src),ind,val);
+					int32_t val=VALTOINT(VPULL());
+					int32_t ind=VALTOINT(VPULL());
+					int32_t src=VALTOPNT(VSTACKGET(0));
+					if (src!=NIL) sysStrputword((uint8_t *)VSTARTBIN(src),VSIZEBIN(src),ind,val);
 				}
 				break;
 			case OPatoi:
 				{
-					int src=VALTOPNT(VSTACKGET(0));
+					int32_t src=VALTOPNT(VSTACKGET(0));
 					if (src!=NIL) VSTACKSET(0,INTTOVAL(sysAtoi(VSTARTBIN(src))));
 				}
 				break;
 			case OPhtoi:
 				{
-					int src=VALTOPNT(VSTACKGET(0));
+					int32_t src=VALTOPNT(VSTACKGET(0));
 					if (src!=NIL)
 					{
 						VSTACKSET(0,INTTOVAL(sysHtoi(VSTARTBIN(src))));
@@ -1089,7 +1089,7 @@ void interpGo()
 				break;
 			case OPctoa:
 				{
-					int val=VALTOINT(VPULL());
+					int32_t val=VALTOINT(VPULL());
 					sysCtoa(val);
 				}
 				break;
@@ -1104,15 +1104,15 @@ void interpGo()
 				break;
 			case OPlistswitch:
 				{
-					int key=VPULL();
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t key=VPULL();
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					VSTACKSET(0,sysListswitch(p,key));
 				}
 				break;
 			case OPlistswitchstr:
 				{
-					int key=VPULL();
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t key=VPULL();
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if (key==NIL) VSTACKSET(0,sysListswitch(p,key));
 					else VSTACKSET(0,sysListswitchstr(p,VSTARTBIN(VALTOPNT(key))));
 				}
@@ -1123,7 +1123,7 @@ void interpGo()
 				break;
 			case OPsndWrite:
 				{
-					int val=VALTOINT(VPULL());
+					int32_t val=VALTOINT(VPULL());
 					audioWrite(VALTOINT(VSTACKGET(0)),val);
 				}
 				break;
@@ -1132,9 +1132,9 @@ void interpGo()
 				break;
 			case OPsndFeed:
 				{
-					int len=VPULL();
-					int start=VPULL();
-					int q=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VPULL();
+					int32_t q=VALTOPNT(VSTACKGET(0));
 					if (start==NIL) start=0;
 					else start=VALTOINT(start);
 					if (q!=NIL)
@@ -1143,7 +1143,7 @@ void interpGo()
 						if (start+len>VSIZEBIN(q)) len=VSIZEBIN(q)-start;
 						if ((start>=0)&&(len>=0))
 						{
-							int k=audioFeed(VSTARTBIN(q)+start,len);
+							int32_t k=audioFeed(VSTARTBIN(q)+start,len);
 							VSTACKSET(0,INTTOVAL(k));
 						}
 						else VSTACKSET(0,NIL);
@@ -1162,18 +1162,18 @@ void interpGo()
 				break;
 			case OPcorePull:
 				VSTACKSET(1,VSTACKGET(0));
-				VPULL();
+				(void)VPULL();
 				break;
 			case OPcoreBit0:
 				{
-					int v=VALTOINT(VPULL());
+					int32_t v=VALTOINT(VPULL());
 					VSTACKSET(0,(VSTACKGET(0)&0xfffffffe)|(v&1));
 				}
 				break;
 			case OPreboot:
 				{
-					int w=VALTOINT(VPULL());
-					int v=VALTOINT(VSTACKGET(0));
+					int32_t w=VALTOINT(VPULL());
+					int32_t v=VALTOINT(VSTACKGET(0));
 					consolestr("reboot ");
 					consolehx(v);
 					consolestr(".");
@@ -1188,12 +1188,12 @@ void interpGo()
 				break;
 			case OPstrcmp:
 				{
-					int q=VALTOPNT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t q=VALTOPNT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
-						int pl=VSIZEBIN(p);
-						int ql=VSIZEBIN(q);
+						int32_t pl=VSIZEBIN(p);
+						int32_t ql=VSIZEBIN(q);
 
 						VSTACKSET(0,INTTOVAL(memcmp(VSTARTBIN(p),VSTARTBIN(q),(pl>ql)?pl:ql)));
 					}
@@ -1202,11 +1202,11 @@ void interpGo()
 				break;
 			case OPadp2wav:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -1216,11 +1216,11 @@ void interpGo()
 				break;
 			case OPwav2adp:
 				{
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -1230,12 +1230,12 @@ void interpGo()
 				break;
 			case OPalaw2wav:
 				{
-					int mu=VALTOINT(VPULL());
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t mu=VALTOINT(VPULL());
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -1245,12 +1245,12 @@ void interpGo()
 				break;
 			case OPwav2alaw:
 				{
-					int mu=VALTOINT(VPULL());
-					int len=VPULL();
-					int start=VALTOINT(VPULL());
-					int q=VALTOPNT(VPULL());
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t mu=VALTOINT(VPULL());
+					int32_t len=VPULL();
+					int32_t start=VALTOINT(VPULL());
+					int32_t q=VALTOPNT(VPULL());
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if ((p!=NIL)&&(q!=NIL))
 					{
 						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
@@ -1260,12 +1260,12 @@ void interpGo()
 				break;
 			case OPnetPmk:
 				{
-					int key=VALTOPNT(VPULL());
-					int ssid=VALTOPNT(VPULL());
+					int32_t key=VALTOPNT(VPULL());
+					int32_t ssid=VALTOPNT(VPULL());
 					if ((key==NIL)||(ssid==NIL)) VPUSH(NIL);
 					else
 					{
-						char pmk[32];
+						uint8_t pmk[32];
 						netPmk(VSTARTBIN(ssid),VSTARTBIN(key),pmk);
 						VPUSH(PNTTOVAL(VMALLOCSTR(pmk,32)));
 					}
@@ -1273,9 +1273,9 @@ void interpGo()
 				break;
 			case OPflashFirmware:
 				{
-					int w=VALTOINT(VPULL());
-					int v=VALTOINT(VPULL());
-					int firmware=VALTOPNT(VSTACKGET(0));
+					int32_t w=VALTOINT(VPULL());
+					int32_t v=VALTOINT(VPULL());
+					int32_t firmware=VALTOPNT(VSTACKGET(0));
 					consolestr("flash firmware ");
 					consolehx(v);
 					consolestr(".");
@@ -1290,11 +1290,11 @@ void interpGo()
 				break;
 			case OPcrypt:
 				{
-					int alpha=VALTOINT(VPULL());
-					int key=VALTOINT(VPULL());
-					int len=VPULL();
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t alpha=VALTOINT(VPULL());
+					int32_t key=VALTOINT(VPULL());
+					int32_t len=VPULL();
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if (p!=NIL)
 					{
 						if (len==NIL) len=VSIZEBIN(p)-index; else len=VALTOINT(len);
@@ -1305,11 +1305,11 @@ void interpGo()
 				break;
 			case OPuncrypt:
 				{
-					int alpha=VALTOINT(VPULL());
-					int key=VALTOINT(VPULL());
-					int len=VPULL();
-					int index=VALTOINT(VPULL());
-					int p=VALTOPNT(VSTACKGET(0));
+					int32_t alpha=VALTOINT(VPULL());
+					int32_t key=VALTOINT(VPULL());
+					int32_t len=VPULL();
+					int32_t index=VALTOINT(VPULL());
+					int32_t p=VALTOPNT(VSTACKGET(0));
 					if (p!=NIL)
 					{
 						if (len==NIL) len=VSIZEBIN(p)-index; else len=VALTOINT(len);
@@ -1326,8 +1326,8 @@ void interpGo()
 				break;
 			case OPrfidRead:
 			  {
-				int bloc=VALTOINT(VPULL());
-				int p=VALTOPNT(VPULL());
+				int32_t bloc=VALTOINT(VPULL());
+				int32_t p=VALTOPNT(VPULL());
 				if (p!=NIL)
 				{
 				  sysRfidread(VSTARTBIN(p),bloc);
@@ -1337,9 +1337,9 @@ void interpGo()
 			  break;
 			case OPrfidWrite:
 			  {
-				int q=VALTOPNT(VPULL());
-				int bloc=VALTOINT(VPULL());
-				int p=VALTOPNT(VPULL());
+				int32_t q=VALTOPNT(VPULL());
+				int32_t bloc=VALTOINT(VPULL());
+				int32_t p=VALTOPNT(VPULL());
 				if ((p!=NIL)&&(q!=NIL))
 				{
 				  VPUSH(INTTOVAL(sysRfidwrite(VSTARTBIN(p),bloc,VSTARTBIN(q))));
@@ -1349,17 +1349,17 @@ void interpGo()
 			  break;
 			case OPi2cRead:
 			{ // Lecture à partir d'un périphérique I2C
-                          int val2 = VALTOINT(VPULL()); // Taille de lecture
-                          unsigned char val1 = VALTOINT(VPULL()); // Adresse du lapin
+                          int32_t val2 = VALTOINT(VPULL()); // Taille de lecture
+                          uint8_t val1 = VALTOINT(VPULL()); // Adresse du lapin
                           sysI2cRead(val1, val2);
 			}
 			break;
 			case OPi2cWrite:
 			{ // Ecriture sur un périphérique I2C
-                          int val3=VALTOINT(VPULL());  // Taille du buffer
-                          int val2=VALTOPNT(VPULL());  // Buffer à écrire
-                          unsigned char val1=VALTOINT(VPULL()); // Adresse du périphérique
-                          sysI2cWrite(val1, (unsigned char*)VSTARTBIN(val2), val3);
+                          int32_t val3=VALTOINT(VPULL());  // Taille du buffer
+                          int32_t val2=VALTOPNT(VPULL());  // Buffer à écrire
+                          uint8_t val1=VALTOINT(VPULL()); // Adresse du périphérique
+                          sysI2cWrite(val1, (uint8_t *)VSTARTBIN(val2), val3);
 			}
 			break;
 			default:
@@ -1381,7 +1381,7 @@ void interpGo()
 			{
 				//			vmemDumpStack();
 				//			displaybc(pc);
-				
+
 				//			getchar();
 			}
 			op=255&bytecode[pc++];

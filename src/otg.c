@@ -39,15 +39,16 @@
 
 
 /*グローバル変数*/
-int usbctrl_otg_state = OTG_DISABLE;/* 現在のOTGステートを保持する */
-BIT32 usbctrl_otg_status = 0;		/* OTGステート制御フラグを保持する */
-//static int otg_tmr_ch = 0;			/* OTG制御で使用しているタイマ番号 */
-int usbctrl_otg_message = 0; 		/* OTGメッセージ番号 */
+int32_t usbctrl_otg_state = OTG_DISABLE;/* 現在のOTGステートを保持する */
+BIT32 usbctrl_otg_status;
+//~ usbctrl_otg_status.word = 0;
+//static int32_t otg_tmr_ch = 0;			/* OTG制御で使用しているタイマ番号 */
+int32_t usbctrl_otg_message = 0; 		/* OTGメッセージ番号 */
 
 /*プロトタイプ宣言*/
 //static void usbctrl_otg_sess_chk(int);
 
-extern UBYTE dummy_buffer[100];
+extern uint8_t dummy_buffer[100];
 
 /******************************************************************************/
 /*OTGステート制御フラグ定義*/
@@ -87,12 +88,12 @@ extern UBYTE dummy_buffer[100];
 
 /*******************************************************************************
     Routine Name    ：usbctrl_otg_get_state
-    Form            ：int usbctrl_otg_get_state(void);
+    Form            ：int32_t usbctrl_otg_get_state(void);
     Parameters      ：
     Return value    ：
     Description     ：OTGステート番号を返す。
 *******************************************************************************/
-int usbctrl_otg_get_state(void)
+int32_t usbctrl_otg_get_state(void)
 {
 	return usbctrl_otg_state;
 }

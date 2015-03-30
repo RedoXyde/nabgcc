@@ -23,39 +23,39 @@
 #include "rt2501usb_internal.h"
 #include "rt2501usb.h"
 
-const unsigned char ieee80211_broadcast_address[IEEE80211_ADDR_LEN] =
+const uint8_t ieee80211_broadcast_address[IEEE80211_ADDR_LEN] =
 { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-const unsigned char ieee80211_null_address[IEEE80211_ADDR_LEN] =
+const uint8_t ieee80211_null_address[IEEE80211_ADDR_LEN] =
 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-static const unsigned char ieee80211_vendor_wpa_id[] =
+static const uint8_t ieee80211_vendor_wpa_id[] =
 { 0x00, 0x50, 0xf2, 0x01, 0x01, 0x00 };
 
-static const unsigned char ieee80211_tkip_oui[IEEE80211_OUI_LEN] =
+static const uint8_t ieee80211_tkip_oui[IEEE80211_OUI_LEN] =
 { 0x00, 0x50, 0xf2, 0x02 };
 
-static const unsigned char ieee80211_psk_oui[IEEE80211_OUI_LEN] =
+static const uint8_t ieee80211_psk_oui[IEEE80211_OUI_LEN] =
 { 0x00, 0x50, 0xf2, 0x02 };
 
-int ieee80211_mode;
-int ieee80211_state;
-unsigned int ieee80211_timeout;
+int32_t ieee80211_mode;
+int32_t ieee80211_state;
+uint32_t ieee80211_timeout;
 static rt2501_scan_callback ieee80211_scallback;
 static void *ieee80211_scallback_userparam;
 
-unsigned char ieee80211_assoc_mac[IEEE80211_ADDR_LEN];
-unsigned char ieee80211_assoc_bssid[IEEE80211_ADDR_LEN];
-char ieee80211_assoc_ssid[IEEE80211_SSID_MAXLEN+1];
-unsigned char ieee80211_assoc_channel;
-unsigned short int ieee80211_assoc_rateset;
+uint8_t ieee80211_assoc_mac[IEEE80211_ADDR_LEN];
+uint8_t ieee80211_assoc_bssid[IEEE80211_ADDR_LEN];
+uint8_t ieee80211_assoc_ssid[IEEE80211_SSID_MAXLEN+1];
+uint8_t ieee80211_assoc_channel;
+uint16_t ieee80211_assoc_rateset;
 
-static short int ieee80211_rssi_samples[RT2501_RSSI_SAMPLES];
-static short int ieee80211_rssi_sample_index;
-static short int ieee80211_rssi_average;
+static int16_t ieee80211_rssi_samples[RT2501_RSSI_SAMPLES];
+static int16_t ieee80211_rssi_sample_index;
+static int16_t ieee80211_rssi_average;
 
-unsigned char ieee80211_authmode;
-unsigned char ieee80211_encryption;
-unsigned char ieee80211_key[IEEE80211_MAX_KEYLEN];
+uint8_t ieee80211_authmode;
+uint8_t ieee80211_encryption;
+uint8_t ieee80211_key[IEEE80211_MAX_KEYLEN];
 
 
 static struct ieee80211_sta_state ieee80211_associated_sta[RT2501_MAX_ASSOCIATED_STA];
@@ -63,11 +63,11 @@ static struct ieee80211_sta_state ieee80211_associated_sta[RT2501_MAX_ASSOCIATED
 /* IEEE80211_RATEMASK_* */
 /* filled at auth with the lowest TX rate, updated according to RSSI when in RUN state and Managed mode */
 /* also filled when entering Master mode */
-static unsigned short int ieee80211_txrate;
+static uint16_t ieee80211_txrate;
 /* filled at auth and when entering Master mode, does not change */
-static unsigned short int ieee80211_lowest_txrate;
+static uint16_t ieee80211_lowest_txrate;
 
-static unsigned short int ieee80211_rate_to_mask(unsigned char rate)
+static uint16_t ieee80211_rate_to_mask(uint8_t rate)
 {
 	switch(rate) {
 		case 2:
@@ -78,7 +78,7 @@ static unsigned short int ieee80211_rate_to_mask(unsigned char rate)
 			return IEEE80211_RATEMASK_5_5;
 		case 22:
 			return IEEE80211_RATEMASK_11;
-			
+
 		case 12:
 			return IEEE80211_RATEMASK_6;
 		case 18:
@@ -106,7 +106,7 @@ static unsigned short int ieee80211_rate_to_mask(unsigned char rate)
 	}
 }
 
-static unsigned char ieee80211_mask_to_rate(unsigned short int mask)
+static uint8_t ieee80211_mask_to_rate(uint16_t mask)
 {
 	switch(mask) {
 		case IEEE80211_RATEMASK_1:
@@ -139,7 +139,7 @@ static unsigned char ieee80211_mask_to_rate(unsigned short int mask)
 	}
 }
 
-static unsigned char ieee80211_mask_to_rt2501rate(unsigned short int mask)
+static uint8_t ieee80211_mask_to_rt2501rate(uint16_t mask)
 {
 	switch(mask) {
 		case IEEE80211_RATEMASK_1:
@@ -167,9 +167,9 @@ static unsigned char ieee80211_mask_to_rt2501rate(unsigned short int mask)
 	}
 }
 
-static unsigned short int ieee80211_mask_to_rt2501mask(unsigned short ieee80211mask)
+static uint16_t ieee80211_mask_to_rt2501mask(unsigned short ieee80211mask)
 {
-	unsigned short int rt2501mask;
+	uint16_t rt2501mask;
 
 	rt2501mask = 0;
 	if(ieee80211mask & IEEE80211_RATEMASK_1) rt2501mask |= RT2501_RATEMASK_1;
@@ -188,7 +188,7 @@ static unsigned short int ieee80211_mask_to_rt2501mask(unsigned short ieee80211m
 	return rt2501mask;
 }
 
-static unsigned char ieee80211_crypt_to_rt2501cipher(unsigned char crypt)
+static uint8_t ieee80211_crypt_to_rt2501cipher(uint8_t crypt)
 {
 	switch(crypt) {
 		case IEEE80211_CRYPT_NONE:
@@ -205,9 +205,9 @@ static unsigned char ieee80211_crypt_to_rt2501cipher(unsigned char crypt)
 }
 
 /* IEEE80211_RATEMASK_* */
-static unsigned short int ieee80211_find_closest_rate(unsigned short int wanted_rate)
+static uint16_t ieee80211_find_closest_rate(uint16_t wanted_rate)
 {
-	unsigned short int i;
+	uint16_t i;
 
 	i = wanted_rate;
 	while(!(ieee80211_assoc_rateset & i) && (i != 1)) i = (i >> 1);
@@ -220,13 +220,13 @@ static unsigned short int ieee80211_find_closest_rate(unsigned short int wanted_
 	return i;
 }
 
-static void ieee80211_new_rssi_sample(short int rssi)
+static void ieee80211_new_rssi_sample(int16_t rssi)
 {
 	ieee80211_rssi_samples[ieee80211_rssi_sample_index++] = rssi;
 	if(ieee80211_rssi_sample_index == RT2501_RSSI_SAMPLES) {
-		unsigned int i;
-		int a;
-		unsigned short int wanted_txrate;
+		uint32_t i;
+		int32_t a;
+		uint16_t wanted_txrate;
 
 		a = 0;
 		for(i=0;i<RT2501_RSSI_SAMPLES;i++)
@@ -259,9 +259,9 @@ static void ieee80211_new_rssi_sample(short int rssi)
 	}
 }
 
-static int ieee80211_find_sta_slot_auth(unsigned char *sta_mac)
+static int32_t ieee80211_find_sta_slot_auth(uint8_t *sta_mac)
 {
-	int i;
+	int32_t i;
 
 	/*
 	Is the MAC address of the station already in the table ?
@@ -282,9 +282,9 @@ static int ieee80211_find_sta_slot_auth(unsigned char *sta_mac)
 	return -1;
 }
 
-static int ieee80211_find_sta_slot(unsigned char *sta_mac)
+static int32_t ieee80211_find_sta_slot(uint8_t *sta_mac)
 {
-	int i;
+	int32_t i;
 
 	for(i=0;i<RT2501_MAX_ASSOCIATED_STA;i++) {
 		if((ieee80211_associated_sta[i].state != IEEE80211_S_IDLE)
@@ -294,19 +294,19 @@ static int ieee80211_find_sta_slot(unsigned char *sta_mac)
 	return -1;
 }
 
-static void ieee80211_send_auth(unsigned char *destination_mac,
-				unsigned short int algorithm,
-				unsigned short int auth_seq,
-				unsigned short int status)
+static void ieee80211_send_auth(uint8_t *destination_mac,
+				uint16_t algorithm,
+				uint16_t auth_seq,
+				uint16_t status)
 {
 #pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
-	char auth[6];
+	uint8_t auth[6];
 	} *auth;
 #pragma pack()
-	unsigned short int duration;
+	uint16_t duration;
 
 #ifdef DEBUG_WIFI
 	sprintf(dbg_buffer, "Sending auth to %02x:%02x:%02x:%02x:%02x:%02x, status %d\r\n",
@@ -361,22 +361,24 @@ static void ieee80211_send_auth(unsigned char *destination_mac,
 				 );
 
 	if(!rt2501_tx(auth, sizeof(*auth)))
+  {
 		DBG_WIFI("TX error in ieee80211_send_auth\r\n");
+  }
 }
 
-static void ieee80211_send_assocresp(unsigned char *sta_mac, unsigned short int status,
-				     unsigned short int assoc_id)
+static void ieee80211_send_assocresp(uint8_t *sta_mac, uint16_t status,
+				     uint16_t assoc_id)
 {
 #pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
-	char assoc[6+2+8+2+4];
+	uint8_t assoc[6+2+8+2+4];
 	} *assoc;
 #pragma pack()
-	char *write_ptr;
-	unsigned int frame_length;
-	unsigned short int duration;
+	uint8_t *write_ptr;
+	uint32_t frame_length;
+	uint16_t duration;
 
 #ifdef DEBUG_WIFI
 	sprintf(dbg_buffer, "Sending assoc reply, status %d\r\n", status);
@@ -428,7 +430,7 @@ static void ieee80211_send_assocresp(unsigned char *sta_mac, unsigned short int 
 	*(write_ptr++) = 0x18;
 	*(write_ptr++) = 0x60;
 
-	frame_length = sizeof(struct ieee80211_frame)+((unsigned int)write_ptr - (unsigned int)assoc->assoc);
+	frame_length = sizeof(struct ieee80211_frame)+((uint32_t)write_ptr - (uint32_t)assoc->assoc);
 
 	duration = rt2501_txtime(frame_length, ieee80211_mask_to_rate(ieee80211_lowest_txrate))+IEEE80211_SIFS;
 	assoc->header.i_dur[0] = ((duration & 0x00ff) >> 0);
@@ -452,14 +454,16 @@ static void ieee80211_send_assocresp(unsigned char *sta_mac, unsigned short int 
 				 );
 
 	if(!rt2501_tx(assoc, frame_length+sizeof(TXD_STRUC)))
+  {
 		DBG_WIFI("TX error in ieee80211_send_assoc\r\n");
+  }
 }
 
-static void ieee80211_auth_sta(unsigned char *sta_mac, unsigned short int algorithm,
-			       unsigned short int auth_seq,
-			       unsigned short int status)
+static void ieee80211_auth_sta(uint8_t *sta_mac, uint16_t algorithm,
+			       uint16_t auth_seq,
+			       uint16_t status)
 {
-	int sta_slot;
+	int32_t sta_slot;
 
 	if(algorithm != IEEE80211_AUTH_ALG_OPEN) {
 		ieee80211_send_auth(sta_mac, algorithm, auth_seq+1, IEEE80211_STATUS_ALG);
@@ -495,16 +499,16 @@ static void ieee80211_auth_sta(unsigned char *sta_mac, unsigned short int algori
 			    IEEE80211_STATUS_SUCCESS);
 }
 
-static void ieee80211_deauth_sta(int index, unsigned short int reason)
+static void ieee80211_deauth_sta(int32_t index, uint16_t reason)
 {
 #pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
-	char deauth[2];
+	uint8_t deauth[2];
 	} *deauth;
 #pragma pack()
-	unsigned short int duration;
+	uint16_t duration;
 
 #ifdef DEBUG_WIFI
 	sprintf(dbg_buffer, "Deauthenticating %02x:%02x:%02x:%02x:%02x:%02x\r\n",
@@ -559,7 +563,9 @@ static void ieee80211_deauth_sta(int index, unsigned short int reason)
 				 );
 
 	if(!rt2501_tx(deauth, sizeof(*deauth)))
+  {
 		DBG_WIFI("TX error in ieee80211_deauth_sta\r\n");
+  }
 }
 
 static void ieee80211_associate(void)
@@ -568,17 +574,17 @@ static void ieee80211_associate(void)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
-	char assoc[4
+	uint8_t assoc[4
 		+2+IEEE80211_SSID_MAXLEN
 		+2+8
 		+2+4
 		+2+22];
 	} *assoc;
 #pragma pack()
-	char *write_ptr;
-	unsigned int i, j;
-	unsigned int frame_length;
-	unsigned short int duration;
+	uint8_t *write_ptr;
+	uint32_t i, j;
+	uint32_t frame_length;
+	uint16_t duration;
 
 	DBG_WIFI("Associating\r\n");
 
@@ -610,7 +616,7 @@ static void ieee80211_associate(void)
 	/* TAGGED PARAMETERS */
 	/* SSID */
 	*(write_ptr++) = IEEE80211_ELEMID_SSID;
-	j = strlen(ieee80211_assoc_ssid);
+	j = strlen((char*)ieee80211_assoc_ssid);
 	*(write_ptr++) = j;
 	for(i=0;i<j;i++)
 		*(write_ptr++) = ieee80211_assoc_ssid[i];
@@ -632,7 +638,7 @@ static void ieee80211_associate(void)
 	*(write_ptr++) = 0x12;
 	*(write_ptr++) = 0x18;
 	*(write_ptr++) = 0x60;
-	
+
 	if(ieee80211_encryption == IEEE80211_CRYPT_WPA) {
 		*(write_ptr++) = IEEE80211_ELEMID_VENDOR;
 		*(write_ptr++) = 22;
@@ -688,19 +694,19 @@ static void ieee80211_associate(void)
 	ieee80211_timeout = IEEE80211_ASSOC_TIMEOUT;
 }
 
-static void ieee80211_send_challenge_reply(char *challenge, unsigned int challenge_length)
+static void ieee80211_send_challenge_reply(uint8_t *challenge, uint32_t challenge_length)
 {
 #pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
-	char auth[6+2+IEEE80211_CHALLENGE_LEN];
+	uint8_t auth[6+2+IEEE80211_CHALLENGE_LEN];
 	} *auth;
 #pragma pack()
-	unsigned short int duration;
-	char *write_ptr;
-	unsigned int i;
-	unsigned int frame_length;
+	uint16_t duration;
+	uint8_t *write_ptr;
+	uint32_t i;
+	uint32_t frame_length;
 
 	DBG_WIFI("Replying to challenge\r\n");
 	if(challenge_length != IEEE80211_CHALLENGE_LEN) {
@@ -778,10 +784,10 @@ static void ieee80211_send_challenge_reply(char *challenge, unsigned int challen
 	}
 }
 
-static void ieee80211_input_shared_auth(unsigned short int algorithm,
-					unsigned short int auth_seq,
-					unsigned short int status,
-					char *tagged_parameters, unsigned int tagged_length)
+static void ieee80211_input_shared_auth(uint16_t algorithm,
+					uint16_t auth_seq,
+					uint16_t status,
+					uint8_t *tagged_parameters, uint32_t tagged_length)
 {
 	if(algorithm != IEEE80211_AUTH_ALG_SHARED) {
 		DBG_WIFI("Shared auth failed: unexpected algo reply\r\n");
@@ -795,14 +801,14 @@ static void ieee80211_input_shared_auth(unsigned short int algorithm,
 	}
 	switch(auth_seq) {
 		case IEEE80211_AUTH_SHARED_CHALLENGE: {
-			char *frame_current, *frame_end;
-			char *challenge;
-			unsigned char challenge_length;
+			uint8_t *frame_current, *frame_end;
+			uint8_t *challenge;
+			uint8_t challenge_length;
 
 			DBG_WIFI("Received challenge\r\n");
 
 			challenge = NULL;
-			challenge_length = NULL;
+			challenge_length = 0;
 			frame_current = tagged_parameters;
 			frame_end = tagged_parameters + tagged_length;
 
@@ -835,23 +841,23 @@ static void ieee80211_input_shared_auth(unsigned short int algorithm,
 	}
 }
 
-static void ieee80211_send_probe_response(unsigned char *dest_mac)
+static void ieee80211_send_probe_response(uint8_t *dest_mac)
 {
 #pragma pack(1)
 	struct {
 		TXD_STRUC txd;
 		struct ieee80211_frame header;
-		char presp[4 				/* Fixed Parameters */
+		uint8_t presp[4 				/* Fixed Parameters */
 			+2+IEEE80211_SSID_MAXLEN 	/* SSID */
 			+2+8				/* Rates */
 			+2+4				/* Extended rates */
 			+2+1];				/* Channel */
 	} *presp;
 #pragma pack()
-	char *write_ptr;
-	unsigned int i, j;
-	unsigned int frame_length;
-	unsigned short int duration;
+	uint8_t *write_ptr;
+	uint32_t i, j;
+	uint32_t frame_length;
+	uint16_t duration;
 
 #ifdef DEBUG_WIFI
 	sprintf(dbg_buffer, "Sending probe response to %02x:%02x:%02x:%02x:%02x:%02x\r\n",
@@ -866,7 +872,7 @@ static void ieee80211_send_probe_response(unsigned char *dest_mac)
 		DBG_WIFI("hcd_malloc failed in ieee80211_send_probe_response\r\n");
 		return ;
 	}
-	
+
 	presp->header.i_fc[0] = IEEE80211_FC0_TYPE_MGT|IEEE80211_FC0_SUBTYPE_PROBE_RESP
 			|(IEEE80211_FC0_VERSION_0 << IEEE80211_FC0_VERSION_SHIFT);
 	presp->header.i_fc[1] = IEEE80211_FC1_DIR_NODS;
@@ -896,7 +902,7 @@ static void ieee80211_send_probe_response(unsigned char *dest_mac)
 	/* TAGGED PARAMETERS */
 	/* SSID */
 	*(write_ptr++) = IEEE80211_ELEMID_SSID;
-	j = strlen(ieee80211_assoc_ssid);
+	j = strlen((char*)ieee80211_assoc_ssid);
 	*(write_ptr++) = j;
 	for(i=0;i<j;i++)
 		*(write_ptr++) = ieee80211_assoc_ssid[i];
@@ -909,12 +915,12 @@ static void ieee80211_send_probe_response(unsigned char *dest_mac)
 	*(write_ptr++) = 1;
 	*(write_ptr++) = ieee80211_assoc_channel;
 
-	frame_length = sizeof(struct ieee80211_frame)+((unsigned int)write_ptr - (unsigned int)presp->presp);
-	
+	frame_length = sizeof(struct ieee80211_frame)+((uint32_t)write_ptr - (uint32_t)presp->presp);
+
 	duration = rt2501_txtime(frame_length, 2)+IEEE80211_SIFS;
 	presp->header.i_dur[0] = ((duration & 0x00ff) >> 0);
 	presp->header.i_dur[1] = ((duration & 0xff00) >> 8);
-	
+
 	rt2501_make_tx_descriptor(
 	&presp->txd,
 	RT2501_CIPHER_NONE,		/* CipherAlg */
@@ -937,11 +943,11 @@ static void ieee80211_send_probe_response(unsigned char *dest_mac)
 	}
 }
 
-static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi)
+static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 {
 	struct ieee80211_frame *fr = (struct ieee80211_frame *)frame;
-	char *frame_current, *frame_end;
-	unsigned int i;
+	uint8_t *frame_current, *frame_end;
+	uint32_t i;
 
 	if(length < sizeof(struct ieee80211_frame)) return;
 	/* All management frames must be flagged "No DS" */
@@ -955,9 +961,9 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 	switch(fr->i_fc[0] & IEEE80211_FC0_SUBTYPE_MASK) {
 		case IEEE80211_FC0_SUBTYPE_PROBE_REQ:
 			if(ieee80211_mode == IEEE80211_M_MASTER) {
-				int ssid_present;
+				int32_t ssid_present;
 				char ssid[IEEE80211_SSID_MAXLEN+1];
-				
+
 				ssid_present = 0;
 				while(frame_current < frame_end) {
 					if(frame_current[0] == IEEE80211_ELEMID_SSID) {
@@ -969,7 +975,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 					frame_current += (frame_current[1] + 2);
 				}
 				if(ssid[0] == 0) ssid_present = 0;
-				
+
 #ifdef DEBUG_WIFI
 				if(!ssid_present) {
 					DBG_WIFI("Received probe request with no SSID\r\n");
@@ -978,7 +984,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 					DBG_WIFI(dbg_buffer);
 				}
 #endif
-				if((!ssid_present) || (strcmp(ssid, ieee80211_assoc_ssid) == 0))
+				if((!ssid_present) || (strcmp(ssid, (char*)ieee80211_assoc_ssid) == 0))
 					ieee80211_send_probe_response(fr->i_addr2);
 			}
 			break;
@@ -997,7 +1003,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 				if(ieee80211_state == IEEE80211_S_SCAN) {
 					/* (1) */
 					struct rt2501_scan_result scan_result;
-					unsigned short int capinfo;
+					uint16_t capinfo;
 
 					DBG_WIFI("Received beacon/PR while scanning\r\n");
 
@@ -1041,30 +1047,30 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 								break;
 							case IEEE80211_ELEMID_VENDOR: {
 								/* Check for WPA */
-								char *current;
-								unsigned short int count;
-								int found;
-								
+								uint8_t *current;
+								uint16_t count;
+								int32_t found;
+
 								/* Minimal size of a WPA element */
 								if(frame_current[1] < 22) break;
-								
+
 								/* Check RSN IE */
 								current = &frame_current[2];
 								if(memcmp(current, ieee80211_vendor_wpa_id, sizeof(ieee80211_vendor_wpa_id)) != 0) break;
 								current += sizeof(ieee80211_vendor_wpa_id);
 								DBG_WIFI("WPA supported\r\n");
-								
+
 								/* Element 1: Multicast cipher suite (OUI) */
 								if(memcmp(current, ieee80211_tkip_oui, IEEE80211_OUI_LEN) != 0) {
 									scan_result.encryption = IEEE80211_CRYPT_WPA_UNSUPPORTED;
 									break;
 								}
 								current += IEEE80211_OUI_LEN;
-								
+
 								/* Element 2: Number of unicast cipher suites, 2 bytes */
 								count = (current[0] << 0)|(current[1] << 8);
 								current += 2;
-								
+
 								/* Element 3: Unicast cipher suites (OUIs) */
 								found = 0;
 								for(i=0;i<count;i++) {
@@ -1075,11 +1081,11 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 									scan_result.encryption = IEEE80211_CRYPT_WPA_UNSUPPORTED;
 									break;
 								}
-								
+
 								/* Element 4: Number of auth key management suites, 2 bytes */
 								count = (current[0] << 0)|(current[1] << 8);
 								current += 2;
-								
+
 								/* Element 5: Auth key management suites (OUIs) */
 								found = 0;
 								for(i=0;i<count;i++) {
@@ -1090,7 +1096,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 									scan_result.encryption = IEEE80211_CRYPT_WPA_UNSUPPORTED;
 									break;
 								}
-								
+
 								scan_result.encryption = IEEE80211_CRYPT_WPA;
 								break;
 							}
@@ -1171,7 +1177,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 			to us.
 			*/
 			if(ieee80211_mode == IEEE80211_M_MASTER) {
-				int sta_slot;
+				int32_t sta_slot;
 
 				if(memcmp(fr->i_addr1, rt2501_mac, IEEE80211_ADDR_LEN) != 0) break;
 				/* i_addr2 is the STA MAC */
@@ -1198,7 +1204,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 			sent an Association Request, in Managed mode only.
 			*/
 			if((ieee80211_mode == IEEE80211_M_MANAGED) && (ieee80211_state == IEEE80211_S_ASSOC)) {
-				unsigned int assoc_code;
+				uint32_t assoc_code;
 
 				if(memcmp(fr->i_addr1, rt2501_mac, IEEE80211_ADDR_LEN) != 0) break;
 				if(memcmp(fr->i_addr2, ieee80211_assoc_mac, IEEE80211_ADDR_LEN) != 0) break;
@@ -1237,7 +1243,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 					if(memcmp(fr->i_addr1, rt2501_mac, IEEE80211_ADDR_LEN) != 0) break;
 					if(memcmp(fr->i_addr2, ieee80211_assoc_mac, IEEE80211_ADDR_LEN) != 0) break;
 					if(memcmp(fr->i_addr3, ieee80211_assoc_bssid, IEEE80211_ADDR_LEN) != 0) break;
-					
+
 #ifdef DEBUG_WIFI
 					sprintf(dbg_buffer, "Lost connection (0x%04x) !\r\n",
 						(frame_current[0] << 0)|(frame_current[1] << 8));
@@ -1247,7 +1253,7 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 				}
 			} else {
 				/* Master mode */
-				int sta_slot;
+				int32_t sta_slot;
 
 				if(memcmp(fr->i_addr1, rt2501_mac, IEEE80211_ADDR_LEN) != 0) break;
 				if(memcmp(fr->i_addr3, ieee80211_assoc_bssid, IEEE80211_ADDR_LEN) != 0) break;
@@ -1264,21 +1270,21 @@ static void ieee80211_input_mgt(char *frame, unsigned int length, short int rssi
 	}
 }
 
-static void ieee80211_input_ctl(char *frame, unsigned int length)
+static void ieee80211_input_ctl(uint8_t *frame, uint32_t length)
 {
 	DBG_WIFI("Received control frame\r\n");
 	/* handled by the RT2501 ASIC */
 }
 
-static void ieee80211_input_data(char *frame, unsigned int length, short int rssi)
+static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 {
 #pragma pack(1)
 	struct {
 	struct ieee80211_frame header;
-	char data[];
+	uint8_t data[];
 	} *fr;
 #pragma pack()
-	unsigned char *source_mac, *dest_mac;
+	uint8_t *source_mac, *dest_mac;
 
 /*        DBG_WIFI("ieee80211_input_data\r\n"); */
 
@@ -1303,7 +1309,7 @@ static void ieee80211_input_data(char *frame, unsigned int length, short int rss
 		/* In Master mode, we are only interested in frames To DS */
 		if(((fr->header.i_fc[1] & IEEE80211_FC1_DIR_MASK) == IEEE80211_FC1_DIR_TODS)
 			&& (ieee80211_mode == IEEE80211_M_MASTER)) {
-			int sta_slot;
+			int32_t sta_slot;
 
 			/* BSSID */
 			if(memcmp(fr->header.i_addr1, ieee80211_assoc_bssid, IEEE80211_ADDR_LEN) != 0) return;
@@ -1337,7 +1343,9 @@ static void ieee80211_input_data(char *frame, unsigned int length, short int rss
 		if(!rt2501buffer_new(fr->data,
 			length-sizeof(struct ieee80211_frame),
 			source_mac, dest_mac))
+    {
 				DBG_WIFI("Unable to queue up received data frame\r\n");
+    }
 		break;
 	case IEEE80211_FC0_SUBTYPE_NODATA:
 		if((ieee80211_mode == IEEE80211_M_MANAGED)
@@ -1351,7 +1359,7 @@ static void ieee80211_input_data(char *frame, unsigned int length, short int rss
 	}
 }
 
-void ieee80211_input(char *frame, unsigned int length, short int rssi)
+void ieee80211_input(uint8_t *frame, uint32_t length, int16_t rssi)
 {
 	struct ieee80211_frame_min *frame_min;
 
@@ -1384,7 +1392,7 @@ static void ieee80211_start_beacon()
 	struct {
 		TXD_STRUC txd;
 		struct ieee80211_frame header;
-		char beacon[4 				/* Fixed Parameters */
+		uint8_t beacon[4 				/* Fixed Parameters */
 			+2+IEEE80211_SSID_MAXLEN 	/* SSID */
 			+2+8				/* Rates */
 			+2+4				/* Extended rates */
@@ -1392,9 +1400,9 @@ static void ieee80211_start_beacon()
 			+3];				/* Possible alignment */
 	} beacon;
 #pragma pack()
-	char *write_ptr;
-	unsigned int i, j;
-	unsigned int frame_length;
+	uint8_t *write_ptr;
+	uint32_t i, j;
+	uint32_t frame_length;
 
 	DBG_WIFI("Starting beacon emission\r\n");
 
@@ -1429,7 +1437,7 @@ static void ieee80211_start_beacon()
 	/* TAGGED PARAMETERS */
 	/* SSID */
 	*(write_ptr++) = IEEE80211_ELEMID_SSID;
-	j = strlen(ieee80211_assoc_ssid);
+	j = strlen((char*)ieee80211_assoc_ssid);
 	*(write_ptr++) = j;
 	for(i=0;i<j;i++)
 		*(write_ptr++) = ieee80211_assoc_ssid[i];
@@ -1442,7 +1450,7 @@ static void ieee80211_start_beacon()
 	*(write_ptr++) = 1;
 	*(write_ptr++) = ieee80211_assoc_channel;
 
-	frame_length = sizeof(struct ieee80211_frame)+((unsigned int)write_ptr - (unsigned int)beacon.beacon);
+	frame_length = sizeof(struct ieee80211_frame)+((uint32_t)write_ptr - (uint32_t)beacon.beacon);
 	rt2501_make_tx_descriptor(
 	&beacon.txd,
 	RT2501_CIPHER_NONE,		/* CipherAlg */
@@ -1467,9 +1475,9 @@ static void ieee80211_stop_beacon(void)
 	rt2501_beacon(NULL, 0);
 }
 
-void rt2501_setmode(int mode, const char *ssid, unsigned char channel)
+void rt2501_setmode(int32_t mode, const uint8_t *ssid, uint8_t channel)
 {
-	int i;
+	int32_t i;
 	struct rt2501buffer *b;
 
 	switch(mode) {
@@ -1489,7 +1497,7 @@ void rt2501_setmode(int mode, const char *ssid, unsigned char channel)
 			disable_ohci_irq();
 			ieee80211_state = IEEE80211_S_RUN;
 			ieee80211_mode = IEEE80211_M_MASTER;
-			strcpy(ieee80211_assoc_ssid, ssid);
+			strcpy((char*)ieee80211_assoc_ssid, (char*)ssid);
 			memcpy(ieee80211_assoc_bssid, rt2501_mac, IEEE80211_ADDR_LEN);
 			ieee80211_assoc_channel = channel;
 			for(i=0;i<RT2501_MAX_ASSOCIATED_STA;i++)
@@ -1519,18 +1527,18 @@ void rt2501_setmode(int mode, const char *ssid, unsigned char channel)
 	enable_ohci_irq();
 }
 
-void rt2501_scan(const char *ssid, rt2501_scan_callback callback, void *userparam)
+void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userparam)
 {
 #pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
-	char probe[2+IEEE80211_SSID_MAXLEN+2+8+2+4];
+	uint8_t probe[2+IEEE80211_SSID_MAXLEN+2+8+2+4];
 	} *probe;
 #pragma pack()
-	char *write_ptr;
-	unsigned int frame_length;
-	unsigned char channel, i, j;
+	uint8_t *write_ptr;
+	uint32_t frame_length;
+	uint8_t channel, i, j;
 
 	if(ieee80211_mode != IEEE80211_M_MANAGED) return;
 
@@ -1576,7 +1584,7 @@ void rt2501_scan(const char *ssid, rt2501_scan_callback callback, void *userpara
 		if(ssid != NULL) {
 			/* SSID */
 			*(write_ptr++) = IEEE80211_ELEMID_SSID;
-			j = strlen(ssid);
+			j = strlen((char*)ssid);
 			*(write_ptr++) = j;
 			for(i=0;i<j;i++)
 				*(write_ptr++) = ssid[i];
@@ -1600,7 +1608,7 @@ void rt2501_scan(const char *ssid, rt2501_scan_callback callback, void *userpara
 		*(write_ptr++) = 0x18;
 		*(write_ptr++) = 0x60;
 
-		frame_length = sizeof(struct ieee80211_frame)+((unsigned int)write_ptr - (unsigned int)probe->probe);
+		frame_length = sizeof(struct ieee80211_frame)+((uint32_t)write_ptr - (uint32_t)probe->probe);
 
 		rt2501_make_tx_descriptor(
 		&probe->txd,
@@ -1619,7 +1627,9 @@ void rt2501_scan(const char *ssid, rt2501_scan_callback callback, void *userpara
 					 );
 
 		if(!rt2501_tx(probe, frame_length+sizeof(TXD_STRUC)))
+    {
 			DBG_WIFI("Unable to send probe request !\r\n");
+    }
 		DelayMs(350);
 	}
 	DBG_WIFI("\r\n");
@@ -1627,12 +1637,12 @@ void rt2501_scan(const char *ssid, rt2501_scan_callback callback, void *userpara
 	ieee80211_state = IEEE80211_S_IDLE;
 }
 
-void rt2501_auth(const char *ssid, const unsigned char *mac,
-		 const unsigned char *bssid, unsigned char channel,
-		 unsigned short int rateset,
-		 unsigned char authmode,
-		 unsigned char encryption,
-		 const unsigned char *key)
+void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
+		 const uint8_t *bssid, uint8_t channel,
+		 uint16_t rateset,
+		 uint8_t authmode,
+		 uint8_t encryption,
+		 const uint8_t *key)
 {
 #pragma pack(1)
 	struct {
@@ -1641,7 +1651,7 @@ void rt2501_auth(const char *ssid, const unsigned char *mac,
 		char auth[6];
 	} *auth;
 #pragma pack()
-	unsigned short int duration;
+	uint16_t duration;
 
 	if(ieee80211_mode != IEEE80211_M_MANAGED) return;
 
@@ -1656,7 +1666,7 @@ void rt2501_auth(const char *ssid, const unsigned char *mac,
 
 	memcpy(ieee80211_assoc_mac, mac, IEEE80211_ADDR_LEN);
 	memcpy(ieee80211_assoc_bssid, bssid, IEEE80211_ADDR_LEN);
-	strcpy(ieee80211_assoc_ssid, ssid);
+	strcpy((char*)ieee80211_assoc_ssid, (char*)ssid);
 
 	ieee80211_assoc_channel = channel;
 
@@ -1778,19 +1788,19 @@ void rt2501_auth(const char *ssid, const unsigned char *mac,
 	enable_ohci_irq();
 }
 
-int rt2501_send(const unsigned char *frame, unsigned int length, const unsigned char *dest_mac,
-		int lowrate, int mayblock)
+int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_mac,
+		int32_t lowrate, int32_t mayblock)
 {
 #pragma pack(1)
 	struct {
 		TXD_STRUC txd;
 		struct ieee80211_frame header;
-		unsigned char data[];
+		uint8_t data[];
 	} *fr;
 #pragma pack()
-	unsigned char encryption;
-	unsigned char encryption_overhead;
-	unsigned short int duration;
+	uint8_t encryption;
+	uint8_t encryption_overhead=0;
+	uint16_t duration;
 
 	if((ieee80211_state != IEEE80211_S_EAPOL)
 	   && (ieee80211_state != IEEE80211_S_RUN)) return 0;
@@ -1817,7 +1827,7 @@ int rt2501_send(const unsigned char *frame, unsigned int length, const unsigned 
 				encryption = IEEE80211_CRYPT_WPA;
 		} else encryption = ieee80211_encryption;
 	}
-	
+
 	if(ieee80211_mode == IEEE80211_M_MANAGED)
 		fr->header.i_fc[1] = IEEE80211_FC1_DIR_TODS;
 	else
@@ -1887,7 +1897,7 @@ int rt2501_send(const unsigned char *frame, unsigned int length, const unsigned 
 	}
 	if(encryption == IEEE80211_CRYPT_WPA) {
 		struct ieee80211_tkip_iv iv;
-		unsigned int i;
+		uint32_t i;
 
 		iv.iv16.field.rc0 = ptk_tsc[1];
 		iv.iv16.field.rc1 = (iv.iv16.field.rc0 | 0x20) & 0x7f;
@@ -1895,14 +1905,14 @@ int rt2501_send(const unsigned char *frame, unsigned int length, const unsigned 
 		iv.iv16.field.control.field.reserved = 0;
 		iv.iv16.field.control.field.ext_iv = 1;
 		iv.iv16.field.control.field.key_id = 0;
-//		iv.iv32 = *((unsigned int *)&ptk_tsc[2]);
+//		iv.iv32 = *((uint32_t *)&ptk_tsc[2]);
                 iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
 
-		
+
 		fr->txd.Iv = iv.iv16.word;
 		fr->txd.Eiv = iv.iv32;
 		fr->txd.IvOffset = sizeof(struct ieee80211_frame);
-		
+
 		i = 0;
 		while(++ptk_tsc[i] == 0) {													\
 			i++;
@@ -1910,16 +1920,16 @@ int rt2501_send(const unsigned char *frame, unsigned int length, const unsigned 
 				DBG_WIFI("TSC cycle !!!\r\n");
 				break;
 			}
-					
+
 		}
 	}
-	
+
 #ifdef DEBUG_WIFI
 	sprintf(dbg_buffer, "in rt2501_send, encryption=%d, length=%d, fc0=0x%02x, fc1=0x%02x\r\n",
 		encryption, length, fr->header.i_fc[0], fr->header.i_fc[1]);
 	DBG_WIFI(dbg_buffer);
 #endif
-	
+
 	disable_ohci_irq();
 	if(!rt2501_tx(fr, sizeof(TXD_STRUC)+sizeof(struct ieee80211_frame)+length)) {
 		DBG_WIFI("TX error in rt2501_send\r\n");
@@ -1941,7 +1951,7 @@ void ieee80211_timer(void)
 			ieee80211_state = IEEE80211_S_IDLE;
 	} else {
 		/* Master mode */
-		unsigned int i;
+		uint32_t i;
 
 		for(i=0;i<RT2501_MAX_ASSOCIATED_STA;i++) {
 			if(ieee80211_associated_sta[i].state != IEEE80211_S_IDLE) {
@@ -1955,7 +1965,7 @@ void ieee80211_timer(void)
 	enable_ohci_irq();
 }
 
-int rt2501_rssi_average(void)
+int32_t rt2501_rssi_average(void)
 {
   return ieee80211_rssi_average;
 }

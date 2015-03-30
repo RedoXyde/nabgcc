@@ -20,17 +20,17 @@
 #include"audio.h"
 #endif
 
-char audioFifoPlay[AUDIO_FIFOPLAY];
+uint8_t audioFifoPlay[AUDIO_FIFOPLAY];
 
-int play_w;
-int play_r;
+int32_t play_w;
+int32_t play_r;
 
 void audioInit()
 {
 	play_w=play_r=0;
 }
 
-void audioPlayStart(int freq,int bps,int stereo,int trytofeed)
+void audioPlayStart(int32_t freq,int32_t bps,int32_t stereo,int32_t trytofeed)
 {
 	play_w=play_r=0;
 #ifdef VSIMU
@@ -42,10 +42,10 @@ void audioPlayStart(int freq,int bps,int stereo,int trytofeed)
 #endif
 }
 
-int audioPlayFeed(char *src,int len)
+int32_t audioPlayFeed(uint8_t *src,int32_t len)
 {
 	//#ifdef VSIMU
-	int i_end;
+	int32_t i_end;
 	if (!src)
 	{
 #ifdef VSIMU
@@ -60,7 +60,7 @@ int audioPlayFeed(char *src,int len)
 	if (play_w>=play_r) i_end=AUDIO_FIFOPLAY+play_r-1;
 	if (play_w+len>=i_end) len=i_end-play_w;
 	else i_end=play_w+len;
-	
+
 	if (i_end<=play_w) return 0;
 	if (i_end<AUDIO_FIFOPLAY)
 	{
@@ -97,11 +97,11 @@ void audioPlayStop()
 #endif
 }
 
-int audioPlayTryFeed(int ask)
+int32_t audioPlayTryFeed(int32_t ask)
 {
-  int lastw;
-  int play_w0=play_w;
-  int dispo=play_w-play_r;
+  int32_t lastw;
+  int32_t play_w0=play_w;
+  int32_t dispo=play_w-play_r;
   if (dispo<0) dispo+=AUDIO_FIFOPLAY;
   if (dispo>=ask) return 0;
   do
@@ -114,12 +114,12 @@ int audioPlayTryFeed(int ask)
     VPUSH(VCALLSTACKGET(sys_start,SYS_CBPLAY));
     if (VSTACKGET(0)==NIL)
     {
-      VPULL();
-      VPULL();
+      (void)VPULL();
+      (void)VPULL();
       return 0;
     }
     interpGo();
-    VPULL();
+    (void)VPULL();
   }
   while(play_w!=lastw);
   if (play_w!=play_w0) return 1;
@@ -127,19 +127,19 @@ int audioPlayTryFeed(int ask)
 }
 
 
-int audioPlayFetchByte()
+int32_t audioPlayFetchByte()
 {
-	int res;
+	int32_t res;
 	if (play_w==play_r) return -1;
 	res=audioFifoPlay[play_r++]&255;
 	if (play_r>=AUDIO_FIFOPLAY) play_r-=AUDIO_FIFOPLAY;
 	return res;
 }
 
-int audioPlayFetch(char* dst,int ask)
+int32_t audioPlayFetch(uint8_t *dst,int32_t ask)
 {
-	int n=0;
-	int c;
+	int32_t n=0;
+	int32_t c;
 	audioPlayTryFeed(ask);
 	while(n<ask)
 	{
@@ -150,7 +150,7 @@ int audioPlayFetch(char* dst,int ask)
 	return n;
 }
 
-void audioVol(int vol)
+void audioVol(int32_t vol)
 {
 #ifdef VSIMU
 //	printf("xxxx audioVol %d\n",vol);
@@ -162,7 +162,7 @@ void audioVol(int vol)
 #endif
 }
 
-int audioPlayTime()
+int32_t audioPlayTime()
 {
 #ifdef VSIMU
 	printf("xxxx audioPlayTime\n");
@@ -173,7 +173,7 @@ int audioPlayTime()
 #endif
 }
 
-int audioRecStart(int freq,int gain)
+int32_t audioRecStart(int32_t freq,int32_t gain)
 {
 #ifdef VSIMU
 	RecStart(freq,505,4);
@@ -184,7 +184,7 @@ int audioRecStart(int freq,int gain)
 	return 0;
 }
 
-int audioRecStop()
+int32_t audioRecStop()
 {
 #ifdef VSIMU
 	RecStop();
@@ -195,18 +195,18 @@ int audioRecStop()
 	return 0;
 }
 
-char* audioRecFeed_begin(int size)
+uint8_t *audioRecFeed_begin(int32_t size)
 {
 	VPUSH(PNTTOVAL(VMALLOCBIN(size)));
-	return (char*)VSTARTBIN(VALTOPNT(VSTACKGET(0)));
+	return (uint8_t *)VSTARTBIN(VALTOPNT(VSTACKGET(0)));
 }
 
 void audioRecFeed_end()
 {
 	VPUSH(VCALLSTACKGET(sys_start,SYS_CBREC));
 	if (VSTACKGET(0)!=NIL) interpGo();
-	else { VPULL();}
-	VPULL();
+	else { (void)VPULL();}
+	(void)VPULL();
 }
 
 
@@ -232,7 +232,7 @@ static const uint16_t IMA_ADPCMStepTable[89] =
 };
 
 
-static const int IMA_ADPCMIndexTable[8] =
+static const int32_t IMA_ADPCMIndexTable[8] =
 {
 	-1, -1, -1, -1, 2, 4, 6, 8,
 };
@@ -241,9 +241,9 @@ static const int IMA_ADPCMIndexTable[8] =
 int16_t PredictedValue;
 uint8_t StepIndex;
 int16_t vmin,vmax;
-int vol;
+int32_t vol;
 
-void mydecodeinit(int s0,int st)
+void mydecodeinit(int32_t s0,int32_t st)
 {
 	PredictedValue=s0;
 	StepIndex=st;
@@ -252,20 +252,20 @@ void mydecodeinit(int s0,int st)
 	vol=0;
 }
 
-int mydecode(unsigned int adpcm)
+int32_t mydecode(uint32_t adpcm)
 {
-	int diff;
-	int predicedValue;
-	int stepIndex = StepIndex;
-	int step = IMA_ADPCMStepTable[stepIndex];
-	
+	int32_t diff;
+	int32_t predicedValue;
+	int32_t stepIndex = StepIndex;
+	int32_t step = IMA_ADPCMStepTable[stepIndex];
+
 	stepIndex += IMA_ADPCMIndexTable[adpcm&7];
 	if(stepIndex<0)
 		stepIndex = 0;
 	else if(stepIndex>88)
 		stepIndex = 88;
 	StepIndex = stepIndex;
-	
+
 	diff = step>>3;
 	if(adpcm&4)
 		diff += step;
@@ -273,7 +273,7 @@ int mydecode(unsigned int adpcm)
 		diff += step>>1;
 	if(adpcm&1)
 		diff += step>>2;
-	
+
 	predicedValue = PredictedValue;
 	if(adpcm&8)
 		predicedValue -= diff;
@@ -290,17 +290,17 @@ int mydecode(unsigned int adpcm)
 	return predicedValue;
 }
 
-int myvolume()
+int32_t myvolume()
 {
 	//	if (vmax>-vmin) return vmax;
 	//	return -vmin;
 	return vol>>8;
 }
 
-int audioRecVol(unsigned char* src,int len,int start)
+int32_t audioRecVol(uint8_t *src,int32_t len,int32_t start)
 {
-	int s0,st,i;
-	
+	int32_t s0,st,i;
+
 	if (start+256>len) return 0;
 	src+=start;
 	s0=(src[0]&255)+((src[1]&255)<<8); src+=2;
@@ -308,38 +308,38 @@ int audioRecVol(unsigned char* src,int len,int start)
 	mydecodeinit(s0,st);
 	for(i=0;i<252;i++)
 	{
-		int c=(*(src++))&255;
+		int32_t c=(*(src++))&255;
 		mydecode(c&15);
 		mydecode((c>>4)&15);
 	}
 	return myvolume();
 }
 
-void adpcmdecode(unsigned char* src,char *dstc)
+void adpcmdecode(uint8_t *src,uint8_t *dstc)
 {
-	short* dst=(short*)dstc;
-	int s0,st,i;
+	int16_t * dst=(int16_t *)dstc;
+	int32_t s0,st,i;
 	s0=(src[0]&255)+((src[1]&255)<<8); src+=2;
 	st=(src[0]&255)+((src[1]&255)<<8); src+=2;
 	mydecodeinit(s0,st);
 	*(dst++)=s0;
 	for(i=0;i<252;i++)
 	{
-		int c=(*(src++))&255;
+		int32_t c=(*(src++))&255;
 		*(dst++)=mydecode(c&15);
 		*(dst++)=mydecode((c>>4)&15);
 	}
-	
+
 }
 
-int myencode(int16_t pcm16)
+int32_t myencode(int16_t pcm16)
 {
-	int step,diff;
-	int predicedValue = PredictedValue;
-	int stepIndex = StepIndex;
-	
-	int delta = pcm16-predicedValue;
-	unsigned int value;
+	int32_t step,diff;
+	int32_t predicedValue = PredictedValue;
+	int32_t stepIndex = StepIndex;
+
+	int32_t delta = pcm16-predicedValue;
+	uint32_t value;
 	if(delta>=0)
 		value = 0;
 	else
@@ -347,7 +347,7 @@ int myencode(int16_t pcm16)
 		value = 8;
 		delta = -delta;
 	}
-	
+
 	step = IMA_ADPCMStepTable[stepIndex];
 	diff = step>>3;
 	if(delta>step)
@@ -369,7 +369,7 @@ int myencode(int16_t pcm16)
 		value |= 1;
 		diff += step;
 	}
-	
+
 	if(value&8)
 		predicedValue -= diff;
 	else
@@ -379,26 +379,26 @@ int myencode(int16_t pcm16)
 	else if(predicedValue>0x7fff)
 		predicedValue = 0x7fff;
 	PredictedValue = predicedValue;
-	
+
 	stepIndex += IMA_ADPCMIndexTable[value&7];
 	if(stepIndex<0)
 		stepIndex = 0;
 	else if(stepIndex>88)
 		stepIndex = 88;
 	StepIndex = stepIndex;
-	
+
 	return value&15;
 }
 
-void adpcmencode(short* src,char *dst)
+void adpcmencode(int16_t * src,uint8_t *dst)
 {
-	int delta,stepIndex,i;
-	short sample1,sample2;
-	short* p;
-	
+	int32_t delta,stepIndex,i;
+	int16_t sample1,sample2;
+	int16_t * p;
+
 	sample1=src[0];
 	sample2=src[1];
-	
+
 	PredictedValue = sample1;
 	delta = sample2-sample1;
 	if(delta<0)
@@ -409,11 +409,11 @@ void adpcmencode(short* src,char *dst)
 	while(IMA_ADPCMStepTable[stepIndex]<(unsigned)delta)
 		stepIndex++;
 	StepIndex = stepIndex;
-	
-	p=(short*)dst;
+
+	p=(int16_t *)dst;
 	p[0]=sample1;
 	p[1]=StepIndex;
-	
+
 	dst+=4;
 	for(i=1;i<505;i+=2)
 	{
@@ -421,7 +421,7 @@ void adpcmencode(short* src,char *dst)
 	}
 }
 
-const short alaw[256]={
+const int16_t alaw[256]={
 -5504,-5248,-6016,-5760,-4480,-4224,-4992,-4736,-7552,-7296,-8064,-7808,-6528,-6272,-7040,-6784,-2752,-2624,-3008,-2880,-2240,-2112,-2496,-2368,-3776,-3648,-4032,-3904,-3264,-3136,-3520,-3392,
 -22016,-20992,-24064,-23040,-17920,-16896,-19968,-18944,-30208,-29184,-32256,-31232,-26112,-25088,-28160,-27136,-11008,-10496,-12032,-11520,-8960,-8448,-9984,-9472,-15104,-14592,-16128,-15616,-13056,-12544,-14080,-13568,
 -344,-328,-376,-360,-280,-264,-312,-296,-472,-456,-504,-488,-408,-392,-440,-424,-88,-72,-120,-104,-24,-8,-56,-40,-216,-200,-248,-232,-152,-136,-184,-168,
@@ -430,7 +430,7 @@ const short alaw[256]={
 22016,20992,24064,23040,17920,16896,19968,18944,30208,29184,32256,31232,26112,25088,28160,27136,11008,10496,12032,11520,8960,8448,9984,9472,15104,14592,16128,15616,13056,12544,14080,13568,
 344,328,376,360,280,264,312,296,472,456,504,488,408,392,440,424,88,72,120,104,24,8,56,40,216,200,248,232,152,136,184,168,
 1376,1312,1504,1440,1120,1056,1248,1184,1888,1824,2016,1952,1632,1568,1760,1696,688,656,752,720,560,528,624,592,944,912,1008,976,816,784,880,848};
-const short mulaw[256]={
+const int16_t mulaw[256]={
 -32124,-31100,-30076,-29052,-28028,-27004,-25980,-24956,-23932,-22908,-21884,-20860,-19836,-18812,-17788,-16764,-15996,-15484,-14972,-14460,-13948,-13436,-12924,-12412,-11900,-11388,-10876,-10364,-9852,-9340,-8828,-8316,
 -7932,-7676,-7420,-7164,-6908,-6652,-6396,-6140,-5884,-5628,-5372,-5116,-4860,-4604,-4348,-4092,-3900,-3772,-3644,-3516,-3388,-3260,-3132,-3004,-2876,-2748,-2620,-2492,-2364,-2236,-2108,-1980,
 -1884,-1820,-1756,-1692,-1628,-1564,-1500,-1436,-1372,-1308,-1244,-1180,-1116,-1052,-988,-924,-876,-844,-812,-780,-748,-716,-684,-652,-620,-588,-556,-524,-492,-460,-428,-396,
@@ -439,7 +439,7 @@ const short mulaw[256]={
 7932,7676,7420,7164,6908,6652,6396,6140,5884,5628,5372,5116,4860,4604,4348,4092,3900,3772,3644,3516,3388,3260,3132,3004,2876,2748,2620,2492,2364,2236,2108,1980,
 1884,1820,1756,1692,1628,1564,1500,1436,1372,1308,1244,1180,1116,1052,988,924,876,844,812,780,748,716,684,652,620,588,556,524,492,460,428,396,
 372,356,340,324,308,292,276,260,244,228,212,196,180,164,148,132,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,0};
-const char exposant[256]={
+const uint8_t exposant[256]={
 0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
 6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
 7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
@@ -450,10 +450,10 @@ const char exposant[256]={
 8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8};
 
 
-char alawencode(int pcm)
+uint8_t alawencode(int32_t pcm)
 {
-	int exponent,mantissa,sign;
-	char alaw;
+	int32_t exponent,mantissa,sign;
+	uint8_t alaw;
 
     sign = (pcm & 0x8000) >> 8;
     if (sign != 0) pcm = -pcm;
@@ -475,10 +475,10 @@ char alawencode(int pcm)
     return (char)(alaw^0xD5);
 }
 
-char mulawencode(int pcm) //16-bit
+uint8_t mulawencode(int32_t pcm) //16-bit
 {
-	int exponent,mantissa,sign;
-	char mulaw;
+	int32_t exponent,mantissa,sign;
+	uint8_t mulaw;
 
     //Get the sign bit. Shift it for later
     //use without further modification
@@ -525,18 +525,18 @@ char mulawencode(int pcm) //16-bit
     return (char)~mulaw;
 }
 
-short alawdecode(unsigned char v)
+int16_t alawdecode(uint8_t v)
 {
 	return alaw[v];
 }
 
-short mulawdecode(unsigned char v)
+int16_t mulawdecode(uint8_t v)
 {
 	return mulaw[v];
 }
 
 
-void AudioAdp2wav(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int len)
+void AudioAdp2wav(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t isrc,int32_t lsrc,int32_t len)
 {
 	if ((idst<0)||(isrc<0)||(idst>=ldst)||(isrc>=lsrc)) return;
 	if (len&255) return;	// que des blocs de 256
@@ -546,17 +546,17 @@ void AudioAdp2wav(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int le
 	dst+=idst;
 	while(len>0)
 	{
-		adpcmdecode((unsigned char*)src,dst);
+		adpcmdecode((uint8_t *)src,dst);
 		src+=256;
 		dst+=505*2;
 		len-=256;
 	}
 }
 
-void AudioWav2adp(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int len)
+void AudioWav2adp(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t isrc,int32_t lsrc,int32_t len)
 {
-	int n=0;
-	int l=len;
+	int32_t n=0;
+	int32_t l=len;
 
 	if ((idst<0)||(isrc<0)||(idst>=ldst)||(isrc>=lsrc)) return;
 	while(l>0)
@@ -572,16 +572,16 @@ void AudioWav2adp(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int le
 	dst+=idst;
 	while(len>0)
 	{
-		adpcmencode((short*)src,dst);
+		adpcmencode((int16_t *)src,dst);
 		src+=505*2;
 		dst+=256;
 		len-=505*2;
 	}
 }
 
-void AudioWav2alaw(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int len,int mu)
+void AudioWav2alaw(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t isrc,int32_t lsrc,int32_t len,int32_t mu)
 {
-	short* p;
+	int16_t * p;
 
 	if ((idst<0)||(isrc<0)||(idst>=ldst)||(isrc>=lsrc)) return;
 	if (len&1) return;
@@ -590,7 +590,7 @@ void AudioWav2alaw(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int l
 //	printf("w2l%d\n",len);
 	src+=isrc;
 	dst+=idst;
-	p=(short*)src;
+	p=(int16_t *)src;
 	len>>=1;
 	if (mu)
 	{
@@ -602,10 +602,10 @@ void AudioWav2alaw(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int l
 	}
 }
 
-void AudioAlaw2wav(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int len,int mu)
+void AudioAlaw2wav(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t isrc,int32_t lsrc,int32_t len,int32_t mu)
 {
-	short* p;
-	unsigned char* q;
+	int16_t * p;
+	uint8_t *q;
 
 	if ((idst<0)||(isrc<0)||(idst>=ldst)||(isrc>=lsrc)) return;
 
@@ -613,8 +613,8 @@ void AudioAlaw2wav(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int l
 //	printf("l2w%d\n",len);
 	src+=isrc;
 	dst+=idst;
-	p=(short*)dst;
-	q=(unsigned char*)src;
+	p=(int16_t *)dst;
+	q=(uint8_t *)src;
 	if (mu)
 	{
 		while(len--) *(p++)=mulaw[*(q++)];
@@ -625,7 +625,7 @@ void AudioAlaw2wav(char* dst,int idst,int ldst,char *src,int isrc,int lsrc,int l
 	}
 }
 
-void audioWrite(int reg,int val)
+void audioWrite(int32_t reg,int32_t val)
 {
 #ifdef VSIMU
 	printf("xxxx audioWrite %d %d\n",reg,val);
@@ -634,7 +634,7 @@ void audioWrite(int reg,int val)
 	vlsi_write_sci(reg,val);
 #endif
 }
-int audioRead(int reg)
+int32_t audioRead(int32_t reg)
 {
 #ifdef VSIMU
 	printf("xxxx audioRead %d\n",reg);
@@ -645,14 +645,14 @@ int audioRead(int reg)
 	return vlsi_read_sci(reg);
 #endif
 }
-int audioFeed(char *src,int len)
+int32_t audioFeed(uint8_t *src,int32_t len)
 {
 #ifdef VSIMU
 	printf("xxxx audioFeed %d\n",len);
 	return 0;
 #endif
 #ifdef VREAL
-	return vlsi_feed_sdi((uchar*)src,len);
+	return vlsi_feed_sdi((uint8_t *)src,len);
 #endif
 }
 void audioRefresh()
@@ -665,7 +665,7 @@ void audioRefresh()
 	rec_check();
 #endif
 }
-void audioAmpli(int on)
+void audioAmpli(int32_t on)
 {
 #ifdef VSIMU
 	printf("xxxx audioAmpli %d\n",on);

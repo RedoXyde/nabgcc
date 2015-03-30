@@ -5,7 +5,7 @@
 #define _MEMORY_
 
 //#define VSIMU
-#define VREAL
+//~ #define VREAL
 
 // taille en mots 32 bits (128kwords -> 512ko)
 #define VMEM_LENGTH	(1024*200)
@@ -18,31 +18,31 @@
 #endif
 
 #ifdef VSIMU
-extern int vmem_heap[VMEM_LENGTH];
+extern int32_t vmem_heap[VMEM_LENGTH];
 #define ENDLINE "\n"
 #define uchar unsigned char
 #define CLR_WDT
 
 #endif
 #ifdef VREAL
-#define vmem_heap ((int*)(0xD0010000))
+#define vmem_heap ((int32_t*)(0xD0010000))
 #define ENDLINE "\r\n"
 #endif
-extern int vmem_heapindex;
-extern int *vmem_top;
-extern int vmem_stack;
-extern int vmem_start;
-extern int vmem_broken;
+extern int32_t vmem_heapindex;
+extern int32_t *vmem_top;
+extern int32_t vmem_stack;
+extern int32_t vmem_start;
+extern int32_t vmem_broken;
 
-int vmemAllocBin(int size,int ext);
-int vmemAllocTab(int size,int ext);
-int vmemAllocTabClear(int size,int ext);
-int vmemAllocString(char *p,int len);
-int vmemPush(int val);
-void vmemStacktotab(int n);
+int32_t vmemAllocBin(int32_t size,int32_t ext);
+int32_t vmemAllocTab(int32_t size,int32_t ext);
+int32_t vmemAllocTabClear(int32_t size,int32_t ext);
+int32_t vmemAllocString(uint8_t *p,int32_t len);
+int32_t vmemPush(int32_t val);
+void vmemStacktotab(int32_t n);
 
-void vmemInit(int start);
-void vmemSetstart(int start);
+void vmemInit(int32_t start);
+void vmemSetstart(int32_t start);
 
 void vmemGC();
 
@@ -88,7 +88,7 @@ void vmemGC();
 #define VSIZE(p) (((vmem_heap[p]>>8)+4)>>2)
 #define VSIZEBIN(p) (vmem_heap[p]>>8)
 #define VSTART(p) (&vmem_heap[(p)+HEADER_LENGTH])
-#define VSTARTBIN(p) ((char*)&vmem_heap[(p)+HEADER_LENGTH])
+#define VSTARTBIN(p) ((uint8_t*)&vmem_heap[(p)+HEADER_LENGTH])
 #define VFETCH(p,i) (vmem_heap[(p)+HEADER_LENGTH+(i)])
 #define VSTORE(p,i,v) vmem_heap[(p)+HEADER_LENGTH+(i)]=(v)
 

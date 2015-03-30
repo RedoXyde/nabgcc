@@ -32,9 +32,9 @@ void rt2501buffer_free(void)
 	enable_ohci_irq();
 }
 
-int rt2501buffer_new(const char *data, unsigned int length,
-                     const unsigned char *source_mac,
-		     const unsigned char *dest_mac)
+int32_t rt2501buffer_new(const uint8_t *data, uint32_t length,
+                     const uint8_t *source_mac,
+                     const uint8_t *dest_mac)
 {
 	struct rt2501buffer *newbuffer;
 
@@ -75,7 +75,7 @@ struct rt2501buffer *rt2501_receive(void)
 		head = head->next;
 		if(head == NULL) queue = NULL;
 		enable_ohci_irq();
-/*		
+/*
         sprintf(dbg_buffer,"rt2501_receive: %x\r\n", r);
         DBG(dbg_buffer);
 */
@@ -83,7 +83,7 @@ struct rt2501buffer *rt2501_receive(void)
 		   || (memcmp(r->data, eapol_llc, LLC_LENGTH) != 0))
 	  		/* Not an EAPOL frame. Return it to the application. */
 			return r;
-		
+
 		/* EAPOL frame, process it. */
 		eapol_input(r->data, r->length);
 		disable_ohci_irq();

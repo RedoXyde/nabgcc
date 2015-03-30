@@ -11,7 +11,7 @@ C_FILES += $(wildcard sys/src/*.c)
 AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
-CFLAGS = -Wall -Os -g -gdwarf
+CFLAGS = -Wall -Os -g -gdwarf -DVREAL
 CFLAGS += -mthumb-interwork
 CFLAGS += -Wextra -Wno-unused-parameter -Wpointer-arith
 CFLAGS += -fdata-sections -ffunction-sections

@@ -4,20 +4,22 @@
 #include "i2c.h"
 #include "delay.h"
 #include "inarm.h"
+#include "uart.h"
+#include "vlog.h"
 
-int i2cerror;
+int32_t i2cerror;
 
-int writecheck(uchar addr_i2c, uchar *data, uchar nb_byte)
+int32_t writecheck(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
 {
-  int nmax=1000;
+  int32_t nmax=1000;
   while((nmax>0)&&(write_i2c(addr_i2c,data,nb_byte)==FALSE)){ nmax--;__no_operation();}
   if (!nmax) i2cerror=1;
   return nmax;
 }
 
-int readcheck(uchar addr_i2c, uchar *data, uchar nb_byte)
+int32_t readcheck(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
 {
-  int nmax=1000;
+  int32_t nmax=1000;
   while((nmax>0)&&(read_i2c(addr_i2c,data,nb_byte)==FALSE)){ nmax--;__no_operation();}
   if (!nmax) i2cerror=1;
   return nmax;
@@ -30,9 +32,9 @@ int readcheck(uchar addr_i2c, uchar *data, uchar nb_byte)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Return the completion of turning ON                 */
 /****************************************************************************/
-uchar init_rfid(void)
+uint8_t init_rfid(void)
 {
-  uchar dummy_tab[2];
+  uint8_t dummy_tab[2];
   //Turn OFF RF
   close_rfid();
   //Turn ON RF
@@ -55,9 +57,9 @@ uchar init_rfid(void)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Return the completion of turning OFF                */
 /****************************************************************************/
-uchar close_rfid(void)
+uint8_t close_rfid(void)
 {
-  uchar dummy_tab[2];
+  uint8_t dummy_tab[2];
   //Unselect tags
   completion_rfid();
   //Turn OFF RF
@@ -80,9 +82,9 @@ uchar close_rfid(void)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar initiate_rfid(void)
+uint8_t initiate_rfid(void)
 {
-  uchar dummy_tab[4];
+  uint8_t dummy_tab[4];
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
   dummy_tab[1]=0x02;
   dummy_tab[2]=0x06;
@@ -98,9 +100,9 @@ uchar initiate_rfid(void)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar slot_marker_rfid(void)
+uint8_t slot_marker_rfid(void)
 {
-  uchar dummy_tab[4];
+  uint8_t dummy_tab[4];
   dummy_tab[0]=CRX14_SLOT_MARKER_REGISTER;
   if(!writecheck(CRX14_ADDR,dummy_tab,1)) return FALSE;
   return TRUE;
@@ -113,9 +115,9 @@ uchar slot_marker_rfid(void)
 /*          Input   :   CHIP_ID of the TAG to select                        */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar select_tag_rfid(uchar chip_id)
+uint8_t select_tag_rfid(uint8_t chip_id)
 {
-  uchar dummy_tab[4];
+  uint8_t dummy_tab[4];
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
   dummy_tab[1]=0x02;
   dummy_tab[2]=0x0E;
@@ -133,10 +135,10 @@ uchar select_tag_rfid(uchar chip_id)
 /*          Input   :   number of bytes to read                             */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar read_frame_rfid(uchar *data, uchar nb_bytes)
+uint8_t read_frame_rfid(uint8_t *data, uint8_t nb_bytes)
 {
-  uchar dummy_tab[1];
-  uchar dummy_cmpt;
+  uint8_t dummy_tab[1];
+  uint8_t dummy_cmpt;
 
   //Blank answer tab
   for(dummy_cmpt=0; dummy_cmpt<nb_bytes; dummy_cmpt++)
@@ -156,9 +158,9 @@ uchar read_frame_rfid(uchar *data, uchar nb_bytes)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar completion_rfid(void)
+uint8_t completion_rfid(void)
 {
-  uchar dummy_tab[3];
+  uint8_t dummy_tab[3];
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
   dummy_tab[1]=0x01;
   dummy_tab[2]=0x0F;
@@ -173,9 +175,9 @@ uchar completion_rfid(void)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar get_uid_rfid(void)
+uint8_t get_uid_rfid(void)
 {
-  uchar dummy_tab[3];
+  uint8_t dummy_tab[3];
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
   dummy_tab[1]=0x01;
   dummy_tab[2]=0x0B;
@@ -191,12 +193,12 @@ uchar get_uid_rfid(void)
 /*                     the CHIP_ID (1 byte, random) and UID (8 bytes, fixed)*/
 /*          Output  :   Return the number of tags detected (maximum 16)     */
 /****************************************************************************/
-uchar check_rfid_devices(struct _tag_rfid *p_tag_rfid)
+uint8_t check_rfid_devices(struct _tag_rfid *p_tag_rfid)
 {
-  uchar dummy_tab[20];
-  ushort dummy_short;
-  uchar dummy_cmpt;
-  uchar cmpt_tags=0;
+  uint8_t dummy_tab[20];
+  uint16_t dummy_short;
+  uint8_t dummy_cmpt;
+  uint8_t cmpt_tags=0;
 
   //Turn ON RFID
   init_rfid();
@@ -240,7 +242,7 @@ uchar check_rfid_devices(struct _tag_rfid *p_tag_rfid)
   //Get UID of detected tags
   for(dummy_cmpt=0; dummy_cmpt<cmpt_tags; dummy_cmpt++)
   {
-    uchar dummy_cmpt_2;
+    uint8_t dummy_cmpt_2;
     //Select Tag
     select_tag_rfid((p_tag_rfid+dummy_cmpt)->CHIP_ID);
     //Delay for RFID, no answer from device if ommited, due to delay after I2C stop I think
@@ -276,10 +278,10 @@ uchar check_rfid_devices(struct _tag_rfid *p_tag_rfid)
 /*          Input   :   pointer to the data to write                        */
 /*          Input   :   Number of bytes to write from 0 to 4                */
 /****************************************************************************/
-void write_eeprom_rfid(uchar chip_id, uchar num_block, uchar *data, uchar num_bytes)
+void write_eeprom_rfid(uint8_t chip_id, uint8_t num_block, uint8_t *data, uint8_t num_bytes)
 {
-  uchar dummy_tab[10];
-  uchar dummy_cmpt;
+  uint8_t dummy_tab[10];
+  uint8_t dummy_cmpt;
 
   //Select Tag
   select_tag_rfid(chip_id);
@@ -288,13 +290,13 @@ void write_eeprom_rfid(uchar chip_id, uchar num_block, uchar *data, uchar num_by
 
   //Prepare command
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
-  dummy_tab[1]=(uchar)(2+num_bytes);
+  dummy_tab[1]=(uint8_t)(2+num_bytes);
   dummy_tab[2]=0x09;
   dummy_tab[3]=num_block+7;
   for(dummy_cmpt=0; dummy_cmpt<num_bytes; dummy_cmpt++)
     dummy_tab[dummy_cmpt+4]=*(data+dummy_cmpt);
   //Send command
-  while(write_i2c(CRX14_ADDR,dummy_tab,(uchar)(4+num_bytes))==FALSE)
+  while(write_i2c(CRX14_ADDR,dummy_tab,(uint8_t)(4+num_bytes))==FALSE)
     __no_operation();
 }
 
@@ -308,10 +310,10 @@ void write_eeprom_rfid(uchar chip_id, uchar num_block, uchar *data, uchar num_by
 /*          Input   :   pointer to the returned data                        */
 /*          Input   :   Number of bytes to read from 0 to 4                 */
 /****************************************************************************/
-void read_eeprom_rfid(uchar chip_id, uchar num_block, uchar *data, uchar num_bytes)
+void read_eeprom_rfid(uint8_t chip_id, uint8_t num_block, uint8_t *data, uint8_t num_bytes)
 {
-  uchar dummy_tab[10];
-  uchar dummy_cmpt;
+  uint8_t dummy_tab[10];
+  uint8_t dummy_cmpt;
 
   //Select Tag
   select_tag_rfid(chip_id);
@@ -340,19 +342,19 @@ void read_eeprom_rfid(uchar chip_id, uchar num_block, uchar *data, uchar num_byt
 
 //Maximum of 16 tag for CRX14
 struct _tag_rfid tag_rfid[16];
-uchar nb_tag_detected=0;
+uint8_t nb_tag_detected=0;
 
-char* get_rfid_first_device()
+uint8_t* get_rfid_first_device()
 {
   i2cerror=0;
   nb_tag_detected=check_rfid_devices(tag_rfid);
   close_rfid();
-  if (i2cerror) return "Error";
-  if(nb_tag_detected) return (char*)&(tag_rfid[0].UID[0]);
+  if (i2cerror) return (uint8_t*)"Error";
+  if(nb_tag_detected) return (uint8_t*)&(tag_rfid[0].UID[0]);
   return NULL;
 }
 
-int check_rfid_n()
+int32_t check_rfid_n()
 {
   i2cerror=0;
   nb_tag_detected=check_rfid_devices(tag_rfid);
@@ -361,34 +363,36 @@ int check_rfid_n()
   return nb_tag_detected;
 }
 
-char* get_nth_rfid(int i)
+uint8_t* get_nth_rfid(int32_t i)
 {
-  return (char*)&(tag_rfid[i].UID[0]);
+  return (uint8_t*)&(tag_rfid[i].UID[0]);
 }
 
-int checkid(char* p, char* q,int n)
+int32_t checkid(uint8_t* p, uint8_t* q,int32_t n)
 {
-  for(int i=0;i<n;i++) if (p[i]!=q[i]) return 1;
+  int32_t i;
+  for(i=0;i<n;i++) if (p[i]!=q[i]) return 1;
   return 0;
 }
 
-int get_byuid(char* id)
+int32_t get_byuid(uint8_t* id)
 {
-  for(int i=0;i<nb_tag_detected;i++)
+  int32_t i;
+  for(i=0;i<nb_tag_detected;i++)
   {
-//    dump((char*)&(tag_rfid[i].UID[0]),8);
-    if (!checkid(id,(char*)&(tag_rfid[i].UID[0]),8))
+//    dump((uint8_t*)&(tag_rfid[i].UID[0]),8);
+    if (!checkid(id,(uint8_t*)&(tag_rfid[i].UID[0]),8))
     {
-      putst_uart("found !\n");
+      consolestr("found !\n");
       return tag_rfid[i].CHIP_ID;
     }
   }
   return -1;
 }
 
-int rfid_read(char* id,int bloc,char* data)
+int32_t rfid_read(uint8_t* id,int32_t bloc,uint8_t* data)
 {
-  putst_uart("rfid_read\n");
+  consolestr("rfid_read\n");
 //  dump(id,8);
   i2cerror=0;
 //  putst_uart("detect\n");
@@ -399,8 +403,8 @@ int rfid_read(char* id,int bloc,char* data)
     close_rfid();
     return -1;
   }
-  int chipid=get_byuid(id);
-  putst_uart("chipid=");puthx_uart(chipid);putst_uart("\n");
+  int32_t chipid=get_byuid(id);
+  consolestr("chipid=");consolehx(chipid);consolestr("\n");
   if (chipid==-1)
   {
     close_rfid();
@@ -412,7 +416,7 @@ int rfid_read(char* id,int bloc,char* data)
   close_rfid();
   return 0;
 }
-int rfid_write(char* id,int bloc,char* data)
+int32_t rfid_write(uint8_t* id,int32_t bloc,uint8_t* data)
 {
   i2cerror=0;
   nb_tag_detected=check_rfid_devices(tag_rfid);
@@ -421,7 +425,7 @@ int rfid_write(char* id,int bloc,char* data)
     close_rfid();
     return -1;
   }
-  int chipid=get_byuid(id);
+  int32_t chipid=get_byuid(id);
   if (chipid==-1)
   {
     close_rfid();
@@ -434,8 +438,8 @@ int rfid_write(char* id,int bloc,char* data)
 /*
   while(1)
   {
-    uchar nb_tag_detected;
-    uchar tab_rfid[4];
+    uint8_t nb_tag_detected;
+    uint8_t tab_rfid[4];
 
     //Check if tag are present
     //if yes get CHIP_ID (1byte) and UID (8bytes) in structure

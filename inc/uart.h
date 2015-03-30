@@ -36,14 +36,14 @@
 /* Functions */
 /*************/
 void    init_uart(void);
-void	write_uart(char *);
-void    putch_uart(UBYTE c);
-void    putst_uart(UBYTE *str);
-void    putint_uart(int v);
-void    puthx_uart(int v);
-void putbin_uart(UBYTE *str,int len);
+void    write_uart(uint8_t *);
+void    putch_uart(uint8_t c);
+void    putst_uart(uint8_t *str);
+void    putint_uart(int32_t v);
+void    puthx_uart(int32_t v);
+void    putbin_uart(uint8_t *str,int32_t len);
 
 
-ulong xmodem_recv(uchar *addr_mem);
-void xmodem_send(uchar *addr_mem, ulong nb_bytes_to_send);
-short calcrc(char *ptr, short count);
+uint32_t xmodem_recv(uint8_t *addr_mem);
+void xmodem_send(uint8_t *addr_mem, uint32_t nb_bytes_to_send);
+int16_t calcrc(uint8_t *ptr, int16_t count);

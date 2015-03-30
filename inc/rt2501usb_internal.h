@@ -49,45 +49,45 @@ extern PDEVINFO rt2501_dev;
 #define RT2501_RSSI_SAMPLES		15
 
 #define LLC_LENGTH			8
-extern const unsigned char eapol_llc[LLC_LENGTH];
+extern const uint8_t eapol_llc[LLC_LENGTH];
 
-void rt2501_switch_channel(unsigned char channel);
-int rt2501_set_bssid(const unsigned char *bssid);
+void rt2501_switch_channel(uint8_t channel);
+int32_t rt2501_set_bssid(const uint8_t *bssid);
 void rt2501_make_tx_descriptor(
 	PTXD_STRUC txd,
-	unsigned char CipherAlg,
-	unsigned char KeyTable,
-	unsigned char KeyIdx,
-	char Ack,
-	char Fragment,
-	char InsTimestamp,
-	unsigned char RetryMode,
-	unsigned char Ifs,
-	unsigned int Rate,
-	unsigned int Length,
-	unsigned char QueIdx,
-	unsigned char PacketId);
-int rt2501_tx(void *buffer, unsigned int length);
-int rt2501_beacon(void *buffer, unsigned int length);
-int rt2501_set_key(unsigned char index, unsigned char *key, unsigned char *txmic, unsigned char *rxmic, unsigned char cipher);
-unsigned short int rt2501_txtime(unsigned int len, unsigned char rate);
+	uint8_t CipherAlg,
+	uint8_t KeyTable,
+	uint8_t KeyIdx,
+	uint8_t Ack,
+	uint8_t Fragment,
+	uint8_t InsTimestamp,
+	uint8_t RetryMode,
+	uint8_t Ifs,
+	uint32_t Rate,
+	uint32_t Length,
+	uint8_t QueIdx,
+	uint8_t PacketId);
+int32_t rt2501_tx(void *buffer, uint32_t length);
+int32_t rt2501_beacon(void *buffer, uint32_t length);
+int32_t rt2501_set_key(uint8_t index, uint8_t *key, uint8_t *txmic, uint8_t *rxmic, uint8_t cipher);
+uint16_t rt2501_txtime(uint32_t len, uint8_t rate);
 
 void ieee80211_init(void);
 void ieee80211_timer(void);
-void ieee80211_input(char *frame, unsigned int length, short int rssi);
+void ieee80211_input(uint8_t *frame, uint32_t length, int16_t rssi);
 
 void eapol_init(void);
-void eapol_input(unsigned char *frame, unsigned int length);
+void eapol_input(uint8_t *frame, uint32_t length);
 
 void rt2501buffer_init(void);
 void rt2501buffer_free(void);
-int rt2501buffer_new(const char *data, unsigned int length,
-                     const unsigned char *source_mac,
-		     const unsigned char *dest_mac);
+int32_t rt2501buffer_new(const uint8_t *data, uint32_t length,
+                     const uint8_t *source_mac,
+                     const uint8_t *dest_mac);
 
-extern unsigned char rt2501_mac[IEEE80211_ADDR_LEN];
+extern uint8_t rt2501_mac[IEEE80211_ADDR_LEN];
 
-extern int ieee80211_mode;
+extern int32_t ieee80211_mode;
 
 enum {
 	IEEE80211_S_IDLE,  /* disconnected, no operation going on */
@@ -98,23 +98,23 @@ enum {
 	IEEE80211_S_RUN,   /* connected or master mode */
 };
 
-extern int ieee80211_state;
-extern unsigned int ieee80211_timeout;
+extern int32_t ieee80211_state;
+extern uint32_t ieee80211_timeout;
 
-extern unsigned char ieee80211_assoc_mac[];
-extern unsigned char ieee80211_assoc_bssid[];
-extern char ieee80211_assoc_ssid[];
-extern unsigned char ieee80211_assoc_channel;
-extern unsigned short int ieee80211_assoc_rateset;
+extern uint8_t ieee80211_assoc_mac[];
+extern uint8_t ieee80211_assoc_bssid[];
+extern uint8_t ieee80211_assoc_ssid[];
+extern uint8_t ieee80211_assoc_channel;
+extern uint16_t ieee80211_assoc_rateset;
 
-extern unsigned char ieee80211_authmode;
-extern unsigned char ieee80211_encryption;
-extern unsigned char ieee80211_key[];
+extern uint8_t ieee80211_authmode;
+extern uint8_t ieee80211_encryption;
+extern uint8_t ieee80211_key[];
 
 struct ieee80211_sta_state {
-	int state;
-	unsigned int timer;
-	unsigned char mac[IEEE80211_ADDR_LEN];
+	int32_t state;
+	uint32_t timer;
+	uint8_t mac[IEEE80211_ADDR_LEN];
 };
 
 enum {
@@ -124,7 +124,7 @@ enum {
 	EAPOL_S_RUN,
 };
 
-extern int eapol_state;
-extern unsigned char ptk_tsc[];
+extern int32_t eapol_state;
+extern uint8_t ptk_tsc[];
 
 #endif /* _RT2501_INTERNAL_H_ */

@@ -6,7 +6,7 @@
 /********************/
 /* Global variables */
 /********************/
-UBYTE led_intensity[14];
+uint8_t led_intensity[14];
 
 /****************************************************************************/
 /*  Init of the Led RGB driver, clear all leds                              */
@@ -18,7 +18,7 @@ UBYTE led_intensity[14];
 void init_led_rgb_driver(void)
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
 {
-  UBYTE cmpt_led;
+  uint8_t cmpt_led;
 
   //Turn ON Leds
   MODE_LED_ON_OFF_CONTROL;
@@ -47,7 +47,7 @@ void init_led_rgb_driver(void)
 }
 #elif PCB_RELEASE == LLC2_2
 {
-  UBYTE cmpt_led;
+  uint8_t cmpt_led;
 
   //Turn ON Leds
   MODE_LED_ON_OFF_CONTROL;
@@ -89,10 +89,10 @@ void init_led_rgb_driver(void)
 /*          Remarks  :  Sometimes the BLUE and GREEN colors are inverted    */
 /*                      due to different Part Number of the Waitrony leds...*/
 /****************************************************************************/
-void set_led_rgb(UWORD color)
+void set_led_rgb(uint32_t color)
 {
-	UBYTE cmpt_led;
-	UBYTE led_rgb = 0x000F & (color>>24);
+	uint8_t cmpt_led;
+	uint8_t led_rgb = 0x000F & (color>>24);
 
 //Set current
 //Attention aux effets de bord entre 2 courants de 2 leds, pas dépasser 127 en intensité pour une couleur
@@ -166,8 +166,8 @@ void set_led_rgb(UWORD color)
         return ;
 }
 
-UWORD convled[8]={4,2,0,3,1,0,0,0};
-const uchar convintensity[256]=
+uint32_t convled[8]={4,2,0,3,1,0,0,0};
+const uint8_t convintensity[256]=
 {
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,
@@ -181,7 +181,7 @@ const uchar convintensity[256]=
 117,119,120,122,123,125,126
 };
 
-void set_led(UWORD led,UWORD color)
+void set_led(uint32_t led,uint32_t color)
 {
   led=convled[led&7];
 

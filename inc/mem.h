@@ -19,10 +19,10 @@
 
 void setup_ext_sram_rom(void);
 void setup_malloc(void);
-void read_uc_flash(uint address, uchar *data, uint nb_byte);
-__ramfunc void init_uc_flash(void);
-__ramfunc void write_uc_flash(uint address, uchar *data, uint nb_byte, uchar *temp);
-__ramfunc void flash_uc(uchar *data, int nb_byte, uchar *temp);
+void read_uc_flash(uint32_t address, uint8_t *data, uint32_t nb_byte);
+__attribute__ ((section(".ramfunc"))) void init_uc_flash(void);
+__attribute__ ((section(".ramfunc"))) void write_uc_flash(uint32_t address, uint8_t *data, uint32_t nb_byte, uint8_t *temp);
+__attribute__ ((section(".ramfunc"))) void flash_uc(uint8_t *data, int32_t nb_byte, uint8_t *temp);
 void reset_uc(void);
 
 #endif

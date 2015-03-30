@@ -60,7 +60,7 @@ void init_i2c(void)
 /*          Input   :   number of bytes to send                             */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar write_i2c(uchar addr_i2c, uchar *data, uchar nb_byte)
+uint8_t write_i2c(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
 {
     __disable_interrupt();
 
@@ -157,7 +157,7 @@ uchar write_i2c(uchar addr_i2c, uchar *data, uchar nb_byte)
 /*          Input   :   number of bytes to received                         */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-uchar read_i2c(uchar addr_i2c, uchar *data, uchar nb_byte)
+uint8_t read_i2c(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
 {
   __disable_interrupt();
 

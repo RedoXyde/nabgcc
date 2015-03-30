@@ -15,10 +15,10 @@
 /*************/
 /* Functions */
 /*************/
-void DelayMs(HWORD cmpt_ms);
-void DelayBigMs(WORD cmpt_ms);
+void DelayMs(int16_t cmpt_ms);
+void DelayBigMs(int32_t cmpt_ms);
 
-extern volatile int counter_timer;
-extern volatile int counter_timer_s;
+extern volatile int32_t counter_timer;
+extern volatile int32_t counter_timer_s;
 
 #endif

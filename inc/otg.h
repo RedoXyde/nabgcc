@@ -51,6 +51,7 @@
 
 
 typedef union {
+  int32_t word;
 	struct {
 		int b00	:1;		int b01	:1;		int b02	:1;		int b03	:1;
 		int b04	:1;		int b05	:1;		int b06	:1;		int b07	:1;
@@ -61,21 +62,20 @@ typedef union {
 		int b24	:1;		int b25	:1;		int b26	:1;		int b27	:1;
 		int b28	:1;		int b29	:1;		int b30	:1;		int b31	:1;
 	}bit;
-	int word;
 }BIT32;
 
 /* プロトタイプ宣言 */
-int usbctrl_otg_init(void);
-int usbctrl_otg_request(int);
+int32_t usbctrl_otg_init(void);
+int32_t usbctrl_otg_request(int);
 void usbctrl_otg_control(void);
-int usbctrl_otg_srp(void);
-int usbctrl_otg_message_get(void);
-int usbctrl_otg_get_state(void);
+int32_t usbctrl_otg_srp(void);
+int32_t usbctrl_otg_message_get(void);
+int32_t usbctrl_otg_get_state(void);
 void usbctrl_vbus_changed(void);
 void usbctrl_id_changed(void);
 void usbctrl_se0_det(void);
 
 /* グローバル変数 */
-extern int usbctrl_otg_state;
+extern int32_t usbctrl_otg_state;
 
 #endif /* _OTG_H_ */

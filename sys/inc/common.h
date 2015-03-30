@@ -15,40 +15,40 @@
 /*****************************************************/
 /*    common type definition                         */
 /*****************************************************/
-typedef char    BYTE;   /* byte */
-typedef short   HWORD;  /* half word */
-typedef long    WORD;   /* word */
+//~ typedef char    BYTE;   /* byte */
+//~ typedef short   HWORD;  /* half word */
+//~ typedef long    WORD;   /* word */
 
-typedef unsigned char   UBYTE;  /* unsigned byte */
-typedef unsigned short  UHWORD; /* unsigned half word */
-typedef unsigned long   UWORD;  /* unsigned word */
+//~ typedef unsigned char   uint8_t;  /* unsigned byte */
+//~ typedef unsigned short  uint16_t; /* unsigned half word */
+//~ typedef unsigned long   uint32_t;  /* unsigned word */
 
-typedef unsigned char   uchar;
-typedef unsigned short  ushort;
-typedef unsigned long   ulong;
+//~ typedef unsigned char   uchar;
+//~ typedef unsigned short  ushort;
+//~ typedef unsigned long   ulong;
 //~ typedef unsigned long   uint;
 
-typedef unsigned char   UCHAR;
-typedef unsigned short  USHORT;
-typedef unsigned long   ULONG;
-typedef unsigned long   UINT;
+//~ typedef unsigned char   UCHAR;
+//~ typedef unsigned short  USHORT;
+//~ typedef unsigned long   ULONG;
+//~ typedef unsigned long   UINT;
 #include <stdint.h>
 
 /*****************************************************/
 /*    internal I/O input/output macro                */
 /*****************************************************/
-#define get_value(n)    (*((volatile UBYTE *)(n)))          /* byte input */
-#define put_value(n,c)  (*((volatile UBYTE *)(n)) = (c))    /* byte output */
-#define get_hvalue(n)   (*((volatile UHWORD *)(n)))         /* half word input */
-#define put_hvalue(n,c) (*((volatile UHWORD *)(n)) = (c))   /* half word output */
-#define get_wvalue(n)   (*((volatile UWORD *)(n)))          /* word input */
-#define put_wvalue(n,c) (*((volatile UWORD *)(n)) = (c))    /* word output */
-#define set_bit(n,c)    (*((volatile UBYTE *)(n))|= (c))    /* byte bit set */
-#define clr_bit(n,c)    (*((volatile UBYTE *)(n))&=~(c))    /* byte bit clear */
-#define set_hbit(n,c)   (*((volatile UHWORD *)(n))|= (c))   /* half word bit set */
-#define clr_hbit(n,c)   (*((volatile UHWORD *)(n))&=~(c))   /* half word bit clear */
-#define set_wbit(n,c)   (*((volatile UWORD *)(n))|= (c))    /* word bit set */
-#define clr_wbit(n,c)   (*((volatile UWORD *)(n))&=~(c))    /* word bit clear */
+#define get_value(n)    (*((volatile uint8_t *)(n)))          /* byte input */
+#define put_value(n,c)  (*((volatile uint8_t *)(n)) = (c))    /* byte output */
+#define get_hvalue(n)   (*((volatile uint16_t *)(n)))         /* half word input */
+#define put_hvalue(n,c) (*((volatile uint16_t *)(n)) = (c))   /* half word output */
+#define get_wvalue(n)   (*((volatile uint32_t *)(n)))          /* word input */
+#define put_wvalue(n,c) (*((volatile uint32_t *)(n)) = (c))    /* word output */
+#define set_bit(n,c)    (*((volatile uint8_t *)(n))|= (c))    /* byte bit set */
+#define clr_bit(n,c)    (*((volatile uint8_t *)(n))&=~(c))    /* byte bit clear */
+#define set_hbit(n,c)   (*((volatile uint16_t *)(n))|= (c))   /* half word bit set */
+#define clr_hbit(n,c)   (*((volatile uint16_t *)(n))&=~(c))   /* half word bit clear */
+#define set_wbit(n,c)   (*((volatile uint32_t *)(n))|= (c))    /* word bit set */
+#define clr_wbit(n,c)   (*((volatile uint32_t *)(n))&=~(c))    /* word bit clear */
 
 #define MAX_ADDR	  0x20000
 #define UART_BUFFER_SIZE 135

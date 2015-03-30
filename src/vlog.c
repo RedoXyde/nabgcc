@@ -39,21 +39,21 @@
 #endif
 #include"vlog.h"
 
-void logSecho(int p,int nl)
+void logSecho(int32_t p,int32_t nl)
 {
 	if (p==NIL) consolestr("NIL");
-	else consolebin((unsigned char*)VSTARTBIN(VALTOPNT(p)),VSIZEBIN(VALTOPNT(p)));
+	else consolebin((uint8_t*)VSTARTBIN(VALTOPNT(p)),VSIZEBIN(VALTOPNT(p)));
 	if (nl) consolestr(ENDLINE);
 }
 
-void logIecho(int i,int nl)
+void logIecho(int32_t i,int32_t nl)
 {
 	if (i==NIL) consolestr("NIL");
 	else consoleint(VALTOINT(i));
 	if (nl) consolestr(ENDLINE);
 }
 
-extern int currentop;
+extern int32_t currentop;
 void logGC()
 {
 	consolestr("#GC : sp=");consoleint(-vmem_stack);
@@ -70,7 +70,7 @@ void logGC()
 
 
 // pour le firmware, le "fichier" ouvert est toujours l'eeprom
-int sysLoad(char *dst,int i,int ldst,char *filename,int j,int len)
+int32_t sysLoad(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len)
 {
 #ifdef VSIMU
 	FILE *f;
@@ -94,15 +94,15 @@ int sysLoad(char *dst,int i,int ldst,char *filename,int j,int len)
 	if (len<=0) return 0;
 	if (j+len>4096) len=4096-j;
 	if (len<=0) return 0;
-        read_uc_flash(j,(unsigned char*)dst,len);
+        read_uc_flash(j,(uint8_t*)dst,len);
         return len;
 #endif
 }
 
-uchar buffer_temp[4096];
+uint8_t  buffer_temp[4096];
 
 // pour le firmware, le "fichier" ouvert est toujours l'eeprom
-int sysSave(char *dst,int i,int ldst,char *filename,int j,int len)
+int32_t sysSave(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len)
 {
 #ifdef VSIMU
 	FILE *f;
@@ -124,13 +124,13 @@ int sysSave(char *dst,int i,int ldst,char *filename,int j,int len)
 	if (j+len>4096) len=4096-j;
 	if (len<=0) return 0;
   __disable_interrupt();
-        write_uc_flash(j,(unsigned char*)dst,len,buffer_temp);
+        write_uc_flash(j,(uint8_t*)dst,len,buffer_temp);
   __enable_interrupt();
         return len;
 #endif
 }
 
-int sysTimems()
+int32_t sysTimems()
 {
 #ifdef VSIMU
 	return GetTickCount();
@@ -140,7 +140,7 @@ int sysTimems()
 #endif
 }
 
-int sysTime()
+int32_t sysTime()
 {
 #ifdef VSIMU
 	time_t timet;
@@ -153,21 +153,21 @@ int sysTime()
 }
 
 
-int rndval;
+int32_t rndval;
 
 // retourne une valeur aléatoire entre 0 et 65535
-int sysRand()
+int32_t sysRand()
 {
 	rndval=rndval*0x1234567+11;
 	return (rndval>>8)&0xffff;
 }
-void sysSrand(int seed)
+void sysSrand(int32_t seed)
 {
 	rndval=seed;
 }
 
 
-void sysCpy(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
+void sysCpy(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len)
 {
 	if ((i<0)||(j<0)||(len<=0)) return;
         if (i+len>ldst) len=ldst-i;
@@ -179,7 +179,7 @@ void sysCpy(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
 	while((len--)>0) *(dst++)=*(src++);
 }
 
-int sysCmp(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
+int32_t sysCmp(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len)
 {
 	if ((i<0)||(j<0)||(len<=0)) return 0;
 	if ((i+len>ldst)&&(j+len>lsrc))
@@ -189,23 +189,23 @@ int sysCmp(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
         }
 	dst+=i;
 	src+=j;
-	while((len--)>0) if (((unsigned char)*dst)>((unsigned char)*src)) return 1;
-	else  if (((unsigned char)*(dst++))<((unsigned char)*(src++))) return -1;
+	while((len--)>0) if (((uint8_t)*dst)>((uint8_t)*src)) return 1;
+	else  if (((uint8_t)*(dst++))<((uint8_t)*(src++))) return -1;
 	return 0;
 }
 
-int mystrcmp(char *dst,char *src,int len)
+int32_t mystrcmp(uint8_t *dst,uint8_t *src,int32_t len)
 {
 	while((len--)>0) if ((*(dst++))!=(*(src++))) return 1;
 	return 0;
 }
 
-void mystrcpy(char *dst,char *src,int len)
+void mystrcpy(uint8_t *dst,uint8_t *src,int32_t len)
 {
 	while((len--)>0) *(dst++)=*(src++);
 }
 
-int sysFind(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
+int32_t sysFind(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len)
 {
 	if ((j<0)||(j+len>lsrc)) return NIL;
 	src+=j;
@@ -218,7 +218,7 @@ int sysFind(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
 	return NIL;
 }
 
-int sysFindrev(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
+int32_t sysFindrev(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32_t lsrc,int32_t len)
 {
 	if ((j<0)||(j+len>lsrc)) return NIL;
 	src+=j;
@@ -231,15 +231,15 @@ int sysFindrev(char *dst,int i,int ldst,char *src,int j,int lsrc,int len)
 	return NIL;
 }
 
-int sysStrgetword(unsigned char *src,int len,int ind)
+int32_t sysStrgetword(uint8_t *src,int32_t len,int32_t ind)
 {
-	int n;
+	int32_t n;
   if ((ind<0)||(ind+2>len)) return -1;
   n=(src[ind]<<8)+src[ind+1];
   return n;
 }
 
-void sysStrputword(unsigned char *src,int len,int ind,int val)
+void sysStrputword(uint8_t *src,int32_t len,int32_t ind,int32_t val)
 {
   if ((ind<0)||(ind+2>len)) return;
   src[ind+1]=val; val>>=8;
@@ -247,12 +247,12 @@ void sysStrputword(unsigned char *src,int len,int ind,int val)
 }
 
 // lecture d'une chaîne décimale (s'arrête au premier caractère incorrect)
-int sysAtoi(char* src)
+int32_t sysAtoi(uint8_t* src)
 {
-  int x,c,s;
+  int32_t x,c,s;
   x=s=0;
   if ((*src)=='-') { s=1; src++; }
-  while(c=*src++)
+  while((c=*src++))
   {
     if ((c>='0')&&(c<='9')) x=(x*10)+c-'0';
     else return (s?(-x):x);
@@ -261,11 +261,11 @@ int sysAtoi(char* src)
 }
 
 // lecture d'une chaîne hexadécimale (s'arrête au premier caractère incorrect)
-int sysHtoi(char* src)
+int32_t sysHtoi(uint8_t* src)
 {
-	int x,c;
+	int32_t x,c;
 	x=0;
-	while(c=*src++)
+	while((c=*src++))
 	{
 		if ((c>='0')&&(c<='9')) x=(x<<4)+c-'0';
 		else if ((c>='A')&&(c<='F')) x=(x<<4)+c-'A'+10;
@@ -274,31 +274,31 @@ int sysHtoi(char* src)
 	}
 	return x;
 }
-void sysCtoa(int c)
+void sysCtoa(int32_t c)
 {
-  unsigned char res[1];
+  uint8_t res[1];
   res[0]=c;
-  VPUSH(PNTTOVAL(VMALLOCSTR((char*)res,1)));
+  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)res,1)));
 }
 
-const int itoarsc[10]={
+const int32_t itoarsc[10]={
   1000000000,100000000,10000000,
   1000000   ,100000   ,10000,
   1000      ,100      ,10,
   1
 };;
-void sysItoa(int v)
+void sysItoa(int32_t v)
 {
-  char res[16];
-  int ires=0;
+  uint8_t res[16];
+  int32_t ires=0;
   if (v==0)
   {
     res[ires++]='0';
   }
   else
   {
-    int start=1;
-    int imul=0;
+    int32_t start=1;
+    int32_t imul=0;
     if (v<0)
     {
       v=-v;
@@ -306,7 +306,7 @@ void sysItoa(int v)
     }
     while(imul<10)
     {
-      int k=0;
+      int32_t k=0;
       while(v>=itoarsc[imul])
       {
         k++;
@@ -325,21 +325,21 @@ void sysItoa(int v)
 
 }
 
-void sysItoh(int v)
+void sysItoh(int32_t v)
 {
-  char res[16];
-  int ires=0;
+  uint8_t res[16];
+  int32_t ires=0;
   if (v==0)
   {
     res[ires++]='0';
   }
   else
   {
-    int start=1;
-    int imul=28;
+    int32_t start=1;
+    int32_t imul=28;
     while(imul>=0)
     {
-      int c=(v>>imul)&15;
+      int32_t c=(v>>imul)&15;
       if ((c)||(!start))
       {
         start=0;
@@ -351,77 +351,77 @@ void sysItoh(int v)
   VPUSH(PNTTOVAL(VMALLOCSTR(res,ires)));
 }
 
-void sysCtoh(int c)
+void sysCtoh(int32_t c)
 {
-  unsigned char res[2];
-  int v=(c>>4)&15;
+  uint8_t res[2];
+  int32_t v=(c>>4)&15;
   res[0]=(v<10)?'0'+v:'a'+v-10;
   v=c&15;
   res[1]=(v<10)?'0'+v:'a'+v-10;
-  VPUSH(PNTTOVAL(VMALLOCSTR((char*)res,2)));
+  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)res,2)));
 }
 
-void sysItobin2(int c)
+void sysItobin2(int32_t c)
 {
-  unsigned char res[2];
+  uint8_t res[2];
   res[1]=c;
   c>>=8;
   res[0]=c;
-  VPUSH(PNTTOVAL(VMALLOCSTR((char*)res,2)));
+  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)res,2)));
 }
 
-int sysListswitch(int p,int key)
+int32_t sysListswitch(int32_t p,int32_t key)
 {
   while(p!=NIL)
   {
-    int q=VALTOPNT(VFETCH(p,0));
+    int32_t q=VALTOPNT(VFETCH(p,0));
     if ((q!=NIL)&&(VFETCH(q,0)==key)) return VFETCH(q,1);
     p=VALTOPNT(VFETCH(p,1));
   }
   return NIL;
 }
 
-int sysListswitchstr(int p,char* key)
+int32_t sysListswitchstr(int32_t p,uint8_t* key)
 {
   while(p!=NIL)
   {
-    int q=VALTOPNT(VFETCH(p,0));
+    int32_t q=VALTOPNT(VFETCH(p,0));
     if (q!=NIL)
     {
-      int r=VALTOPNT(VFETCH(q,0));
-      if ((r!=NIL)&&(!strcmp(VSTARTBIN(r),key))) return VFETCH(q,1);
+      int32_t r=VALTOPNT(VFETCH(q,0));
+      if ((r!=NIL)&&(!strcmp((char*)VSTARTBIN(r),(char*)key))) return VFETCH(q,1);
     }
     p=VALTOPNT(VFETCH(p,1));
   }
   return NIL;
 }
 
-void simuSetLed(int i,int val);
-void set_motor_dir(int num_motor, int sens);
-int get_motor_val(int i);
-int getButton();
-int get_button3();
-char* get_rfid();
-int check_rfid_n();
-char* get_nth_rfid(int i);
+void simuSetLed(int32_t i,int32_t val);
+void set_motor_dir(int32_t num_motor, int32_t sens);
+int32_t get_motor_val(int32_t i);
+int32_t getButton();
+int32_t get_button3();
+uint8_t* get_rfid();
+int32_t check_rfid_n();
+uint8_t* get_nth_rfid(int32_t i);
 
-void sysLed(int led,int col)
+void sysLed(int32_t led,int32_t col)
 {
 #ifdef VSIMU
 	simuSetLed(led,col);
 #endif
 #ifdef VREAL
-        set_led((UWORD)led,(UWORD)col);
+        set_led((uint32_t)led,(uint32_t)col);
 #endif
 }
 
-void sysMotorset(int motor,int sens)
+void sysMotorset(int32_t motor,int32_t sens)
 {
 #ifdef VSIMU
 	set_motor_dir(motor,sens);
 #endif
 #ifdef VREAL
-//        char buffer[256];
+//        uint8_t buffer[256];
         motor=1+(motor&1);
 
 //        sprintf(buffer,"setmotor %d sens %d\r\n",motor,sens);
@@ -432,17 +432,17 @@ void sysMotorset(int motor,int sens)
 #endif
 }
 
-int kmotor[3];
-int kvmotor[3];
+int32_t kmotor[3];
+int32_t kvmotor[3];
 
-int sysMotorget(int motor)
+int32_t sysMotorget(int32_t motor)
 {
 #ifdef VSIMU
 	return get_motor_val(motor);
 #endif
 #ifdef VREAL
-//        char buffer[256];
-        int k,kx;
+//        uint8_t buffer[256];
+        int32_t kx;
         motor=1+(motor&1);
         kx=(int)get_motor_position(motor);
 /*        k=(int)get_motor_position(motor);
@@ -461,7 +461,7 @@ int sysMotorget(int motor)
 #endif
 }
 
-int sysButton2()
+int32_t sysButton2()
 {
 #ifdef VSIMU
 	return getButton();
@@ -471,7 +471,7 @@ int sysButton2()
 #endif
 }
 
-int sysButton3()
+int32_t sysButton3()
 {
 #ifdef VSIMU
 	return get_button3();
@@ -481,7 +481,7 @@ int sysButton3()
 #endif
 }
 
-char* sysRfidget()
+uint8_t* sysRfidget()
 {
 #ifdef VSIMU
         return get_rfid();
@@ -491,10 +491,10 @@ char* sysRfidget()
 #endif
 }
 
-int check_rfid_n();
-char* get_nth_rfid(int i);
-int rfid_read(char* id,int bloc,char* data);
-int rfid_write(char* id,int bloc,char* data);
+int32_t check_rfid_n();
+uint8_t* get_nth_rfid(int32_t i);
+int32_t rfid_read(uint8_t* id,int32_t bloc,uint8_t* data);
+int32_t rfid_write(uint8_t* id,int32_t bloc,uint8_t* data);
 
 void sysRfidgetList()
 {
@@ -502,14 +502,14 @@ void sysRfidgetList()
   VPUSH(NIL);
 #endif
 #ifdef VREAL
-  int n=0;
+  int32_t n=0;
   n=check_rfid_n();
   if (n<=0)
   {
     VPUSH(NIL);
     return;
   }
-  int i;
+  int32_t i;
   for(i=0;i<n;i++)
   {
     VPUSH(PNTTOVAL(VMALLOCSTR(get_nth_rfid(i),8)));
@@ -518,14 +518,14 @@ void sysRfidgetList()
   while(n--) VMKTAB(2);
 #endif
 }
-void sysRfidread(char* id,int bloc)
+void sysRfidread(uint8_t* id,int32_t bloc)
 {
 #ifdef VSIMU
   VPUSH(NIL);
 #endif
 #ifdef VREAL
-  char buf[4];
-  int k=rfid_read(id,bloc,buf);
+  uint8_t buf[4];
+  int32_t k=rfid_read(id,bloc,buf);
   if (k)
   {
     VPUSH(NIL);
@@ -534,13 +534,13 @@ void sysRfidread(char* id,int bloc)
   VPUSH(PNTTOVAL(VMALLOCSTR(buf,4)));
 #endif
 }
-int sysRfidwrite(char* id,int bloc,char* data)
+int32_t sysRfidwrite(uint8_t* id,int32_t bloc,uint8_t* data)
 {
 #ifdef VSIMU
   return 0;
 #endif
 #ifdef VREAL
-  int k=rfid_write(id,bloc,data);
+  int32_t k=rfid_write(id,bloc,data);
   return k;
 #endif
 }
@@ -557,7 +557,7 @@ void sysReboot()
 
 }
 
-void sysFlash(char* firmware,int len)
+void sysFlash(uint8_t* firmware,int32_t len)
 {
 #ifdef VSIMU
     printf("REBOOT AND FLASH NOW.....");
@@ -566,32 +566,32 @@ void sysFlash(char* firmware,int len)
 #endif
 #ifdef VREAL
   __disable_interrupt();
-  flash_uc((unsigned char*)firmware,len,buffer_temp);
+  flash_uc((uint8_t*)firmware,len,buffer_temp);
 #endif
 
 }
 
-const uchar inv8[128]=
+const uint8_t  inv8[128]=
 {
 1,171,205,183,57,163,197,239,241,27,61,167,41,19,53,223,225,139,173,151,25,131,165,207,209,251,29,135,9,243,21,191,193,107,141,119,249,99,133,175,177,219,253,103,233,211,245,159,161,75,109,87,217,67,101,143,145,187,221,71,201,179,213,127,129,43,77,55,185,35,69,111,113,155,189,39,169,147,181,95,97,11,45,23,153,3,37,79,81,123,157,7,137,115,149,63,65,235,13,247,121,227,5,47,49,91,125,231,105,83,117,31,33,203,237,215,89,195,229,15,17,59,93,199,73,51,85,255
 };
 
-int decode8(uchar* src,int len,uchar key,uchar alpha)
+int32_t decode8(uint8_t* src,int32_t len,uint8_t  key,uint8_t  alpha)
 {
 	while(len--)
 	{
-		uchar v=((*src)-alpha)*key;
+		uint8_t  v=((*src)-alpha)*key;
 		*(src++)=v;
 		key=v+v+1;
 	}
 	return key;
 }
 
-int encode8(uchar* src,int len,uchar key,uchar alpha)
+int32_t encode8(uint8_t* src,int32_t len,uint8_t  key,uint8_t  alpha)
 {
 	while(len--)
 	{
-		uchar v=*src;
+		uint8_t  v=*src;
 		*(src++)=alpha+(v*inv8[key>>1]);
 		key=v+v+1;
 	}
@@ -600,12 +600,12 @@ int encode8(uchar* src,int len,uchar key,uchar alpha)
 
 
 
-int sysCrypt(char* src,int indexsrc,int len,int lensrc,unsigned int key,int alpha)
+int32_t sysCrypt(uint8_t* src,int32_t indexsrc,int32_t len,int32_t lensrc,uint32_t key,int32_t alpha)
 {
   if ((indexsrc<0)||(indexsrc+len>lensrc)||(len<=0)) return -1;
   return encode8(src+indexsrc,len,key,alpha);
 }
-int sysUncrypt(char* src,int indexsrc,int len,int lensrc,unsigned int key,int alpha)
+int32_t sysUncrypt(uint8_t* src,int32_t indexsrc,int32_t len,int32_t lensrc,uint32_t key,int32_t alpha)
 {
   if ((indexsrc<0)||(indexsrc+len>lensrc)||(len<=0)) return -1;
   return decode8(src+indexsrc,len,key,alpha);
@@ -614,14 +614,14 @@ int sysUncrypt(char* src,int indexsrc,int len,int lensrc,unsigned int key,int al
 // Fonctions pour les périphérique I2C
 // Arg 1 : Adresse du périphérique
 // Arg 2 : Taille du buffer qu'on souhaite récupérer
-int sysI2cRead(unsigned char addr_i2c, int bufsize)
+int32_t sysI2cRead(uint8_t addr_i2c, int32_t bufsize)
 {
-  uchar* data;
-  int nmax=1000;  
+  uint8_t* data=NULL;
+  int32_t nmax=1000;
   // Tente la lecture jusqu'à ce qu'elle soit faite.
   while((nmax>0)&&(read_i2c(addr_i2c,data,bufsize)==FALSE)){ nmax--;__no_operation(); }
   // Retour pour le ByteCode
-  VPUSH(PNTTOVAL(VMALLOCSTR((unsigned char*)data,bufsize)));
+  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)data,bufsize)));
   return nmax;
 }
 
@@ -629,9 +629,9 @@ int sysI2cRead(unsigned char addr_i2c, int bufsize)
 // Arg1 : Adresse du périphérique
 // Arg2 : Contenu à écrire
 // Arg3 : Taille du contenu à écrire
-int sysI2cWrite(unsigned char addr_i2c, unsigned char *data, unsigned int bufsize)
+int32_t sysI2cWrite(uint8_t addr_i2c, uint8_t *data, uint32_t bufsize)
 {
-  int nmax=1000;
+  int32_t nmax=1000;
   // Tente l'écriture jusqu'à sa réussite
   while((nmax>0)&&(write_i2c(addr_i2c,data,bufsize)==FALSE)){ nmax--;__no_operation(); }
   return nmax;

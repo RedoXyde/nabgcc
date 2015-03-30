@@ -24,7 +24,7 @@
 /* Functions */
 /*************/
 void init_i2c(void);
-uchar write_i2c(uchar addr_i2c, uchar *data, uchar nb_byte);
-uchar read_i2c(uchar addr_i2c, uchar *data, uchar nb_byte);
+uint8_t  write_i2c(uint8_t  addr_i2c, uint8_t  *data, uint8_t  nb_byte);
+uint8_t  read_i2c(uint8_t  addr_i2c, uint8_t  *data, uint8_t  nb_byte);
 
 #endif

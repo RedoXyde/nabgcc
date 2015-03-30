@@ -20,25 +20,25 @@
 #define USB_J_STATE         2
 #define USB_SE1             3
 
-int usbctrl_init(int);
+int32_t usbctrl_init(int32_t);
 
-void usbctrl_peri_driver_set(int (*initialize)(void), void (*interrupt)(void));
-void usbctrl_host_driver_set(int (*initialize)(void), void (*interrupt)(void));
+void usbctrl_peri_driver_set(int32_t (*initialize)(void), void (*interrupt)(void));
+void usbctrl_host_driver_set(int32_t (*initialize)(void), void (*interrupt)(void));
 
-int usbctrl_mode_set(int);
+int32_t usbctrl_mode_set(int32_t);
   #define USB_PERIPHERAL	0
   #define USB_HOST		1
   #define USB_OTG           	2
   #define USB_IDLE		3
   #define USB_OTG_SRP       	4
 
-void usbctrl_vbus_thress(int mode);
+void usbctrl_vbus_thress(int32_t mode);
   #define VBUS_RISE         0x00
   #define VBUS_FALL         0x01
   #define VBUS_SESS         0x02
   #define VBUS_NC           0x03
 
-void usbctrl_vbus_set(int mode);
+void usbctrl_vbus_set(int32_t mode);
   #define VBUS_ON		    0x00
   #define VBUS_OFF		    0x01
   #define VBUS_CHARGE	    0x02
@@ -51,22 +51,22 @@ void usbctrl_vbus_set(int mode);
   #define V_DISCHRG         (F_VBUSMODE_PULSE | B_DISCHRGVBUS)	/*0x13*/
   #define V_HOST            (F_VBUSMODE_ROOTHUB)		/*0x00*/
 
-void usbctrl_resistance_set(int);
+void usbctrl_resistance_set(int32_t);
   #define HIGH_Z            0
   #define PULLUP            1
   #define PULLDOWN          2
 
-void usbctrl_se0_det_int(int);
+void usbctrl_se0_det_int(int32_t);
   #define ENABLE	1
   #define DISABLE	0
 
-int usbctrl_id_check(void);
+int32_t usbctrl_id_check(void);
 
-int usbctrl_vbus_status(void);
+int32_t usbctrl_vbus_status(void);
 
 void usbctrl_interrupt(void);
 
-extern ulong usbctrl_state;
+extern uint32_t usbctrl_state;
 
 extern void usbhost_interrupt(void);
 

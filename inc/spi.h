@@ -9,10 +9,10 @@
 /*************/
 void init_spi(void);
 
-void WriteSPI(UBYTE data_out);
-UBYTE ReadSPI(void);
+void WriteSPI(uint8_t data_out);
+uint8_t ReadSPI(void);
 
-void WriteSPI_1(UBYTE data_out);
-UBYTE ReadSPI_1(void);
+void WriteSPI_1(uint8_t data_out);
+uint8_t ReadSPI_1(void);
 
 #endif

@@ -26,47 +26,47 @@
 #include "rt2501usb.h"
 
 typedef struct _CHANNEL_TX_POWER {
-	unsigned char Channel;
-	signed char Power;
+	uint8_t Channel;
+	int8_t Power;
 }	CHANNEL_TX_POWER, *PCHANNEL_TX_POWER;
 
 typedef struct	_RT2501_RF_REGS {
-	unsigned char Channel;
-	unsigned int R1;
-	unsigned int R2;
-	unsigned int R3;
-	unsigned int R4;
+	uint8_t Channel;
+	uint32_t R1;
+	uint32_t R2;
+	uint32_t R3;
+	uint32_t R4;
 }	RT2501_RF_REGS, *PRT2501_RF_REGS;
 
 static char rt2501_connected;
 
 PDEVINFO rt2501_dev;
 
-//static unsigned int rt2501_asicver;
+//static uint32_t rt2501_asicver;
 
-unsigned char rt2501_mac[IEEE80211_ADDR_LEN];
-static unsigned short int rt2501_eeprom_defaults[RT2501_NUM_EEPROM_BBP_PARMS];
-static unsigned char rt2501_BbpRssiToDbmDelta;
+uint8_t rt2501_mac[IEEE80211_ADDR_LEN];
+static uint16_t rt2501_eeprom_defaults[RT2501_NUM_EEPROM_BBP_PARMS];
+static uint8_t rt2501_BbpRssiToDbmDelta;
 static EEPROM_ANTENNA_STRUC rt2501_Antenna;
-static unsigned int rt2501_RfFreqOffset; /* Frequency offset for channel switching */
-static unsigned char rt2501_auto_tx_agc; /* Enable driver auto Tx Agc control */
-static unsigned char rt2501_TSSI_Ref; /* Store Tssi reference value as 25 tempature. */
-static unsigned char rt2501_TSSI_PlusBoundary[5]; /* Tssi boundary for increase Tx power to compensate. */
-static unsigned char rt2501_TSSI_MinusBoundary[5]; /* Tssi boundary for decrease Tx power to compensate. */
-static unsigned char rt2501_TxAgcStep; /* Store Tx TSSI delta increment / decrement value */
-static signed char rt2501_TxAgcCompensate; /* Store the compensation (TxAgcStep * (idx-1)) */
-static signed char rt2501_RssiOffset1; /* Store B/G RSSI#1 Offset value on EEPROM 0x9Ah */
-static signed char rt2501_RssiOffset2; /* Store B/G RSSI#2 Offset value */
+static uint32_t rt2501_RfFreqOffset; /* Frequency offset for channel switching */
+static uint8_t rt2501_auto_tx_agc; /* Enable driver auto Tx Agc control */
+static uint8_t rt2501_TSSI_Ref; /* Store Tssi reference value as 25 tempature. */
+static uint8_t rt2501_TSSI_PlusBoundary[5]; /* Tssi boundary for increase Tx power to compensate. */
+static uint8_t rt2501_TSSI_MinusBoundary[5]; /* Tssi boundary for decrease Tx power to compensate. */
+static uint8_t rt2501_TxAgcStep; /* Store Tx TSSI delta increment / decrement value */
+static int8_t rt2501_TxAgcCompensate; /* Store the compensation (TxAgcStep * (idx-1)) */
+static int8_t rt2501_RssiOffset1; /* Store B/G RSSI#1 Offset value on EEPROM 0x9Ah */
+static int8_t rt2501_RssiOffset2; /* Store B/G RSSI#2 Offset value */
 
 static CHANNEL_TX_POWER	rt2501_txpower[RT2501_MAX_NUM_OF_CHANNELS]; /* Store Tx power value for all channels. */
 static EEPROM_TXPOWER_DELTA_STRUC rt2501_TxPowerDeltaConfig;
 static RT2501_RF_REGS rt2501_LatchRfRegs;
 
-static unsigned char rt2501_channel;
+static uint8_t rt2501_channel;
 
 static const struct {
-	unsigned short int reg;
-	unsigned int val;
+	uint16_t reg;
+	uint32_t val;
 } rt2501_mac_defaults[] = {
 	{RT2501_TXRX_CSR0,	0x025fb032}, /* 0x3040, RX control, default Disable RX */
 	{RT2501_TXRX_CSR1,	0x9eaa9eaf}, /* 0x3044, BBP 30:Ant-A RSSI, R51:Ant-B RSSI, R42:OFDM rate, R47:CCK SIGNAL */
@@ -93,8 +93,8 @@ static const struct {
 };
 
 static const struct {
-	unsigned char reg;
-	unsigned char val;
+	uint8_t reg;
+	uint8_t val;
 } rt2501_bbp_defaults[] = {
 	{3, 	0x80},
 	{15,	0x30},
@@ -182,15 +182,15 @@ static const RT2501_RF_REGS RF5225RegTable[] = {
 };
 #define RT2501_NUM_OF_5225_CHNL (sizeof(RF5225RegTable) / sizeof(RT2501_RF_REGS))
 
-static int rt2501_setup(void)
+static int32_t rt2501_setup(void)
 {
-	int i;
+	uint32_t i;
 	MAC_CSR12_STRUC csr12;
 
 	DBG_WIFI("Loading 8051 firmware...");
 	for(i=0;i<sizeof(rt2501_firmware);i+=4) {
 		if(!rt2501_write(rt2501_dev, RT2501_FIRMWARE_IMAGE_BASE+i,
-			     *((unsigned int *)&rt2501_firmware[i]))) return 0;
+			     *((int32_t *)&rt2501_firmware[i]))) return 0;
 #ifdef DEBUG_WIFI
 		if((i % 64) == 0) DBG_WIFI(".");
 #endif
@@ -261,12 +261,12 @@ static int rt2501_setup(void)
 	return 1;
 }
 
-static int rt2501_setup_eeprom(void)
+static int32_t rt2501_setup_eeprom(void)
 {
-	int i;
-	signed char channels[RT2501_MAX_NUM_OF_CHANNELS];
-	unsigned short int value;
-	unsigned int value2;
+	int32_t i;
+	int8_t channels[RT2501_MAX_NUM_OF_CHANNELS];
+	uint16_t value;
+	uint32_t value2;
 	MAC_CSR2_STRUC csr2;
 	MAC_CSR3_STRUC csr3;
 
@@ -406,8 +406,8 @@ static int rt2501_setup_eeprom(void)
 
 static void rt2501_antenna_setting()
 {
-	unsigned char R3 = 0, R4 = 0, R77 = 0;
-	unsigned char FrameTypeMaskBit5 = 0;
+	uint8_t R3 = 0, R4 = 0, R77 = 0;
+	uint8_t FrameTypeMaskBit5 = 0;
 
 	sprintf(dbg_buffer, "RxDefaultAntenna=%x\r\nRfIcType=%x",rt2501_Antenna.field.RxDefaultAntenna,rt2501_Antenna.field.RfIcType);
 	DBG(dbg_buffer);
@@ -543,11 +543,11 @@ static void rt2501_update_rf(void)
 	rt2501_write_rf(rt2501_dev, rt2501_LatchRfRegs.R4);
 }
 
-void rt2501_switch_channel(unsigned char channel)
+void rt2501_switch_channel(uint8_t channel)
 {
-	unsigned int R3 = 5, R4;
-	signed char TxPwer = 0, Bbp94 = BBPR94_DEFAULT;
-	unsigned char index, BbpReg;
+	uint32_t R3 = 5, R4;
+	int8_t TxPwer = 0, Bbp94 = BBPR94_DEFAULT;
+	uint8_t index, BbpReg;
 
 	rt2501_channel = channel;
 
@@ -565,7 +565,7 @@ void rt2501_switch_channel(unsigned char channel)
 		/* R3 can't be larger than 36 (0x24), 31 ~ 36 used by BBP 94 */
 		R3 = 31;
 		if(TxPwer <= 36)
-			Bbp94 = BBPR94_DEFAULT + (unsigned char )(TxPwer - 31);
+			Bbp94 = BBPR94_DEFAULT + (uint8_t )(TxPwer - 31);
 	} else if(TxPwer < 0) {
 		/* R3 can't be less than 0, -1 ~ -6 used by BBP 94 */
 		R3 = 0;
@@ -679,7 +679,7 @@ void rt2501_switch_channel(unsigned char channel)
 #endif
 }
 
-int rt2501_set_bssid(const unsigned char *bssid)
+int32_t rt2501_set_bssid(const uint8_t *bssid)
 {
 	MAC_CSR4_STRUC csr4;
 	MAC_CSR5_STRUC csr5;
@@ -707,10 +707,10 @@ int rt2501_set_bssid(const unsigned char *bssid)
 
 static void rt2501_calibrate(void)
 {
-	unsigned char index;
-	signed char TxPwer, CurrTxPwr;
-	unsigned int R3 = 5;
-	unsigned char BbpR1;
+	uint8_t index;
+	int8_t TxPwer=0, CurrTxPwr;
+	int32_t R3 = 5;
+	uint8_t BbpR1;
 
 	for(index=0;index<RT2501_MAX_NUM_OF_CHANNELS;index++) {
 		if(rt2501_channel == rt2501_txpower[index].Channel) {
@@ -773,9 +773,9 @@ static void rt2501_calibrate(void)
 	}
 }
 
-static char *rt2501_rxbuf; /* to store the URB temporarily */
-static unsigned int rt2501_frame_position;
-static char rt2501_frame[RT2501_MAX_FRAME_SIZE];
+static uint8_t *rt2501_rxbuf; /* to store the URB temporarily */
+static uint32_t rt2501_frame_position;
+static uint8_t rt2501_frame[RT2501_MAX_FRAME_SIZE];
 
 static void rt2501_submit_rx(void);
 
@@ -784,7 +784,7 @@ static void rt2501_rx_callback(PURB urb)
 	PRXD_STRUC rxd;
 
 	if(urb->status < 0) {
-		sprintf(dbg_buffer, "USB BULK RX ERROR, status=%d, result=%d\r\n",
+		sprintf(dbg_buffer, "USB BULK RX ERROR, status=%ld, result=%ld\r\n",
 			urb->status, urb->result);
 		DBG_WIFI(dbg_buffer);
 		rt2501_connected = 0;
@@ -849,7 +849,7 @@ static void rt2501_submit_rx(void)
 	usbh_transfer_request(urb);
 }
 
-static const unsigned char RateIdToPlcpSignal[12] = {
+static const uint8_t RateIdToPlcpSignal[12] = {
 	0, 1, 2, 3,		/* see BBP spec */
 	11, 15, 10, 14,		/* see IEEE802.11a-1999 p.14 */
 	9, 3, 8, 12		/* see IEEE802.11a-1999 p.14 */
@@ -857,20 +857,20 @@ static const unsigned char RateIdToPlcpSignal[12] = {
 
 void rt2501_make_tx_descriptor(
 	PTXD_STRUC txd,
-	unsigned char CipherAlg,
-	unsigned char KeyTable,
-	unsigned char KeyIdx,
-	char Ack,
-	char Fragment,
-	char InsTimestamp,
-	unsigned char RetryMode,
-	unsigned char Ifs,
-	unsigned int Rate,
-	unsigned int Length,
-	unsigned char QueIdx,
-	unsigned char PacketId)
+	uint8_t CipherAlg,
+	uint8_t KeyTable,
+	uint8_t KeyIdx,
+	uint8_t Ack,
+	uint8_t Fragment,
+	uint8_t InsTimestamp,
+	uint8_t RetryMode,
+	uint8_t Ifs,
+	uint32_t Rate,
+	uint32_t Length,
+	uint8_t QueIdx,
+	uint8_t PacketId)
 {
-	unsigned int Residual;
+	uint32_t Residual;
 
 	memset(txd, 0, sizeof(TXD_STRUC));
 
@@ -890,7 +890,7 @@ void rt2501_make_tx_descriptor(
 	/* fill encryption related information, if required */
 	txd->CipherAlg = CipherAlg;
 
-	sprintf(dbg_buffer, "Cipher = %u, rate = %u\r\n", CipherAlg, Rate);
+	sprintf(dbg_buffer, "Cipher = %u, rate = %lu\r\n", CipherAlg, Rate);
 	DBG(dbg_buffer);
 
 	if(CipherAlg != RT2501_CIPHER_NONE) {
@@ -971,9 +971,9 @@ void rt2501_make_tx_descriptor(
 }
 
 /* Buffer must be in COMRAM */
-int rt2501_tx(void *buffer, unsigned int length)
+int32_t rt2501_tx(void *buffer, uint32_t length)
 {
-	int ret;
+	int32_t ret;
 
 	/* Length must be a multiple of 4 */
 	if((length % 4) != 0) length += 4 - (length % 4);
@@ -981,17 +981,17 @@ int rt2501_tx(void *buffer, unsigned int length)
 	if((length % RT2501_USB_PACKET_SIZE) == 0) length += 4;
 
 	ret = usbh_bulk_transfer_async(rt2501_dev, 1, buffer, length);
-	
-	sprintf(dbg_buffer, "ret = %d\r\n", ret);
+
+	sprintf(dbg_buffer, "ret = %ld\r\n", ret);
 	DBG(dbg_buffer);
 
 	return ((ret > 0) || (ret == URB_PENDING));
 }
 
-int rt2501_beacon(void *buffer, unsigned int length)
+int32_t rt2501_beacon(void *buffer, uint32_t length)
 {
 	TXRX_CSR9_STRUC csr9;
-	unsigned int i;
+	uint32_t i;
 
 	csr9.word = rt2501_read(rt2501_dev, RT2501_TXRX_CSR9);
 	csr9.field.bBeaconGen = 0;
@@ -1015,7 +1015,7 @@ int rt2501_beacon(void *buffer, unsigned int length)
 		if((length % 4) != 0) length += 4 - (length % 4);
 		for(i=0;i<length;i+=4) {
 			rt2501_write(rt2501_dev, RT2501_HW_BEACON_BASE0+i,
-				     *((unsigned int *)((char *)buffer+i)));
+				     *((uint32_t *)((uint8_t *)buffer+i)));
 		}
 
 		csr9.field.bTsfTicking = 1;
@@ -1028,19 +1028,19 @@ int rt2501_beacon(void *buffer, unsigned int length)
 	return 1;
 }
 
-static int rt2501_write_key(unsigned int address, unsigned char *buffer, unsigned int length)
+static int32_t rt2501_write_key(uint32_t address, uint8_t *buffer, uint32_t length)
 {
-	unsigned int i;
+	uint32_t i;
 	union {
 		struct {
-			unsigned char c1;
-			unsigned char c2;
-			unsigned char c3;
-			unsigned char c4;
+			uint8_t c1;
+			uint8_t c2;
+			uint8_t c3;
+			uint8_t c4;
 		} elements;
-		unsigned int value;
+		uint32_t value;
 	} block;
-	
+
 	for(i=0;i<length;i+=4) {
 			block.elements.c1 = buffer[i+0];
 			block.elements.c2 = buffer[i+1];
@@ -1057,11 +1057,11 @@ static int rt2501_write_key(unsigned int address, unsigned char *buffer, unsigne
 	return 1;
 }
 
-int rt2501_set_key(unsigned char index, unsigned char *key, unsigned char *txmic, unsigned char *rxmic, unsigned char cipher)
+int32_t rt2501_set_key(uint8_t index, uint8_t *key, uint8_t *txmic, uint8_t *rxmic, uint8_t cipher)
 {
-	unsigned int csr0, csr1;
-	unsigned int key_length;
-	unsigned int base_address;
+	uint32_t csr0, csr1;
+	uint32_t key_length=0;
+	uint32_t base_address;
 
 	switch(cipher) {
 	case RT2501_CIPHER_NONE:
@@ -1077,31 +1077,31 @@ int rt2501_set_key(unsigned char index, unsigned char *key, unsigned char *txmic
 		key_length = EAPOL_TKIP_EK_LENGTH;
 		break;
 	}
-	
+
 	/* Mark the key invalid */
 	csr0 = rt2501_read(rt2501_dev, RT2501_SEC_CSR0);
 	csr0 &= ~(1 << index);
 	if(!rt2501_write(rt2501_dev, RT2501_SEC_CSR0, csr0)) return 0;
 
 	base_address = RT2501_SHARED_KEY_TABLE_BASE+index*RT2501_KEY_ENTRY_SIZE;
-	
+
 	if((key != NULL) && (cipher != RT2501_CIPHER_NONE)) {
 		/* Send the key data */
 		if(!rt2501_write_key(base_address, key, key_length)) return 0;
-		
+
 		if(cipher == RT2501_CIPHER_TKIP) {
 			/* Send the TX MIC key */
 			if(!rt2501_write_key(base_address+RT2501_MICS_OFFSET, txmic, EAPOL_TKIP_TXMICK_LENGTH)) return 0;
 			/* Send the RX MIC key */
 			if(!rt2501_write_key(base_address+RT2501_MICS_OFFSET+EAPOL_TKIP_TXMICK_LENGTH, rxmic, EAPOL_TKIP_RXMICK_LENGTH)) return 0;
 		}
-	
+
 		/* Set cipher algorithm */
 		csr1 = rt2501_read(rt2501_dev, RT2501_SEC_CSR1);
 		csr1 &= ~(0xf << (index*4));
 		csr1 |= cipher << (index*4);
 		if(!rt2501_write(rt2501_dev, RT2501_SEC_CSR1, csr1)) return 0;
-	
+
 		/* Mark the key valid again */
 		csr0 |= 1 << index;
 		if(!rt2501_write(rt2501_dev, RT2501_SEC_CSR0, csr0)) return 0;
@@ -1110,9 +1110,9 @@ int rt2501_set_key(unsigned char index, unsigned char *key, unsigned char *txmic
 	return 1;
 }
 
-unsigned short int rt2501_txtime(unsigned int len, unsigned char rate)
+uint16_t rt2501_txtime(uint32_t len, uint8_t rate)
 {
-	unsigned short int txtime;
+	uint16_t txtime;
 
 	txtime = 20 + 6; /* 16 + 4 preamble + plcp + Signal Extension */
 	txtime += 4 * ((11+len*4)/rate);
@@ -1120,13 +1120,13 @@ unsigned short int rt2501_txtime(unsigned int len, unsigned char rate)
 	return txtime;
 }
 
-static int rt2501_cal_timer;
+static int32_t rt2501_cal_timer;
 
 static void *rt2501_connect(PDEVINFO dev)
 {
 	struct usb_interface_descriptor *interface;
 	struct usb_endpoint_descriptor *endpoint;
-	int bulk_tx_recognized, bulk_rx_recognized;
+	int32_t bulk_tx_recognized, bulk_rx_recognized;
 
 	if(!dev) return NULL;
 	if(!dev->descriptor) return NULL;
@@ -1251,9 +1251,10 @@ static struct usbh_driver usb_rt2501_driver = {
 	"rt2501",
 	rt2501_connect,
 	rt2501_disconnect,
+  {NULL}
 };
 
-int rt2501_driver_install(void)
+int32_t rt2501_driver_install(void)
 {
 	rt2501_connected = 0;
 	usbh_driver_install(&usb_rt2501_driver);
@@ -1261,7 +1262,7 @@ int rt2501_driver_install(void)
 	return OK;
 }
 
-int rt2501_state(void)
+int32_t rt2501_state(void)
 {
 	if(!rt2501_connected) return RT2501_S_BROKEN;
 	if(ieee80211_mode == IEEE80211_M_MASTER) return RT2501_S_MASTER;

@@ -13,33 +13,33 @@
 #include "ml60842.h"
 #include "debug.h"
 
-ulong usbctrl_state = 0;
+uint32_t usbctrl_state = 0;
 
 struct _usbctrl_driver_table {
-	int (*usb_peri_init)(void);
+	int32_t (*usb_peri_init)(void);
 	void (*usb_peri_interrupt)(void);
-	int (*usb_host_init)(void);
+	int32_t (*usb_host_init)(void);
 	void (*usb_host_interrupt)(void);
 } usbctrl_driver_table;
 
-int usbctrl_mode_set(int mode)
+int32_t usbctrl_mode_set(int32_t mode)
 {
-	int loop;
-	int ret;
-	
+	int32_t loop;
+	int32_t ret;
+
 	usbctrl_resistance_set(PULLDOWN);
-	
+
 	//Set Host function
 	put_value(HostPeriSel,B_HOST_SEL);
-	
+
 	//wait for chip to be ready
 	loop=0;
 	while(get_wvalue(HostPeriSel) & B_OPERATION)
 	{
 	      if(loop++>100) return E_NG;
 	}
-	
-	
+
+
 	if( usbctrl_driver_table.usb_host_init != NULL )
 	{
 	      ret = usbctrl_driver_table.usb_host_init();
@@ -52,9 +52,9 @@ int usbctrl_mode_set(int mode)
 	return E_OK;
 }
 
-int usbctrl_init(int mode)
+int32_t usbctrl_init(int32_t mode)
 {
-    int loop;
+    int32_t loop;
 
     //Reset clock control register init
     put_wvalue(RstClkCtl,B_XRUN);
@@ -92,7 +92,7 @@ int usbctrl_init(int mode)
 	return E_OK;
 }
 
-void usbctrl_host_driver_set(int (*initialize)(void), void (*interrupt)(void))
+void usbctrl_host_driver_set(int32_t (*initialize)(void), void (*interrupt)(void))
 {
 	usbctrl_driver_table.usb_host_init = initialize;
 	usbctrl_driver_table.usb_host_interrupt = interrupt;
@@ -100,9 +100,9 @@ void usbctrl_host_driver_set(int (*initialize)(void), void (*interrupt)(void))
 	return;
 }
 
-void usbctrl_resistance_set(int mode)
+void usbctrl_resistance_set(int32_t mode)
 {
-	uint    otg_ctl;
+	uint32_t    otg_ctl;
 
 	otg_ctl = (get_wvalue(OTGCtl) & ~(B_PDCTLDP | B_PDCTLDM | B_PUCTLDP));
 
@@ -123,9 +123,9 @@ void usbctrl_resistance_set(int mode)
 	return;
 }
 
-void usbctrl_vbus_set(int mode)
+void usbctrl_vbus_set(int32_t mode)
 {
-	uint    ctl;
+	uint32_t    ctl;
 
 	ctl = get_wvalue(OTGCtl);
 	ctl &= ~(B_DISCHRGVBUS | B_CHRGVBUS | B_DRVVBUS | M_VBUSMODE);
@@ -159,10 +159,10 @@ void usbctrl_vbus_set(int mode)
 	put_wvalue(OTGCtl, ctl);
 }
 
-void usbctrl_vbus_thress(int mode)
+void usbctrl_vbus_thress(int32_t mode)
 {
-	uint msk;
-	uint ctl;
+	uint32_t msk;
+	uint32_t ctl;
 
 	msk = get_wvalue( OTGIntMask );
 	ctl = (get_wvalue(OTGCtl) & ~(M_SELSV));
@@ -194,8 +194,8 @@ void usbctrl_vbus_thress(int mode)
 
 void usbctrl_interrupt(void)
 {
-	ulong status;
-	int   loop;
+	uint32_t status;
+	int32_t   loop;
 
         //Clear EXINT2 interrupt
         set_hbit(EXIRQB,IRQB_IRQ36);

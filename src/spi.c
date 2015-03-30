@@ -79,7 +79,7 @@ void init_spi(void)
 /*          Input   :   Byte to send                                        */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void WriteSPI(UBYTE data_out)
+void WriteSPI(uint8_t data_out)
 {
   //write data
   put_value(SPDWR0,data_out);
@@ -96,9 +96,9 @@ void WriteSPI(UBYTE data_out)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Return of the byte received                         */
 /****************************************************************************/
-UBYTE ReadSPI(void)
+uint8_t ReadSPI(void)
 {
-  UBYTE read_char;
+  uint8_t read_char;
 
   //write data
   put_value(SPDWR0,0x00);
@@ -118,7 +118,7 @@ UBYTE ReadSPI(void)
 /*          Input   :   Byte to send                                        */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void WriteSPI_1(UBYTE data_out)
+void WriteSPI_1(uint8_t data_out)
 {
   //write data
   put_value(SPDWR1,data_out);
@@ -135,9 +135,9 @@ void WriteSPI_1(UBYTE data_out)
 /*          Input   :   Nothing                                             */
 /*          Output  :   Return of the byte received                         */
 /****************************************************************************/
-UBYTE ReadSPI_1(void)
+uint8_t ReadSPI_1(void)
 {
-  UBYTE read_char;
+  uint8_t read_char;
 
   //write data
   put_value(SPDWR1,0x00);

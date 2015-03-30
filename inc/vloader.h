@@ -12,20 +12,20 @@
 #define SYS_ENV 4
 #define SYS_CBREC 5
 
-#define bytecode ((char*)vmem_heap)
+#define bytecode ((uint8_t*)vmem_heap)
 //extern char bytecode[65536];
-//extern char *bytecode;
+//extern uint8_t *bytecode;
 
 
-extern char *bc_tabfun;
-extern int bc_nbfun;
-extern int sys_start;
-extern int global_start;
+extern uint8_t *bc_tabfun;
+extern int32_t bc_nbfun;
+extern int32_t sys_start;
+extern int32_t global_start;
 
-int loaderGetInt(char *src);
-int loaderGetShort(char *src);
-int loaderFunstart(int funnumber);
-int loaderInit(char *src);
+int32_t loaderGetInt(uint8_t *src);
+int32_t loaderGetShort(uint8_t *src);
+int32_t loaderFunstart(int32_t funnumber);
+int32_t loaderInit(uint8_t *src);
 
 #endif
 

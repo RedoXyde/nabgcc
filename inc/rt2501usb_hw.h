@@ -216,88 +216,88 @@
 
 typedef	union	_MAC_CSR2_STRUC	{
 	struct	{
-		UCHAR		Byte0;
-		UCHAR		Byte1;
-		UCHAR		Byte2;
-		UCHAR		Byte3;
+		uint8_t		Byte0;
+		uint8_t		Byte1;
+		uint8_t		Byte2;
+		uint8_t		Byte3;
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	MAC_CSR2_STRUC, *PMAC_CSR2_STRUC;
 
 typedef	union	_MAC_CSR3_STRUC	{
 	struct	{
-		UCHAR		Byte4;
-		UCHAR		Byte5;
-		UCHAR		U2MeMask;
-		UCHAR		Rsvd1;
+		uint8_t		Byte4;
+		uint8_t		Byte5;
+		uint8_t		U2MeMask;
+		uint8_t		Rsvd1;
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	MAC_CSR3_STRUC, *PMAC_CSR3_STRUC;
 
 typedef	union	_MAC_CSR4_STRUC	{
 	struct	{
-		UCHAR		Byte0;		// BSSID byte 0
-		UCHAR		Byte1;		// BSSID byte 1
-		UCHAR		Byte2;		// BSSID byte 2
-		UCHAR		Byte3;		// BSSID byte 3
+		uint8_t		Byte0;		// BSSID byte 0
+		uint8_t		Byte1;		// BSSID byte 1
+		uint8_t		Byte2;		// BSSID byte 2
+		uint8_t		Byte3;		// BSSID byte 3
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	MAC_CSR4_STRUC, *PMAC_CSR4_STRUC;
 
 typedef	union	_MAC_CSR5_STRUC	{
 	struct	{
-		UCHAR		Byte4;		 // BSSID byte 4
-		UCHAR		Byte5;		 // BSSID byte 5
-		USHORT      BssIdMask:2; // 11: one BSSID, 00: 4 BSSID, 10 or 01: 2 BSSID
-		USHORT		Rsvd:14;
+		uint8_t		Byte4;		 // BSSID byte 4
+		uint8_t		Byte5;		 // BSSID byte 5
+		uint16_t      BssIdMask:2; // 11: one BSSID, 00: 4 BSSID, 10 or 01: 2 BSSID
+		uint16_t		Rsvd:14;
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	MAC_CSR5_STRUC, *PMAC_CSR5_STRUC;
 
 typedef	union	_MAC_CSR12_STRUC	{
 	struct	{
-		ULONG		CurrentPowerState:1; /* 0:sleep, 1:awake */
-		ULONG       PutToSleep:1;
-		ULONG       ForceWakeup:1;/* ForceWake has higher privilege than PutToSleep when both set */
-		ULONG		BbpRfStatus:1; /* 0: not ready, 1:ready */
-		ULONG		:28;
+		uint32_t		CurrentPowerState:1; /* 0:sleep, 1:awake */
+		uint32_t       PutToSleep:1;
+		uint32_t       ForceWakeup:1;/* ForceWake has higher privilege than PutToSleep when both set */
+		uint32_t		BbpRfStatus:1; /* 0: not ready, 1:ready */
+		uint32_t		:28;
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	MAC_CSR12_STRUC, *PMAC_CSR12_STRUC;
 
 typedef	union	_TXRX_CSR9_STRUC	{
 	struct	{
-		ULONG       BeaconInterval:16; /* in unit of 1/16 TU */
-		ULONG		bTsfTicking:1; /* Enable TSF auto counting */
-		ULONG		TsfSyncMode:2; /* Enable TSF sync, 00: disable, 01: infra mode, 10: ad-hoc mode */
-		ULONG       bTBTTEnable:1;
-		ULONG		bBeaconGen:1; /* Enable beacon generator */
-		ULONG       :3;
-		ULONG		TxTimestampCompensate:8;
+		uint32_t       BeaconInterval:16; /* in unit of 1/16 TU */
+		uint32_t		bTsfTicking:1; /* Enable TSF auto counting */
+		uint32_t		TsfSyncMode:2; /* Enable TSF sync, 00: disable, 01: infra mode, 10: ad-hoc mode */
+		uint32_t       bTBTTEnable:1;
+		uint32_t		bBeaconGen:1; /* Enable beacon generator */
+		uint32_t       :3;
+		uint32_t		TxTimestampCompensate:8;
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	TXRX_CSR9_STRUC, *PTXRX_CSR9_STRUC;
 
 typedef	union	_PHY_CSR3_STRUC	{
 	struct	{
-		ULONG		Value:8; /* Register value to program into BBP */
-		ULONG		RegNum:7; /* Selected BBP register */
-		ULONG		fRead:1; /* 0: Write BBP, 1: Read BBP */
-		ULONG		Busy:1; /* 1: ASIC is busy doing BBP programming. */
-		ULONG		:15;
+		uint32_t		Value:8; /* Register value to program into BBP */
+		uint32_t		RegNum:7; /* Selected BBP register */
+		uint32_t		fRead:1; /* 0: Write BBP, 1: Read BBP */
+		uint32_t		Busy:1; /* 1: ASIC is busy doing BBP programming. */
+		uint32_t		:15;
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	PHY_CSR3_STRUC, *PPHY_CSR3_STRUC;
 
 typedef	union	_PHY_CSR4_STRUC	{
 	struct	{
-		ULONG		RFRegValue:24; /* Register value (include register id) serial out to RF/IF chip. */
-		ULONG		NumberOfBits:5; /* Number of bits used in RFRegValue (I:20, RFMD:22) */
-		ULONG		IFSelect:1; /* 1: select IF to program, 0: select RF to program */
-		ULONG		PLL_LD:1; /* RF PLL_LD status */
-		ULONG		Busy:1; /* 1: ASIC is busy executing RF programming. */
+		uint32_t		RFRegValue:24; /* Register value (include register id) serial out to RF/IF chip. */
+		uint32_t		NumberOfBits:5; /* Number of bits used in RFRegValue (I:20, RFMD:22) */
+		uint32_t		IFSelect:1; /* 1: select IF to program, 0: select RF to program */
+		uint32_t		PLL_LD:1; /* RF PLL_LD status */
+		uint32_t		Busy:1; /* 1: ASIC is busy executing RF programming. */
 	}	field;
-	ULONG			word;
+	uint32_t			word;
 }	PHY_CSR4_STRUC, *PPHY_CSR4_STRUC;
 
 /*
@@ -306,66 +306,66 @@ typedef	union	_PHY_CSR4_STRUC	{
 
 typedef	union	_EEPROM_ANTENNA_STRUC	{
 	struct	{
-		USHORT		NumOfAntenna:2;
-		USHORT		TxDefaultAntenna:2; /* default of antenna, 0: diversity, 1:antenna-A, 2:antenna-B reserved (default = 0) */
-		USHORT		RxDefaultAntenna:2; /* default of antenna, 0: diversity, 1:antenna-A, 2:antenna-B reserved (default = 0) */
-		USHORT		FrameType:1; /* 0: DPDT , 1: SPDT , noted this bit is valid for g only.	*/
-		USHORT		Rsv:2;
-		USHORT      DynamicTxAgcControl:1;
-		USHORT		HardwareRadioControl:1;	/* 1: Hardware controlled radio enabled, Read GPIO0 required. */
-		USHORT      RfIcType:5;
+		uint16_t		NumOfAntenna:2;
+		uint16_t		TxDefaultAntenna:2; /* default of antenna, 0: diversity, 1:antenna-A, 2:antenna-B reserved (default = 0) */
+		uint16_t		RxDefaultAntenna:2; /* default of antenna, 0: diversity, 1:antenna-A, 2:antenna-B reserved (default = 0) */
+		uint16_t		FrameType:1; /* 0: DPDT , 1: SPDT , noted this bit is valid for g only.	*/
+		uint16_t		Rsv:2;
+		uint16_t      DynamicTxAgcControl:1;
+		uint16_t		HardwareRadioControl:1;	/* 1: Hardware controlled radio enabled, Read GPIO0 required. */
+		uint16_t      RfIcType:5;
 	}	field;
-	USHORT			word;
+	uint16_t			word;
 }	EEPROM_ANTENNA_STRUC, *PEEPROM_ANTENNA_STRUC;
 
 typedef	union	_EEPROM_NIC_CINFIG2_STRUC	{
 	struct	{
-		USHORT		Rsv1:4;
-		USHORT		ExternalLNA:1;
-		USHORT      Rsv2:11;
+		uint16_t		Rsv1:4;
+		uint16_t		ExternalLNA:1;
+		uint16_t      Rsv2:11;
 	}	field;
-	USHORT			word;
+	uint16_t			word;
 }	EEPROM_NIC_CONFIG2_STRUC, *PEEPROM_NIC_CONFIG2_STRUC;
 
 typedef	union	_EEPROM_TX_PWR_STRUC	{
 	struct	{
-		UCHAR	Byte0; /* Low Byte */
-		UCHAR	Byte1; /* High Byte */
+		uint8_t	Byte0; /* Low Byte */
+		uint8_t	Byte1; /* High Byte */
 	}	field;
-	USHORT	word;
+	uint16_t	word;
 }	EEPROM_TX_PWR_STRUC, *PEEPROM_TX_PWR_STRUC;
 
 typedef	union	_EEPROM_VERSION_STRUC	{
 	struct	{
-		UCHAR	FaeReleaseNumber; /* Low Byte */
-		UCHAR	Version; /* High Byte */
+		uint8_t	FaeReleaseNumber; /* Low Byte */
+		uint8_t	Version; /* High Byte */
 	}	field;
-	USHORT	word;
+	uint16_t	word;
 }	EEPROM_VERSION_STRUC, *PEEPROM_VERSION_STRUC;
 
 typedef	union	_EEPROM_LED_STRUC	{
 	struct	{
-		USHORT	PolarityRDY_G:1;
-		USHORT	PolarityRDY_A:1;
-		USHORT	PolarityACT:1;
-		USHORT	PolarityGPIO_0:1;
-		USHORT	PolarityGPIO_1:1;
-		USHORT	PolarityGPIO_2:1;
-		USHORT	PolarityGPIO_3:1;
-		USHORT	PolarityGPIO_4:1;
-		USHORT	LedMode:5;
-		USHORT	Rsvd:3;
+		uint16_t	PolarityRDY_G:1;
+		uint16_t	PolarityRDY_A:1;
+		uint16_t	PolarityACT:1;
+		uint16_t	PolarityGPIO_0:1;
+		uint16_t	PolarityGPIO_1:1;
+		uint16_t	PolarityGPIO_2:1;
+		uint16_t	PolarityGPIO_3:1;
+		uint16_t	PolarityGPIO_4:1;
+		uint16_t	LedMode:5;
+		uint16_t	Rsvd:3;
 	}	field;
-	USHORT	word;
+	uint16_t	word;
 }	EEPROM_LED_STRUC, *PEEPROM_LED_STRUC;
 
 typedef	union	_EEPROM_TXPOWER_DELTA_STRUC	{
 	struct	{
-		UCHAR	DeltaValue:6; /* Tx Power delta value (MAX=4) */
-		UCHAR	Type:1; /* 1: plus the delta value, 0: minus the delta value */
-		UCHAR	TxPowerEnable:1;
+		uint8_t	DeltaValue:6; /* Tx Power delta value (MAX=4) */
+		uint8_t	Type:1; /* 1: plus the delta value, 0: minus the delta value */
+		uint8_t	TxPowerEnable:1;
 	}	field;
-	UCHAR	value;
+	uint8_t	value;
 }	EEPROM_TXPOWER_DELTA_STRUC, *PEEPROM_TXPOWER_DELTA_STRUC;
 
 /* calibrate every 4s */
@@ -375,38 +375,38 @@ typedef	union	_EEPROM_TXPOWER_DELTA_STRUC	{
 
 typedef	struct	_RXD_STRUC	{
 	/* Word	0 */
-	ULONG	Owner:1; /* 1: owned by ASIC, 0: owned by HOST driver */
-	ULONG	Drop:1;	 /* 1: drop without receiving to HOST */
-	ULONG	U2M:1; /* 1: this RX frame is unicast to me */
-	ULONG	Mcast:1; /* 1: this is a multicast frame */
-	ULONG	Bcast:1; /* 1: this is a broadcast frame */
-	ULONG	MyBss:1; /* 1: this frame belongs to the same BSSID */
-	ULONG	Crc:1; /* 1: CRC error */
-	ULONG	Ofdm:1; /* 1: this frame is received in OFDM rate */
-	ULONG	CipherErr:2; /* 0: decryption okay, 1:ICV error, 2:MIC error, 3:KEY not valid */
-	ULONG	KeyIndex:6; /* decryption key actually used */
-	ULONG	DataByteCnt:12;
-	ULONG	Rsv:1;
-	ULONG	CipherAlg:3;
+	uint32_t	Owner:1; /* 1: owned by ASIC, 0: owned by HOST driver */
+	uint32_t	Drop:1;	 /* 1: drop without receiving to HOST */
+	uint32_t	U2M:1; /* 1: this RX frame is unicast to me */
+	uint32_t	Mcast:1; /* 1: this is a multicast frame */
+	uint32_t	Bcast:1; /* 1: this is a broadcast frame */
+	uint32_t	MyBss:1; /* 1: this frame belongs to the same BSSID */
+	uint32_t	Crc:1; /* 1: CRC error */
+	uint32_t	Ofdm:1; /* 1: this frame is received in OFDM rate */
+	uint32_t	CipherErr:2; /* 0: decryption okay, 1:ICV error, 2:MIC error, 3:KEY not valid */
+	uint32_t	KeyIndex:6; /* decryption key actually used */
+	uint32_t	DataByteCnt:12;
+	uint32_t	Rsv:1;
+	uint32_t	CipherAlg:3;
 
 	/* Word 1 */
-	ULONG	PlcpSignal:8; /* RX raw data rate reported by BBP */
-	ULONG	PlcpRssi:8; /* RSSI reported by BBP */
-	ULONG	Rsv0:8;
-	ULONG	FrameOffset:7;
-	ULONG	Rsv1:1;
+	uint32_t	PlcpSignal:8; /* RX raw data rate reported by BBP */
+	uint32_t	PlcpRssi:8; /* RSSI reported by BBP */
+	uint32_t	Rsv0:8;
+	uint32_t	FrameOffset:7;
+	uint32_t	Rsv1:1;
 
 	/* Word	2 */
-	ULONG	Iv; /* received IV if originally encrypted; for replay attack checking */
+	uint32_t	Iv; /* received IV if originally encrypted; for replay attack checking */
 
 	/* Word 3 */
-	ULONG	Eiv; /* received EIV if originally encrypted; for replay attack checking */
+	uint32_t	Eiv; /* received EIV if originally encrypted; for replay attack checking */
 
 	/* Word 4 */
-	ULONG	Rsv2;
+	uint32_t	Rsv2;
 
 	/* Word	5 */
-	ULONG	Rsv3; /* BufPhyAddr */
+	uint32_t	Rsv3; /* BufPhyAddr */
 } RXD_STRUC, *PRXD_STRUC;
 
 #define RT2501_CIPHER_NONE		0
@@ -420,17 +420,17 @@ typedef	struct	_RXD_STRUC	{
 
 typedef	struct	_TXD_STRUC {
 	/* Word 0 */
-	ULONG	Burst:1; /* 1: Contiguously used current End Point, eg, Fragment packet should turn on. */
-	ULONG	Drop:1; /* 0: skip this frame, 1:valid frame inside */
-	ULONG	MoreFrag:1; /* 1: More fragment following this frame */
-	ULONG	ACK:1; /* 1: ACK is required */
-	ULONG	Timestamp:1; /* 1: MAC auto overwrite current TSF into frame body */
-	ULONG	Ofdm:1; /* 1: TX using OFDM rates */
-	ULONG	IFS:1; /* 1: require a BACKOFF before this frame, 0:SIFS before this frame */
-	ULONG	RetryMd:1;
+	uint32_t	Burst:1; /* 1: Contiguously used current End Point, eg, Fragment packet should turn on. */
+	uint32_t	Drop:1; /* 0: skip this frame, 1:valid frame inside */
+	uint32_t	MoreFrag:1; /* 1: More fragment following this frame */
+	uint32_t	ACK:1; /* 1: ACK is required */
+	uint32_t	Timestamp:1; /* 1: MAC auto overwrite current TSF into frame body */
+	uint32_t	Ofdm:1; /* 1: TX using OFDM rates */
+	uint32_t	IFS:1; /* 1: require a BACKOFF before this frame, 0:SIFS before this frame */
+	uint32_t	RetryMd:1;
 
-	ULONG	TkipMic:1; /* 1: ASIC is responsible for appending TKIP MIC if TKIP is in use */
-	ULONG	KeyTable:1; /* 1: use per-client pairwise KEY table, 0: shared KEY table */
+	uint32_t	TkipMic:1; /* 1: ASIC is responsible for appending TKIP MIC if TKIP is in use */
+	uint32_t	KeyTable:1; /* 1: use per-client pairwise KEY table, 0: shared KEY table */
 	/*
 	   Key index (0~31) to the pairwise KEY table; or
 	   0~3 to shared KEY table 0 (BSS0). STA always use BSS0
@@ -438,40 +438,40 @@ typedef	struct	_TXD_STRUC {
 	   8~11 to shared KEY table 2 (BSS2)
 	   12~15 to shared KEY table 3 (BSS3)
 	*/
-	ULONG	KeyIndex:6;
+	uint32_t	KeyIndex:6;
 
-	ULONG	DataByteCnt:12;
-	ULONG	Burst2:1; /* same as "Burst" */
-	ULONG	CipherAlg:3;
+	uint32_t	DataByteCnt:12;
+	uint32_t	Burst2:1; /* same as "Burst" */
+	uint32_t	CipherAlg:3;
 
 	/* Word 1 */
-	ULONG	HostQId:4; /* EDCA/HCCA queue ID */
-	ULONG	Aifsn:4;
-	ULONG	Cwmin:4;
-	ULONG	Cwmax:4;
-	ULONG	IvOffset:6;
-	ULONG	:6;
-	ULONG	HwSeq:1; /* MAC auto replace the 12-bit frame sequence # */
-	ULONG	BufCount:3; /* number of buffers in this TXD */
+	uint32_t	HostQId:4; /* EDCA/HCCA queue ID */
+	uint32_t	Aifsn:4;
+	uint32_t	Cwmin:4;
+	uint32_t	Cwmax:4;
+	uint32_t	IvOffset:6;
+	uint32_t	:6;
+	uint32_t	HwSeq:1; /* MAC auto replace the 12-bit frame sequence # */
+	uint32_t	BufCount:3; /* number of buffers in this TXD */
 
 	/* Word 2 */
-	ULONG	PlcpSignal:8;
-	ULONG	PlcpService:8;
-	ULONG	PlcpLengthLow:8;
-	ULONG	PlcpLengthHigh:8;
+	uint32_t	PlcpSignal:8;
+	uint32_t	PlcpService:8;
+	uint32_t	PlcpLengthLow:8;
+	uint32_t	PlcpLengthHigh:8;
 
 	/* Word 3 */
-	ULONG	Iv;
+	uint32_t	Iv;
 
 	/* Word 4 */
-	ULONG	Eiv;
+	uint32_t	Eiv;
 
 	/* Word 5 */
-	ULONG	FrameOffset:8; /* frame start offset inside ASIC TXFIFO (after TXINFO field) */
-	ULONG	PktId:8; /* driver assigned packet ID to categorize TXResult in TxDoneInterrupt */
-	ULONG	BbpTxPower:8;
-	ULONG	bWaitingDmaDoneInt:1; /* pure s/w flag. 1:TXD been filled with data and waiting for TxDoneISR for housekeeping */
-	ULONG	Reserved:7;
+	uint32_t	FrameOffset:8; /* frame start offset inside ASIC TXFIFO (after TXINFO field) */
+	uint32_t	PktId:8; /* driver assigned packet ID to categorize TXResult in TxDoneInterrupt */
+	uint32_t	BbpTxPower:8;
+	uint32_t	bWaitingDmaDoneInt:1; /* pure s/w flag. 1:TXD been filled with data and waiting for TxDoneISR for housekeeping */
+	uint32_t	Reserved:7;
 } TXD_STRUC, *PTXD_STRUC;
 
 #pragma pack()

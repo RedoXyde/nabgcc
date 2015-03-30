@@ -15,23 +15,23 @@
 #define IEEE80211_IS_MULTICAST(addr) (((char *)(addr))[0] & 0x01)
 
 struct ieee80211_frame {
-	unsigned char	i_fc[2];
-	unsigned char	i_dur[2];
-	unsigned char	i_addr1[IEEE80211_ADDR_LEN];
-	unsigned char	i_addr2[IEEE80211_ADDR_LEN];
-	unsigned char	i_addr3[IEEE80211_ADDR_LEN];
-	unsigned char	i_seq[2];
+	uint8_t i_fc[2];
+	uint8_t i_dur[2];
+	uint8_t i_addr1[IEEE80211_ADDR_LEN];
+	uint8_t i_addr2[IEEE80211_ADDR_LEN];
+	uint8_t i_addr3[IEEE80211_ADDR_LEN];
+	uint8_t i_seq[2];
 	/* possibly followed by addr4 */
 };
 
 struct ieee80211_frame_addr4 {
-	unsigned char	i_fc[2];
-	unsigned char	i_dur[2];
-	unsigned char	i_addr1[IEEE80211_ADDR_LEN];
-	unsigned char	i_addr2[IEEE80211_ADDR_LEN];
-	unsigned char	i_addr3[IEEE80211_ADDR_LEN];
-	unsigned char	i_seq[2];
-	unsigned char	i_addr4[IEEE80211_ADDR_LEN];
+	uint8_t i_fc[2];
+	uint8_t i_dur[2];
+	uint8_t i_addr1[IEEE80211_ADDR_LEN];
+	uint8_t i_addr2[IEEE80211_ADDR_LEN];
+	uint8_t i_addr3[IEEE80211_ADDR_LEN];
+	uint8_t i_seq[2];
+	uint8_t i_addr4[IEEE80211_ADDR_LEN];
 };
 
 #define IEEE80211_FC0_VERSION_MASK		0x03
@@ -107,43 +107,43 @@ struct ieee80211_frame_addr4 {
 /* Control frames */
 
 struct ieee80211_frame_min {
-	unsigned char	i_fc[2];
-	unsigned char	i_dur[2];
-	unsigned char	i_addr1[IEEE80211_ADDR_LEN];
-	unsigned char	i_addr2[IEEE80211_ADDR_LEN];
+	uint8_t i_fc[2];
+	uint8_t i_dur[2];
+	uint8_t i_addr1[IEEE80211_ADDR_LEN];
+	uint8_t i_addr2[IEEE80211_ADDR_LEN];
 };
 
 struct ieee80211_frame_rts {
-	unsigned char	i_fc[2];
-	unsigned char	i_dur[2];
-	unsigned char	i_ra[IEEE80211_ADDR_LEN];
-	unsigned char	i_ta[IEEE80211_ADDR_LEN];
+	uint8_t i_fc[2];
+	uint8_t i_dur[2];
+	uint8_t i_ra[IEEE80211_ADDR_LEN];
+	uint8_t i_ta[IEEE80211_ADDR_LEN];
 };
 
 struct ieee80211_frame_cts {
-	unsigned char	i_fc[2];
-	unsigned char	i_dur[2];
-	unsigned char	i_ra[IEEE80211_ADDR_LEN];
+	uint8_t i_fc[2];
+	uint8_t i_dur[2];
+	uint8_t i_ra[IEEE80211_ADDR_LEN];
 };
 
 struct ieee80211_frame_ack {
-	unsigned char	i_fc[2];
-	unsigned char	i_dur[2];
-	unsigned char	i_ra[IEEE80211_ADDR_LEN];
+	uint8_t i_fc[2];
+	uint8_t i_dur[2];
+	uint8_t i_ra[IEEE80211_ADDR_LEN];
 };
 
 struct ieee80211_frame_pspoll {
-	unsigned char	i_fc[2];
-	unsigned char	i_aid[2];
-	unsigned char	i_bssid[IEEE80211_ADDR_LEN];
-	unsigned char	i_ta[IEEE80211_ADDR_LEN];
+	uint8_t i_fc[2];
+	uint8_t i_aid[2];
+	uint8_t i_bssid[IEEE80211_ADDR_LEN];
+	uint8_t i_ta[IEEE80211_ADDR_LEN];
 };
 
 struct ieee80211_frame_cfend {		/* NB: also CF-End+CF-Ack */
-	unsigned char	i_fc[2];
-	unsigned char	i_dur[2];	/* should be zero */
-	unsigned char	i_ra[IEEE80211_ADDR_LEN];
-	unsigned char	i_bssid[IEEE80211_ADDR_LEN];
+	uint8_t i_fc[2];
+	uint8_t i_dur[2];	/* should be zero */
+	uint8_t i_ra[IEEE80211_ADDR_LEN];
+	uint8_t i_bssid[IEEE80211_ADDR_LEN];
 };
 
 #define IEEE80211_CAPINFO_ESS			0x0001
@@ -260,21 +260,21 @@ enum {
 struct ieee80211_tkip_iv {
 	union {
 		struct {
-			unsigned char rc0;
-			unsigned char rc1;
-			unsigned char rc2;
+			uint8_t rc0;
+			uint8_t rc1;
+			uint8_t rc2;
 			union {
 				struct {
-					unsigned char reserved:5;
-					unsigned char ext_iv:1;
-					unsigned char key_id:2;
+					uint8_t reserved:5;
+					uint8_t ext_iv:1;
+					uint8_t key_id:2;
 				} field;
-				unsigned char byte;
+				uint8_t byte;
 			} control;
 		} field;
-		unsigned int word;
+		uint32_t word;
 	} iv16;
-	unsigned int iv32;
+	uint32_t iv32;
 };
 
 #pragma pack()

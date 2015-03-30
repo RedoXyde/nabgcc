@@ -11,7 +11,7 @@
 /*          Input   :   Nothing                                                */
 /*          Output  :   Nothing                                                */
 /*******************************************************************************/
-__ramfunc void init_uc_flash(void)
+__attribute__ ((section(".ramfunc"))) void init_uc_flash(void)
 {
   //Flash ROM programming is prohibited
   clr_bit(FLACON,0x01);
@@ -34,11 +34,11 @@ __ramfunc void init_uc_flash(void)
 /*                      writing                                                */
 /*          Output  :   Nothing                                                */
 /*******************************************************************************/
-__ramfunc void write_uc_flash(uint address, uchar *data, uint nb_byte, uchar *temp)
+__attribute__ ((section(".ramfunc"))) void write_uc_flash(uint32_t address, uint8_t *data, uint32_t nb_byte, uint8_t *temp)
 {
-  UBYTE *read_char;
-  UHWORD cmpt_int;
-  uchar write_ok;
+  uint8_t *read_char;
+  uint16_t cmpt_int;
+  uint8_t write_ok;
 
   //Stop watchdog clock
   set_bit(TBGCON,0x80);
@@ -46,7 +46,7 @@ __ramfunc void write_uc_flash(uint address, uchar *data, uint nb_byte, uchar *te
 //----------------------------------
 // Save data present on flash sector
 //----------------------------------
-  read_char=(UBYTE*)(0x1F000);
+  read_char=(uint8_t*)(0x1F000);
 
   for(cmpt_int=0; cmpt_int<4096; cmpt_int++)
     temp[cmpt_int]=read_char[cmpt_int];
@@ -151,11 +151,11 @@ __ramfunc void write_uc_flash(uint address, uchar *data, uint nb_byte, uchar *te
   clr_bit(TBGCON,0x80);
 }
 
-__ramfunc void write_uc_flash_sec(uint address, uchar *data, uint nb_byte, uchar *temp)
+__attribute__ ((section(".ramfunc"))) void write_uc_flash_sec(uint32_t address, uint8_t *data, uint32_t nb_byte, uint8_t *temp)
 {
-  UBYTE *read_char;
-  UHWORD cmpt_int;
-  uchar write_ok;
+  uint8_t *read_char;
+  uint16_t cmpt_int;
+  uint8_t write_ok;
 
   //Stop watchdog clock
   set_bit(TBGCON,0x80);
@@ -163,7 +163,7 @@ __ramfunc void write_uc_flash_sec(uint address, uchar *data, uint nb_byte, uchar
 //----------------------------------
 // Save data present on flash sector
 //----------------------------------
-  read_char=(UBYTE*)(address);
+  read_char=(uint8_t*)(address);
 
   for(cmpt_int=0; cmpt_int<4096; cmpt_int++)
     temp[cmpt_int]=read_char[cmpt_int];
@@ -269,9 +269,9 @@ __ramfunc void write_uc_flash_sec(uint address, uchar *data, uint nb_byte, uchar
   clr_bit(TBGCON,0x80);
 }
 
-__ramfunc void flash_uc(uchar *data, int nb_byte, uchar *temp)
+__attribute__ ((section(".ramfunc"))) void flash_uc(uint8_t *data, int32_t nb_byte, uint8_t *temp)
 {
-  int address=0;
+  int32_t address=0;
   while(nb_byte>0)
   {
     write_uc_flash_sec(address,data,(nb_byte<4096)?nb_byte:4096,temp);
@@ -310,12 +310,12 @@ __ramfunc void flash_uc(uchar *data, int nb_byte, uchar *temp)
 /*          Input   :   number of bytes to write                               */
 /*          Output  :   pointer to the buffer for returning bytes              */
 /*******************************************************************************/
-void read_uc_flash(uint address, uchar *data, uint nb_byte)
+void read_uc_flash(uint32_t address, uint8_t *data, uint32_t nb_byte)
 {
-  UHWORD cmpt_int;
+  uint16_t cmpt_int;
 
   for(cmpt_int=0; cmpt_int<nb_byte; cmpt_int++)
-    *(data++)=*((UBYTE*)(0x1F000+address+cmpt_int));
+    *(data++)=*((uint8_t*)(0x1F000+address+cmpt_int));
 }
 
 void setup_ext_sram_rom(void)

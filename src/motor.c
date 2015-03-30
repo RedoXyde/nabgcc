@@ -103,7 +103,7 @@ void init_pwm(void)
 /*          Input   :   Direction of Rotation                               */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void run_motor(uchar number, uchar speed, uchar rotation)
+void run_motor(uint8_t number, uint8_t speed, uint8_t rotation)
 {
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
 #ifdef DRIVER_ST
@@ -155,21 +155,21 @@ void run_motor(uchar number, uchar speed, uchar rotation)
   if(number==1){
     if(rotation==FORWARD){
       put_hvalue(FTM3GR, 0x0000);           //Timer3, duty cycle = 0
-      put_hvalue(FTM2GR, ((uint)(speed<<8)|0x00ff)); //Timer2, duty cycle = speed
+      put_hvalue(FTM2GR, ((uint16_t)(speed<<8)|0x00ff)); //Timer2, duty cycle = speed
     }
     else if(rotation==REVERSE){
       put_hvalue(FTM2GR, 0x0000);             //Timer2, duty cycle = 0
-      put_hvalue(FTM3GR, ((uint)(speed<<8)|0x00ff));   //Timer3, duty cycle = speed
+      put_hvalue(FTM3GR, ((uint16_t)(speed<<8)|0x00ff));   //Timer3, duty cycle = speed
     }
   }
   else if(number==2){
     if(rotation==FORWARD){
       put_hvalue(FTM5GR, 0x0000);           //Timer5, duty cycle = 0
-      put_hvalue(FTM4GR, ((uint)(speed<<8)|0x00ff)); //Timer4, duty cycle = speed
+      put_hvalue(FTM4GR, ((uint16_t)(speed<<8)|0x00ff)); //Timer4, duty cycle = speed
     }
     else if(rotation==REVERSE){
       put_hvalue(FTM4GR, 0x0000);             //Timer4, duty cycle = 0
-      put_hvalue(FTM5GR, ((uint)(speed<<8)|0x00ff));   //Timer5, duty cycle = speed
+      put_hvalue(FTM5GR, ((uint16_t)(speed<<8)|0x00ff));   //Timer5, duty cycle = speed
     }
   }
 #endif
@@ -205,7 +205,7 @@ void run_motor(uchar number, uchar speed, uchar rotation)
 /*          Input   :   number of the motor                                 */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void stop_motor(uchar number)
+void stop_motor(uint8_t number)
 {
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
 #ifdef DRIVER_ST
@@ -253,7 +253,7 @@ if(number==1){
 /*          Input   :   number of the motor                                 */
 /*          Output  :   Return of the position in 16bits                    */
 /****************************************************************************/
-ushort get_motor_position(uchar number)
+uint16_t get_motor_position(uint8_t number)
 {
   if(number==1){
     return (get_hvalue(FTM0GR));

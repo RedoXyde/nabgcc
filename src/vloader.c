@@ -4,34 +4,34 @@
 #include"vmem.h"
 #include"vloader.h"
 
-char *bc_tabfun;
-int bc_nbfun;
-int sys_start;
-int global_start;
+uint8_t *bc_tabfun;
+int32_t bc_nbfun;
+int32_t sys_start;
+int32_t global_start;
 
-int loaderGetByte(char *src)
+int32_t loaderGetByte(uint8_t *src)
 {
-	int i;
+	int32_t i;
 	i=(src[0]&255);
 	return i;
 }
-int loaderGetShort(char *src)
+int32_t loaderGetShort(uint8_t *src)
 {
-	int i;
+	int32_t i;
 	i=((src[1]&255)<<8)+(src[0]&255);
 	return i;
 }
-int loaderGetInt(char *src)
+int32_t loaderGetInt(uint8_t *src)
 {
-	int i;
+	int32_t i;
 	i=((src[3]&255)<<24)+((src[2]&255)<<16)+((src[1]&255)<<8)+(src[0]&255);
 	return i;
 }
 
-char *loaderInitRec(char *src)
+uint8_t *loaderInitRec(uint8_t *src)
 {
-	int l,i;
-	
+	int32_t l,i;
+
 	l=loaderGetInt(src);
 	src+=4;
 	if (l==-1)
@@ -59,15 +59,15 @@ char *loaderInitRec(char *src)
 	}
 	else
 	{
-		//		printf("int %d\n",l>>1);
+		//		printf("int int32_t %d\n",l>>1);
 		VPUSH(l);
 	}
 	return src;
 }
 
-int loaderSizeBC(char *src)
+int32_t loaderSizeBC(uint8_t *src)
 {
-	int n,b;
+	int32_t n,b;
 	n=loaderGetInt(src);
 	src+=n;
 	b=loaderGetInt(src);
@@ -77,42 +77,42 @@ int loaderSizeBC(char *src)
 	return n;
 }
 
-int loaderInit(char *src)
+int32_t loaderInit(uint8_t *src)
 {
-	int n,nw,i;
-	char* src0;
-	char* dst;
-	
+	int32_t n,nw,i;
+	uint8_t* src0;
+	uint8_t* dst;
+
 	n=loaderSizeBC(src);
-	dst=(char*)vmem_heap;
+	dst=(uint8_t*)vmem_heap;
 	for(i=0;i<n;i++) dst[i]=src[i];
 	nw=(n+3)>>2;
 	vmemInit(nw);
-	
-	src=(char*)vmem_heap;
-	
+
+	src=(uint8_t*)vmem_heap;
+
 	sys_start=vmem_stack-1;
 	for(i=0;i<SYS_NB;i++) VPUSH(NIL);
-	
+
 	src0=src;
 	n=loaderGetInt(src);
 	src+=4;
 	global_start=vmem_stack-1;
-	while(((int)(src-src0))<n) src=loaderInitRec(src);
-	
+	while(((int32_t)(src-src0))<n) src=loaderInitRec(src);
+
 	n=loaderGetInt(src);
 	src+=4;
-	
+
 	bc_tabfun=&bytecode[n+2];
 	bc_nbfun=loaderGetShort(src+n);
 	n+=2+(bc_nbfun<<2);
 	for(i=0;i<n;i++) bytecode[i]=src[i];
 	vmemSetstart((n+3)>>2);
-	
+
 	return 0;
 }
 
-int loaderFunstart(int funnumber)
+int32_t loaderFunstart(int32_t funnumber)
 {
 	return loaderGetInt(bc_tabfun+(funnumber<<2));
 }

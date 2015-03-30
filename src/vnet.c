@@ -5,7 +5,7 @@
 #include<windows.h>
 #include<stdio.h>
 #include<time.h>
-int netstatesimu=1;
+int32_t netstatesimu=1;
 #endif
 #ifdef VREAL
 #include "rt2501usb.h"
@@ -14,7 +14,7 @@ int netstatesimu=1;
 #include"vnet.h"
 #include"vlog.h"
 #include"vinterp.h"
-int netState()
+int32_t netState()
 {
 #ifdef VSIMU
         return netstatesimu;
@@ -24,7 +24,7 @@ int netState()
 #endif
 }
 
-int netSend(char* src,int indexsrc,int lentosend,int lensrc,char* macdst,int inddst,int lendst,int speed)
+int32_t netSend(uint8_t *src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,uint8_t *macdst,int32_t inddst,int32_t lendst,int32_t speed)
 {
 #ifdef VSIMU
         printf("xxxx netSend\n");
@@ -36,34 +36,34 @@ int netSend(char* src,int indexsrc,int lentosend,int lensrc,char* macdst,int ind
   if (lentosend<=0) return -1;
   if (inddst<0) return -1;
   if (inddst+6>lendst) return -1;
-  return rt2501_send((const unsigned char *)(src+indexsrc),lentosend,(const unsigned char *)(macdst+inddst),speed,1);
+  return rt2501_send((const uint8_t *)(src+indexsrc),lentosend,(const uint8_t *)(macdst+inddst),speed,1);
 #endif
 }
 
-int netCb(char* src,int lensrc,char* macsrc)
+int32_t netCb(uint8_t *src,int32_t lensrc,uint8_t *macsrc)
 {
   VPUSH(PNTTOVAL(VMALLOCSTR(src,lensrc)));
   VPUSH(PNTTOVAL(VMALLOCSTR(macsrc,6)));
   VPUSH(VCALLSTACKGET(sys_start,SYS_CBTCP));
   if (VSTACKGET(0)!=NIL) interpGo();
-  else { VPULL();VPULL();}
-  VPULL();
+  else { (void)VPULL();(void)VPULL();}
+  (void)VPULL();
   return 0;
 }
 
-extern unsigned char rt2501_mac[6];
+extern uint8_t rt2501_mac[6];
 
-char* netMac()
+uint8_t *netMac()
 {
 #ifdef VSIMU
 		return "abcdem";
 #endif
 #ifdef VREAL
-  return (char*) rt2501_mac;
+  return (uint8_t*) rt2501_mac;
 #endif
 }
 
-int netChk(char* src,int indexsrc,int lentosend,int lensrc,unsigned int val)
+int32_t netChk(uint8_t *src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,uint32_t val)
 {
   unsigned short* p;
 
@@ -72,7 +72,7 @@ int netChk(char* src,int indexsrc,int lentosend,int lensrc,unsigned int val)
   if (lentosend<=0) return val;
 
   src+=indexsrc;
-  p=(unsigned short*)src;
+  p=(uint16_t*)src;
 
   val=((val<<8)&0xff00)+((val>>8)&0xff);
   while(lentosend>1)
@@ -80,7 +80,7 @@ int netChk(char* src,int indexsrc,int lentosend,int lensrc,unsigned int val)
 	  val+=*(p++);
 	  lentosend-=2;
   }
-  if (lentosend) val+=*(unsigned char*)p;
+  if (lentosend) val+=*(uint8_t*)p;
 
   val=(val>>16)+(val&0xffff);
   val=(val>>16)+(val&0xffff);
@@ -88,7 +88,7 @@ int netChk(char* src,int indexsrc,int lentosend,int lensrc,unsigned int val)
   return val;
 }
 
-void netSetmode(int mode,char* ssid,int chn)
+void netSetmode(int32_t mode,uint8_t *ssid,int32_t chn)
 {
 #ifdef VSIMU
         printf("xxxx netSetmode %d %s %d\n",mode,ssid,chn);
@@ -100,16 +100,16 @@ void netSetmode(int mode,char* ssid,int chn)
 }
 
 
-int nscan;
+int32_t nscan;
 #ifdef VREAL
 void netScan_(struct rt2501_scan_result *scan_result, void *userparam)
 {
-  char buf[256];
-  sprintf(buf,">>> %s %d %d %d %d\n",scan_result->ssid,scan_result->rssi,scan_result->channel,scan_result->rateset,scan_result->encryption);
-  consolestr((UBYTE*)buf);
-  VPUSH(PNTTOVAL(VMALLOCSTR(scan_result->ssid,strlen(scan_result->ssid))));
-  VPUSH(PNTTOVAL(VMALLOCSTR((char*)scan_result->mac,6)));
-  VPUSH(PNTTOVAL(VMALLOCSTR((char*)scan_result->bssid,6)));
+  uint8_t buf[256];
+  sprintf((char*)buf,">>> %s %d %d %d %d\n",scan_result->ssid,scan_result->rssi,scan_result->channel,scan_result->rateset,scan_result->encryption);
+  consolestr(buf);
+  VPUSH(PNTTOVAL(VMALLOCSTR(scan_result->ssid,strlen((char*)scan_result->ssid))));
+  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)scan_result->mac,6)));
+  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)scan_result->bssid,6)));
   VPUSH(INTTOVAL(scan_result->rssi));
   VPUSH(INTTOVAL(scan_result->channel));
   VPUSH(INTTOVAL(scan_result->rateset));
@@ -119,7 +119,7 @@ void netScan_(struct rt2501_scan_result *scan_result, void *userparam)
 }
 #endif
 
-void netScan(char* ssid)
+void netScan(uint8_t *ssid)
 {
   nscan=0;
 #ifdef VSIMU
@@ -185,33 +185,33 @@ void netScan(char* ssid)
   while(nscan--) VMKTAB(2);
 }
 
-void netAuth(char* ssid,char* mac,char* bssid,int chn,int rate,int authmode,int encrypt,char* key)
+void netAuth(uint8_t *ssid,uint8_t *mac,uint8_t *bssid,int32_t chn,int32_t rate,int32_t authmode,int32_t encrypt,uint8_t *key)
 {
 #ifdef VSIMU
         printf("xxxx netAuth %s %d %d %d %d\n",ssid,chn,rate,authmode,encrypt);
 		netstatesimu=4;
 #endif
 #ifdef VREAL
-  rt2501_auth((const char*)ssid,(const unsigned char*)mac,(const unsigned char*)bssid,chn,rate,authmode,encrypt,(const unsigned char*)key);
+  rt2501_auth(ssid,mac,bssid,chn,rate,authmode,encrypt,key);
 #endif
 }
 
-void netSeqAdd(unsigned char* seq,int n)
+void netSeqAdd(uint8_t *seq,int32_t n)
 {
-  unsigned char res[4];
-  unsigned int val;
+  uint8_t res[4];
+  uint32_t val;
   val=(seq[0]<<24)+(seq[1]<<16)+(seq[2]<<8)+seq[3];
   val+=n;
   res[3]=val; val>>=8;
   res[2]=val; val>>=8;
   res[1]=val; val>>=8;
   res[0]=val;
-  VPUSH(PNTTOVAL(VMALLOCSTR((char*)res,4)));
+  VPUSH(PNTTOVAL(VMALLOCSTR(res,4)));
 }
 
-void mypassword_to_pmk(const char *password, char *ssid, int ssidlength, unsigned char *pmk);
+void mypassword_to_pmk(const uint8_t *password, uint8_t *ssid, int32_t ssidlength, uint8_t *pmk);
 
-void netPmk(char* ssid,char* key,char* buf)
+void netPmk(uint8_t *ssid,uint8_t *key,uint8_t *buf)
 {
 #ifdef VSIMU
 	printf("xxxx netPmk %s %s\n",ssid,key);
@@ -219,11 +219,11 @@ void netPmk(char* ssid,char* key,char* buf)
 #endif
 #ifdef VREAL
 //      strcpy(buf,"01234567012345670123456701234567");
-      mypassword_to_pmk(key,ssid,strlen(ssid), (unsigned char*)buf);
+      mypassword_to_pmk(key,ssid,strlen((char*)ssid),buf);
 #endif
 }
 
-int netRssi()
+int32_t netRssi()
 {
 #ifdef VSIMU
 	return -20;

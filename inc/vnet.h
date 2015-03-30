@@ -4,16 +4,16 @@
 #ifndef _NET_
 #define _NET_
 
-int netState();
-int netSend(char* src,int indexsrc,int lentosend,int lensrc,char* macdst,int inddst,int lendst,int speed);
-int netCb(char* src,int lensrc,char* macsrc);
-char* netMac();
-int netChk(char* src,int indexsrc,int lentosend,int lensrc,unsigned int val);
-void netSetmode(int mode,char* ssid,int chn);
-void netScan(char* ssid);
-void netAuth(char* ssid,char* mac,char* bssid,int chn,int rate,int authmode,int encrypt,char* key);
-void netSeqAdd(unsigned char* seq,int n);
-void netPmk(char* ssid,char* key,char* buf);
-int netRssi();
+int32_t netState();
+int32_t netSend(uint8_t * src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,uint8_t * macdst,int32_t inddst,int32_t lendst,int32_t speed);
+int32_t netCb(uint8_t * src,int32_t lensrc,uint8_t * macsrc);
+uint8_t * netMac();
+int32_t netChk(uint8_t * src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,uint32_t val);
+void netSetmode(int32_t mode,uint8_t * ssid,int32_t chn);
+void netScan(uint8_t * ssid);
+void netAuth(uint8_t * ssid,uint8_t * mac,uint8_t * bssid,int32_t chn,int32_t rate,int32_t authmode,int32_t encrypt,uint8_t * key);
+void netSeqAdd(uint8_t * seq,int32_t n);
+void netPmk(uint8_t * ssid,uint8_t * key,uint8_t * buf);
+int32_t netRssi();
 #endif
 

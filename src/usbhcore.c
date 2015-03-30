@@ -22,14 +22,14 @@
 DEFINE_LIST_ENTRY(usb_driver_list);
 
 struct _usb_devmap {
-	unsigned long map[128 / 32];
+	uint32_t map[128 / 32];
 } usb_devmap;
 
-int usbhost_init_status = 0;
+int32_t usbhost_init_status = 0;
 
-unsigned char find_zero_bit(void *map, unsigned char max, unsigned char start)
+uint8_t find_zero_bit(void *map, uint8_t max, uint8_t start)
 {
-	unsigned long *ptr = (unsigned long *)map;
+	uint32_t *ptr = (uint32_t *)map;
 	while(start<max){
 		if(((*ptr >> start) & 1) == 0) break;
 		start++;
@@ -38,24 +38,24 @@ unsigned char find_zero_bit(void *map, unsigned char max, unsigned char start)
 	return start;
 }
 
-void set_usb_bit(int nr, void *addr)
+void set_usb_bit(int32_t nr, void *addr)
 {
-	int bit = nr % (32);
-	unsigned long * ptr = (unsigned long *)addr + (nr / (32));
-	unsigned long data = *ptr | ((unsigned long)1l << bit);
+	int32_t bit = nr % (32);
+	uint32_t * ptr = (uint32_t *)addr + (nr / (32));
+	uint32_t data = *ptr | ((unsigned long)1l << bit);
 	*ptr = data;
 }
 
-void clear_bit(int nr, volatile void *addr)
+void clear_bit(int32_t nr, volatile void *addr)
 {
-	int bit = nr % (32);
-	unsigned long * ptr = (unsigned long *)addr + (unsigned long)(nr / (32));
+	int32_t bit = nr % (32);
+	uint32_t * ptr = (uint32_t *)addr + (unsigned long)(nr / (32));
 	*ptr &= ~((unsigned long)1l << bit);
 }
 
-int usbhost_init(void)
+int32_t usbhost_init(void)
 {
-	int ret;
+	int32_t ret;
 	if(usbhost_init_status == 1) return 0;
 	ret = hcd_init();
 	if(ret<0) return ret;
@@ -71,31 +71,31 @@ void usbhost_events(void)
 	hcd_rh_events();
 }
 
-void *usbh_create_pipe(PDEVINFO dev, uchar type, uchar ep_num, ushort maxpacket,
-                       uchar interval)
+void *usbh_create_pipe(PDEVINFO dev, uint8_t type, uint8_t ep_num, ushort maxpacket,
+                       uint8_t interval)
 {
-	return hcd_create_ed((uchar)dev->dev_speed, (uchar)dev->dev_addr, type,
+	return hcd_create_ed((uint8_t)dev->dev_speed, (uint8_t)dev->dev_addr, type,
                           ep_num, maxpacket, interval);
 }
 
-int usbh_update_pipe0(PDEVINFO dev, ushort maxpacket)
+int32_t usbh_update_pipe0(PDEVINFO dev, ushort maxpacket)
 {
-	return hcd_update_ed((PHCD_ED)dev->pipe[0], (uchar)dev->dev_addr, maxpacket);
+	return hcd_update_ed((PHCD_ED)dev->pipe[0], (uint8_t)dev->dev_addr, maxpacket);
 }
 
-void usbh_delete_pipe(PDEVINFO dev, uchar ep_num)
+void usbh_delete_pipe(PDEVINFO dev, uint8_t ep_num)
 {
 	hcd_delete_ed((PHCD_ED)dev->pipe[ep_num]);
 	dev->pipe[ep_num] = NULL;
 }
 
-int usbh_control_transfer(PDEVINFO dev, uchar pipe, uchar bRequest,
-	uchar bmRequestType, ushort wValue, ushort wIndex, ushort wLength,
+int32_t usbh_control_transfer(PDEVINFO dev, uint8_t pipe, uint8_t bRequest,
+	uint8_t bmRequestType, ushort wValue, ushort wIndex, ushort wLength,
 	void *data)
 {
 	URB urb;
 	struct usb_setup setup;
-	int ret;
+	int32_t ret;
 
 	urb.buffer		= (char *)data;
 	urb.length		= (ulong)wLength;
@@ -124,10 +124,10 @@ static void usbh_free_urb_callback(PURB urb)
 	hcd_free(urb);
 }
 
-int usbh_bulk_transfer_async(PDEVINFO dev, uchar pipe, void *buf, ulong size)
+int32_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, ulong size)
 {
 	URB *urb;
-	int ret;
+	int32_t ret;
 
 	disable_ohci_irq();
 	urb = hcd_malloc(sizeof(URB), EXTRAM,20);
@@ -149,9 +149,9 @@ int usbh_bulk_transfer_async(PDEVINFO dev, uchar pipe, void *buf, ulong size)
 	return ret;
 }
 
-int usbh_transfer_request(PURB urb)
+int32_t usbh_transfer_request(PURB urb)
 {
-	int ret;
+	int32_t ret;
 
 	ret = hcd_transfer_request(urb);
 	if(ret == URB_PENDING) ret = 0;
@@ -164,35 +164,35 @@ void usbh_transfer_cancel(PURB urb)
 	hcd_transfer_cancel(urb);
 }
 
-int usbh_set_address(PDEVINFO dev)
+int32_t usbh_set_address(PDEVINFO dev)
 {
 	return usbh_control_transfer(dev, 0, USB_SET_ADDRESS, USB_DIR_OUT,
-		(uchar)dev->dev_addr, 0, 0, NULL);
+		(uint8_t)dev->dev_addr, 0, 0, NULL);
 }
 
-int usbh_get_descriptor(PDEVINFO dev, uchar type, uchar index, ushort size, void *buf)
+int32_t usbh_get_descriptor(PDEVINFO dev, uint8_t type, uint8_t index, ushort size, void *buf)
 {
 	return usbh_control_transfer(dev, 0, USB_GET_DESCRIPTOR, USB_DIR_IN,
 		((type<<8)|index), 0, size, buf);
 }
 
-int usbh_set_configuration(PDEVINFO dev, ushort index)
+int32_t usbh_set_configuration(PDEVINFO dev, ushort index)
 {
 	return usbh_control_transfer(dev, 0, USB_SET_CONFIGURATION, USB_DIR_OUT,
 		index, 0, 0, NULL);
 }
 
-int usbh_set_feature_dev(PDEVINFO dev, ushort feature)
+int32_t usbh_set_feature_dev(PDEVINFO dev, ushort feature)
 {
 	return usbh_control_transfer(dev, 0, USB_SET_FEATURE, USB_DIR_OUT,
 		feature, 0, 0, NULL);
 }
 
-int usbh_get_descriptor_device(PDEVINFO dev, uchar **pbuf)
+int32_t usbh_get_descriptor_device(PDEVINFO dev, uint8_t **pbuf)
 {
-	int ret;
+	int32_t ret;
 
-	*pbuf= (uchar *)hcd_malloc(sizeof(struct usb_device_descriptor), EXTRAM,21);
+	*pbuf= (uint8_t *)hcd_malloc(sizeof(struct usb_device_descriptor), EXTRAM,21);
 	if(!*pbuf) return -1;
 
 	ret = usbh_get_descriptor(dev, USB_DT_DEVICE, 0, 18, *pbuf);
@@ -201,9 +201,9 @@ int usbh_get_descriptor_device(PDEVINFO dev, uchar **pbuf)
 	return ret;
 }
 
-int usbh_get_descriptor_configuration(PDEVINFO dev, uchar **pbuf)
+int32_t usbh_get_descriptor_configuration(PDEVINFO dev, uint8_t **pbuf)
 {
-	int ret;
+	int32_t ret;
 	ushort size;
 	ulong temp[2];	/* 8Byte buffer */
 
@@ -211,7 +211,7 @@ int usbh_get_descriptor_configuration(PDEVINFO dev, uchar **pbuf)
 	if(ret<0) return ret;
 
 	size = ((struct usb_configuration_descriptor *)&temp)->wTotalLength;
-	*pbuf= (uchar *)hcd_malloc(size, EXTRAM,22);
+	*pbuf= (uint8_t *)hcd_malloc(size, EXTRAM,22);
 	if(!*pbuf) return -1;
 
 	ret = usbh_get_descriptor(dev, USB_DT_CONFIGURATION, 0, size, *pbuf);
@@ -220,7 +220,7 @@ int usbh_get_descriptor_configuration(PDEVINFO dev, uchar **pbuf)
 	return ret;
 }
 
-void error(int code, int status)
+void error(int32_t code, int32_t status)
 {
 #ifdef DEBUG_USB
 	char *err;
@@ -293,19 +293,19 @@ void usbh_release_descriptor_all(PDEVINFO dev)
 	dev->descriptor = NULL;
 }
 
-int usbh_get_descriptor_all(PDEVINFO dev)
+int32_t usbh_get_descriptor_all(PDEVINFO dev)
 {
-	uchar bLength, bDescriptorType;
+	uint8_t bLength, bDescriptorType;
 	struct usb_configuration_descriptor **pconfiguration;
 	struct usb_interface_descriptor **pinterface;
 	struct usb_endpoint_descriptor **pendpoint;
 	struct usb_otg_descriptor *otg;
-	uchar *expansion;
-	uchar *ptr, *buf;
-	int ret;
+	uint8_t *expansion;
+	uint8_t *ptr, *buf;
+	int32_t ret;
 
 	if(!dev->descriptor){
-		ret = usbh_get_descriptor_device(dev, (uchar **)&dev->descriptor);
+		ret = usbh_get_descriptor_device(dev, (uint8_t **)&dev->descriptor);
 		if(ret<dev->descriptor->bLength){
 			error(41, 0);
 			return NG;
@@ -324,7 +324,7 @@ int usbh_get_descriptor_all(PDEVINFO dev)
 		return NG;
 	}
 
-	ptr = (uchar *)buf;
+	ptr = (uint8_t *)buf;
 
 	while(ptr < buf + ret){
 
@@ -349,7 +349,7 @@ int usbh_get_descriptor_all(PDEVINFO dev)
 			*pinterface = NULL;
 			pendpoint = NULL;
 
-			memcpy((ulong *)*pconfiguration, (uchar *)ptr, bLength);
+			memcpy((ulong *)*pconfiguration, (uint8_t *)ptr, bLength);
 		}
 
 		else if(bDescriptorType == USB_DT_INTERFACE){
@@ -367,7 +367,7 @@ int usbh_get_descriptor_all(PDEVINFO dev)
 			pendpoint = &((*pinterface)->endpoint);
 			*pendpoint = NULL;
 
-			memcpy((ulong *)*pinterface, (uchar *)ptr, *ptr);
+			memcpy((ulong *)*pinterface, (uint8_t *)ptr, *ptr);
 		}
 
 		else if(bDescriptorType == USB_DT_ENDPOINT){
@@ -382,7 +382,7 @@ int usbh_get_descriptor_all(PDEVINFO dev)
 
 			(*pendpoint)->next = NULL;
 
-			memcpy((ulong *)*pendpoint, (uchar *)ptr, *ptr);
+			memcpy((ulong *)*pendpoint, (uint8_t *)ptr, *ptr);
 		}
 
 		else if(bDescriptorType == USB_DT_OTG){
@@ -395,7 +395,7 @@ int usbh_get_descriptor_all(PDEVINFO dev)
 
 			dev->descriptor->otg = otg;
 
-			memcpy((void *)otg, (uchar *)ptr, bLength);
+			memcpy((void *)otg, (uint8_t *)ptr, bLength);
 		}
 
 		else{
@@ -405,12 +405,12 @@ int usbh_get_descriptor_all(PDEVINFO dev)
 
 			if((*pinterface)->expansion) break;
 
-			expansion = (uchar *)hcd_malloc(bLength, EXTRAM,27);
+			expansion = (uint8_t *)hcd_malloc(bLength, EXTRAM,27);
 			if(!expansion) break;
 
 			(*pinterface)->expansion = expansion;
 
-			memcpy((void *)expansion, (uchar *)ptr, *ptr);
+			memcpy((void *)expansion, (uint8_t *)ptr, *ptr);
 		}
 
 		ptr += bLength;
@@ -435,7 +435,7 @@ void usbh_driver_install(struct usbh_driver *driver)
 	list_add(&driver->driver_list, &usb_driver_list);
 }
 
-static int usbh_find_driver(PDEVINFO dev)
+static int32_t usbh_find_driver(PDEVINFO dev)
 {
 	LIST_ENTRY *next = usb_driver_list.Flink;
 	struct usbh_driver *driver;
@@ -444,7 +444,7 @@ static int usbh_find_driver(PDEVINFO dev)
 	DBG_USB("Trying to find driver !\r\n");
 	if(list_empty(&usb_driver_list)) {
 		DBG_USB("Empty driver list\r\n");
-		return NULL;
+		return 0;
 	}
 
 	while(next != &usb_driver_list) {
@@ -466,10 +466,10 @@ static int usbh_find_driver(PDEVINFO dev)
 	return -1;
 }
 
-static int usbh_enumeration(PDEVINFO dev)
+static int32_t usbh_enumeration(PDEVINFO dev)
 {
-	int ret, err;
-	uchar temp[8];
+	int32_t ret, err;
+	uint8_t temp[8];
 
         DBG_USB("usbh_create_pipe\r\n");
 	dev->pipe[0] = usbh_create_pipe(dev, USB_CTRL, 0, 8, 0);
@@ -495,7 +495,7 @@ static int usbh_enumeration(PDEVINFO dev)
 
 	dev->dev_addr = find_zero_bit(&usb_devmap, 128, 1);
 	if (dev->dev_addr < 128) {
-		set_usb_bit((uchar)dev->dev_addr , &usb_devmap);
+		set_usb_bit((uint8_t)dev->dev_addr , &usb_devmap);
 	}else{
 		error(12, 0);
 		return -1;
@@ -534,7 +534,7 @@ static int usbh_enumeration(PDEVINFO dev)
 
         DBG_USB("usbh_get_descriptor_device\r\n");
 
-	ret = usbh_get_descriptor_device(dev, (uchar **)&dev->descriptor);
+	ret = usbh_get_descriptor_device(dev, (uint8_t **)&dev->descriptor);
 	if(ret<dev->descriptor->bLength){
 		dev->descriptor = NULL;
 		error(22, ret);
@@ -563,9 +563,9 @@ static int usbh_enumeration(PDEVINFO dev)
 	return 0;
 }
 
-PDEVINFO usbh_connect(unsigned char speed)
+PDEVINFO usbh_connect(uint8_t speed)
 {
-	int ret;
+	int32_t ret;
 
 	PDEVINFO dev;
 
@@ -592,9 +592,9 @@ PDEVINFO usbh_connect(unsigned char speed)
 	return dev;
 }
 
-int usbh_disconnect(PDEVINFO *pdev)
+int32_t usbh_disconnect(PDEVINFO *pdev)
 {
-	unsigned char i;
+	uint8_t i;
 	PDEVINFO dev;
 
 	DBG_USB(" USBH: disconnect a device\n");
@@ -609,7 +609,7 @@ int usbh_disconnect(PDEVINFO *pdev)
 
 	usbh_release_descriptor_all(dev);
 
-	clear_bit((uchar)dev->dev_addr , &usb_devmap);
+	clear_bit((uint8_t)dev->dev_addr , &usb_devmap);
 
 	for(i=0; i<MAX_PIPE; i++){
 		if(dev->pipe[i]){

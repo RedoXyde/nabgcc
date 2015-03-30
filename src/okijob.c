@@ -17,6 +17,7 @@
 #include   "usbh.h"
 #include   "ml60842.h"
 #include   "uart.h"
+#include "vlog.h"
 #include "inarm.h"
 #include <stdio.h>
 
@@ -45,7 +46,7 @@
 /* DMA_ENABLE==0 データ転送にDMAを使用しない */
 /* DMA_ENABLE==1 データ転送にDMAを使用する   */
 
-extern UBYTE dummy_buffer[100];
+extern uint8_t dummy_buffer[100];
 
 /******************************************************************************/
 /* ドライバ固有情報 */
@@ -169,7 +170,7 @@ static void *usb_okijob_connect(PDEVINFO dev)
 	if(endpoint->bmAttributes != 0x02) return NULL;
 #endif
 
-        putst_uart("\r\nusbh_set_configuration\r\n");
+        consolestr("\r\nusbh_set_configuration\r\n");
         ret = usbh_set_configuration(dev, 1);
 	if(ret<0){
 		return NULL;
@@ -246,7 +247,7 @@ static void *usb_okijob_connect(PDEVINFO dev)
 
 	okijob_table[number].dev = dev;
 
-	putst_uart("\r\nOKI JOB\r\n");
+	consolestr("\r\nOKI JOB\r\n");
 
 	return &okijob_table[number];
 }
@@ -273,6 +274,7 @@ static struct usbh_driver usb_okijob_driver = {
 	"okijob",
 	usb_okijob_connect,
 	usb_okijob_disconnect,
+  {NULL}
 };
 
 /*******************************************************************************

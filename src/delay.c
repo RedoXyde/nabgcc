@@ -11,7 +11,7 @@
 /*          Input   :   number of ms in 16bits => 65,535sec max             */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void DelayMs(HWORD cmpt_ms)
+void DelayMs(int16_t cmpt_ms)
 {
   int t=counter_timer;
   CLR_WDT;

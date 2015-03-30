@@ -20,25 +20,25 @@
 
 struct _tag_rfid
 {
-  uchar CHIP_ID;
-  uchar UID[8];
+  uint8_t  CHIP_ID;
+  uint8_t  UID[8];
 };
 
 /*************/
 /* Functions */
 /*************/
-uchar init_rfid(void);
-uchar close_rfid(void);
-uchar initiate_rfid(void);
-uchar slot_marker_rfid(void);
-uchar select_tag_rfid(uchar chip_id);
-uchar read_frame_rfid(uchar *data, uchar nb_bytes);
-uchar completion_rfid(void);
-uchar get_uid_rfid(void);
-uchar check_rfid_devices(struct _tag_rfid *p_tag_rfid);
-void write_eeprom_rfid(uchar chip_id, uchar num_block, uchar *data, uchar num_bytes);
-void read_eeprom_rfid(uchar chip_id, uchar num_block, uchar *data, uchar num_bytes);
+uint8_t  init_rfid(void);
+uint8_t  close_rfid(void);
+uint8_t  initiate_rfid(void);
+uint8_t  slot_marker_rfid(void);
+uint8_t  select_tag_rfid(uint8_t  chip_id);
+uint8_t  read_frame_rfid(uint8_t  *data, uint8_t  nb_bytes);
+uint8_t  completion_rfid(void);
+uint8_t  get_uid_rfid(void);
+uint8_t  check_rfid_devices(struct _tag_rfid *p_tag_rfid);
+void write_eeprom_rfid(uint8_t  chip_id, uint8_t  num_block, uint8_t  *data, uint8_t  num_bytes);
+void read_eeprom_rfid(uint8_t  chip_id, uint8_t  num_block, uint8_t  *data, uint8_t  num_bytes);
 
-char* get_rfid_first_device();
+uint8_t* get_rfid_first_device();
 
 #endif

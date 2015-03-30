@@ -19,19 +19,19 @@
 /*--------------------------------------------------------------------------*/
 typedef struct _memory {
 	struct _memory *Next;
-	unsigned long Address;
-	unsigned long Area;
-	unsigned long Size;
-	unsigned long tag;
+	uint32_t Address;
+	uint32_t Area;
+	uint32_t Size;
+	uint32_t tag;
 	unsigned int time;
 } MMDL, *PMMDL;
 
 typedef struct _buffer{
 	PMMDL MMDLs;
-	unsigned long Address;
-	unsigned long PhyAddress;
-	unsigned long Size;
-	unsigned long Boundary;
+	uint32_t Address;
+	uint32_t PhyAddress;
+	uint32_t Size;
+	uint32_t Boundary;
 } MBDL, *PMBDL;
 
 /*--------------------------------------------------------------------------*/
@@ -46,15 +46,15 @@ static MBDL BufferTable[BufferBanks] = {
 /*--------------------------------------------------------------------------*/
 #define SetBoundary(Addr, Boundary) (((Addr) % (Boundary) == 0 ) ? (Addr) : \
 									(((Addr) / (Boundary) + 1) * (Boundary)))
-int hcd_malloc_init(unsigned long Address, unsigned long Size,
-                    unsigned long Boundary, int Bank)
+int hcd_malloc_init(uint32_t Address, uint32_t Size,
+                    uint32_t Boundary, int Bank)
 {
 #ifdef DEBUG
         sprintf(dbg_buffer, "Set up memory bank %d, addr 0x%08x, size %d\r\n",
 		Bank, Address, Size);
         DBG(dbg_buffer);
 #endif
-	
+
 	if(Bank>=0 && Bank<BufferBanks){
 		BufferTable[Bank].MMDLs = NULL;
 		BufferTable[Bank].Address = Address;
@@ -75,9 +75,9 @@ int hcd_malloc_check(void * Address)
 	int Bank;
 
 	for(Bank = 0; Bank < BufferBanks; Bank++){
-		if(((unsigned long)Address	< (unsigned long)BufferTable[Bank].Address
+		if(((uint32_t)Address	< (uint32_t)BufferTable[Bank].Address
 										+ BufferTable[Bank].Size)
-		&& ((unsigned long)Address	>= (unsigned long)BufferTable[Bank].Address)){
+		&& ((uint32_t)Address	>= (uint32_t)BufferTable[Bank].Address)){
 			return Bank;
 		}
 	}
@@ -85,22 +85,22 @@ int hcd_malloc_check(void * Address)
 	return -1;
 }
 
-void *hcd_malloc(unsigned long Size, int Bank,int tag)
+void *hcd_malloc(uint32_t Size, int Bank,int tag)
 {
 	PMMDL	pLastMMDL;
 	PMMDL	pNextMMDL;
 	PMMDL	pNewMMDL;
-	unsigned long	NextBufferAddress;
+	uint32_t	NextBufferAddress;
 	PMBDL	Buffer;
-	unsigned long	Area;
-	
+	uint32_t	Area;
+
 	if(Bank>=0 && Bank<BufferBanks){
 		Buffer = &BufferTable[Bank];
 	}else{
 		DBG(" hcd_malloc: Bad number of Bank.\r\n");
 		return NULL;
 	}
-	
+
 	if(Buffer->Address == 0){
 		DBG("hcd_malloc: No memory for buffer.\r\n");
 		return NULL;
@@ -120,7 +120,7 @@ void *hcd_malloc(unsigned long Size, int Bank,int tag)
 		case 3: Area = Area + 1; break;
         default:                 break;
 	}
-	
+
 	if(Buffer->MMDLs == NULL){
 		NextBufferAddress = Buffer->Address;
 		pLastMMDL = NULL;
@@ -132,7 +132,7 @@ void *hcd_malloc(unsigned long Size, int Bank,int tag)
 		pNextMMDL = Buffer->MMDLs;
 
 		while(pNextMMDL != NULL){
-		
+
 			if(NextBufferAddress + Area <= pNextMMDL->Address){
 				break;
 			}
@@ -150,17 +150,17 @@ void *hcd_malloc(unsigned long Size, int Bank,int tag)
                 pNextMMDL = Buffer->MMDLs;
 		while(pNextMMDL != NULL)
                 {
-                    sprintf(dbg_buffer,"addr=%x area=%x size=%x tag=%d time=%d\n",pNextMMDL->Address,pNextMMDL->Area,pNextMMDL->Size,pNextMMDL->tag,pNextMMDL->time);
+                    sprintf(dbg_buffer,"addr=%lx area=%lx size=%lx tag=%ld time=%d\n",pNextMMDL->Address,pNextMMDL->Area,pNextMMDL->Size,pNextMMDL->tag,pNextMMDL->time);
                     DBG(dbg_buffer);
                     pNextMMDL = pNextMMDL->Next;
                 }
-                 sprintf(dbg_buffer,"time=%d\n",counter_timer);
+                 sprintf(dbg_buffer,"time=%ld\n",counter_timer);
                   DBG(dbg_buffer);
 		return NULL;
 	}
 
 	pNewMMDL = (PMMDL)(NextBufferAddress + Area - sizeof(MMDL));
-	
+
 	pNewMMDL->Address = NextBufferAddress;
 	pNewMMDL->Area = Area;
 	pNewMMDL->Size = Size;
@@ -174,7 +174,7 @@ void *hcd_malloc(unsigned long Size, int Bank,int tag)
 	}
 
 	pNewMMDL->Next = pNextMMDL;
-	
+
 /*
         if (tag==19)
         {
@@ -185,7 +185,7 @@ void *hcd_malloc(unsigned long Size, int Bank,int tag)
 /*        sprintf(dbg_buffer, "hcd_malloc: %08lX (%d,%d)\r\n", NextBufferAddress, Size, Area);
         DBG(dbg_buffer);*/
 
-	return (unsigned char *)NextBufferAddress;
+	return (uint8_t *)NextBufferAddress;
 }
 
 int hcd_free(void * pAddress)
@@ -206,7 +206,7 @@ int hcd_free(void * pAddress)
 	if(Buffer->MMDLs == NULL) return 0;
 
 	pNowMMDL = Buffer->MMDLs;
-	if((unsigned char *)pNowMMDL->Address == (unsigned char *)pAddress){
+	if((uint8_t *)pNowMMDL->Address == (uint8_t *)pAddress){
 
 /*          if (pNowMMDL->tag==19)
           {
@@ -225,7 +225,7 @@ int hcd_free(void * pAddress)
 
 		pNowMMDL = pLastMMDL->Next;
 
-		if((unsigned char *)pNowMMDL->Address == (unsigned char *)pAddress){
+		if((uint8_t *)pNowMMDL->Address == (uint8_t *)pAddress){
 /*
           if (pNowMMDL->tag==19)
           {
@@ -247,11 +247,11 @@ int hcd_free(void * pAddress)
 int hcd_malloc_rest(int Bank)
 {
 	PMMDL	pLastMMDL;
-	unsigned long	LastBufferAddress;
+	uint32_t	LastBufferAddress;
 	PMBDL	Buffer;
-	unsigned long Gap2MaxSize = 0;
-	unsigned long FreeMaxSize;
-	unsigned long rest;
+	uint32_t Gap2MaxSize = 0;
+	uint32_t FreeMaxSize;
+	uint32_t rest;
 
 	if(Bank>=0 && Bank<BufferBanks){
 		Buffer = &BufferTable[Bank];
@@ -265,17 +265,17 @@ int hcd_malloc_rest(int Bank)
 
 	while(pLastMMDL != NULL){
 		if(LastBufferAddress != pLastMMDL->Address){
-				Gap2MaxSize = max(Gap2MaxSize, (int)(pLastMMDL->Address - LastBufferAddress));
+				Gap2MaxSize = max(Gap2MaxSize, (pLastMMDL->Address - LastBufferAddress));
 			}
 
 		LastBufferAddress = pLastMMDL->Address + pLastMMDL->Area;
 		pLastMMDL = pLastMMDL->Next;
 	}
 
-	FreeMaxSize = Buffer->Size - (int)(LastBufferAddress - Buffer->Address);
+	FreeMaxSize = Buffer->Size - (LastBufferAddress - Buffer->Address);
 
 	rest = max(Gap2MaxSize, FreeMaxSize)-sizeof(MMDL);
 
-	return (int)rest;
+	return (int32_t)rest;
 }
 

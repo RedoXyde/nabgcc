@@ -26,8 +26,8 @@
 /********************/
 /* Global variables */
 /********************/
-extern volatile uchar uart_buffer_pointer;
-extern uchar UART_BUFFER[UART_BUFFER_SIZE];
+extern volatile uint8_t uart_buffer_pointer;
+extern uint8_t UART_BUFFER[UART_BUFFER_SIZE];
 
 /****************************************************************************/
 /*  Write a 8bits character to the serial port                              */
@@ -36,7 +36,7 @@ extern uchar UART_BUFFER[UART_BUFFER_SIZE];
 /*          Input   :   Character to send                                   */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void putch_uart(UBYTE c)
+void putch_uart(uint8_t c)
 {
   /* loop till transmit FIFO becomes empty */
   while ((get_value(UARTLSR0) & UARTLSR_THRE) != UARTLSR_THRE);
@@ -51,7 +51,7 @@ void putch_uart(UBYTE c)
 /*          Input   :   String to send terminated by Null character (0x00)  */
 /*          Output  :   Nothing                                             */
 /****************************************************************************/
-void putst_uart(UBYTE *str)
+void putst_uart(uint8_t *str)
 {
   while((*str)!=0)
   {
@@ -60,7 +60,7 @@ void putst_uart(UBYTE *str)
   }
 }
 
-void putbin_uart(UBYTE *str,int len)
+void putbin_uart(uint8_t *str,int32_t len)
 {
   while(len>0)
   {
@@ -70,18 +70,18 @@ void putbin_uart(UBYTE *str,int len)
   }
 }
 
-void putint_uart(int v)
+void putint_uart(int32_t v)
 {
   char buf[32];
-  sprintf(buf,"%d",v);
-  putst_uart((unsigned char*)buf);
+  sprintf(buf,"%ld",v);
+  putst_uart((uint8_t*)buf);
 }
 
-void puthx_uart(int v)
+void puthx_uart(int32_t v)
 {
   char buf[32];
-  sprintf(buf,"%x",v);
-  putst_uart((unsigned char*)buf);
+  sprintf(buf,"%lx",v);
+  putst_uart((uint8_t*)buf);
 }
 /******************************************************************/
 /*  Initialize UART                                               */
@@ -115,9 +115,9 @@ void init_uart(void)
 /*          Input  :  Address where the file must be written      */
 /*          Output :  Return of the width in bytes of the file    */
 /******************************************************************/
-ulong xmodem_recv(uchar *addr_mem)
+uint32_t xmodem_recv(uint8_t *addr_mem)
 {
-  uchar cmpt_char=0;
+  uint8_t cmpt_char=0;
   ulong data_width_received=0;
 
   //wait for a new character to be received
@@ -157,10 +157,10 @@ ulong xmodem_recv(uchar *addr_mem)
 /*          Input :  Width in bytes of the file                   */
 /*          Output :  Nothing                                     */
 /******************************************************************/
-void xmodem_send(uchar *addr_mem, ulong nb_bytes_to_send)
+void xmodem_send(uint8_t *addr_mem, ulong nb_bytes_to_send)
 {
-  uchar cmpt_frame=0;
-  uchar cmpt_char=0;
+  uint8_t cmpt_frame=0;
+  uint8_t cmpt_char=0;
   ushort crc;
 
   //wait for a NAK
@@ -174,7 +174,7 @@ void xmodem_send(uchar *addr_mem, ulong nb_bytes_to_send)
 
   while(nb_bytes_to_send)
   {
-    uchar DUMMY_TAB[128];
+    uint8_t DUMMY_TAB[128];
     if(cmpt_frame++==0)
       cmpt_frame=1;
 
@@ -187,13 +187,13 @@ void xmodem_send(uchar *addr_mem, ulong nb_bytes_to_send)
     }
     else
     {
-      for(cmpt_char=0; cmpt_char<(uchar)nb_bytes_to_send; cmpt_char++)
+      for(cmpt_char=0; cmpt_char<(uint8_t)nb_bytes_to_send; cmpt_char++)
         DUMMY_TAB[cmpt_char]=*(addr_mem++);
-      for(cmpt_char=(uchar)nb_bytes_to_send; cmpt_char<128; cmpt_char++)
+      for(cmpt_char=(uint8_t)nb_bytes_to_send; cmpt_char<128; cmpt_char++)
         DUMMY_TAB[cmpt_char]=0x00;
       nb_bytes_to_send=0;
     }
-    crc=calcrc((char*)DUMMY_TAB, 128);
+    crc=calcrc((uint8_t*)DUMMY_TAB, 128);
 
     UART_BUFFER[0]=NAK;
     while(UART_BUFFER[0]==NAK)
@@ -209,8 +209,8 @@ void xmodem_send(uchar *addr_mem, ulong nb_bytes_to_send)
         putch_uart(DUMMY_TAB[cmpt_char]);
 
       //Send crc
-      putch_uart((uchar)(crc>>8));
-      putch_uart((uchar)crc);
+      putch_uart((uint8_t)(crc>>8));
+      putch_uart((uint8_t)crc);
 
       //wait for answer
       uart_buffer_pointer=0;
@@ -244,13 +244,13 @@ void xmodem_send(uchar *addr_mem, ulong nb_bytes_to_send)
 /*          Input :  Number of bytes concerned by the CRC         */
 /*          Output :  CRC result in 16bits                        */
 /******************************************************************/
-short calcrc(char *ptr, short count)
+int16_t calcrc(uint8_t *ptr, int16_t count)
 {
-   short crc, i;
+   int16_t crc, i;
 
    crc = 0;
    while(--count >= 0) {
-       crc = crc ^ (short)*ptr++ << 8;
+       crc = crc ^ (int16_t)*ptr++ << 8;
        for(i = 0; i < 8; ++i)
            if(crc & 0x8000)
                crc = crc << 1 ^ 0x1021;

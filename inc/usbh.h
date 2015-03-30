@@ -85,35 +85,35 @@
 
 /* Endpoint descriptor */
 struct usb_endpoint_descriptor {
-	uchar  bLength;
-	uchar  bDescriptorType;
-	uchar  bEndpointAddress;
-	uchar  bmAttributes;
-	ushort wMaxPacketSize;
-	uchar  bInterval;
-	uchar  bRefresh;
-	uchar  bSynchAddress;
-	uchar  reserved0;
-	uchar  reserved1;
-	uchar  reserved2;
+	uint8_t  bLength;
+	uint8_t  bDescriptorType;
+	uint8_t  bEndpointAddress;
+	uint8_t  bmAttributes;
+	uint16_t wMaxPacketSize;
+	uint8_t  bInterval;
+	uint8_t  bRefresh;
+	uint8_t  bSynchAddress;
+	uint8_t  reserved0;
+	uint8_t  reserved1;
+	uint8_t  reserved2;
 
 	struct usb_endpoint_descriptor *next;
 };
 
 /* Interface descriptor */
 struct usb_interface_descriptor {
-	uchar  bLength;
-	uchar  bDescriptorType;
-	uchar  bInterfaceNumber;
-	uchar  bAlternateSetting;
-	uchar  bNumEndpoints;
-	uchar  bInterfaceClass;
-	uchar  bInterfaceSubClass;
-	uchar  bInterfaceProtocol;
-	uchar  iInterface;
-	uchar  reserved0;
-	uchar  reserved1;
-	uchar  reserved2;
+	uint8_t  bLength;
+	uint8_t  bDescriptorType;
+	uint8_t  bInterfaceNumber;
+	uint8_t  bAlternateSetting;
+	uint8_t  bNumEndpoints;
+	uint8_t  bInterfaceClass;
+	uint8_t  bInterfaceSubClass;
+	uint8_t  bInterfaceProtocol;
+	uint8_t  iInterface;
+	uint8_t  reserved0;
+	uint8_t  reserved1;
+	uint8_t  reserved2;
 
 	void   *expansion;
 	struct usb_interface_descriptor *next;
@@ -122,17 +122,17 @@ struct usb_interface_descriptor {
 
 /* Configuration descriptor */
 struct usb_configuration_descriptor {
-	uchar  bLength;
-	uchar  bDescriptorType;
-	ushort wTotalLength;
-	uchar  bNumInterfaces;
-	uchar  bConfigurationValue;
-	uchar  iConfiguration;
-	uchar  bmAttributes;
-	uchar  bMaxPower;
-	uchar  reserved0;
-	uchar  reserved1;
-	uchar  reserved2;
+	uint8_t  bLength;
+	uint8_t  bDescriptorType;
+	uint16_t wTotalLength;
+	uint8_t  bNumInterfaces;
+	uint8_t  bConfigurationValue;
+	uint8_t  iConfiguration;
+	uint8_t  bmAttributes;
+	uint8_t  bMaxPower;
+	uint8_t  reserved0;
+	uint8_t  reserved1;
+	uint8_t  reserved2;
 
 	struct usb_configuration_descriptor	*next;
 	struct usb_interface_descriptor	*interface;
@@ -140,10 +140,10 @@ struct usb_configuration_descriptor {
 
 /* OTG descriptor */
 struct usb_otg_descriptor{
-	uchar  bLength;
-	uchar  bDescriptorType;
-	uchar  bmAttributes;
-	uchar  reserved0;
+	uint8_t  bLength;
+	uint8_t  bDescriptorType;
+	uint8_t  bmAttributes;
+	uint8_t  reserved0;
 };
 
 #define HNP_SUPPORT	0x02
@@ -151,22 +151,22 @@ struct usb_otg_descriptor{
 
 /* Device descriptor */
 struct usb_device_descriptor {
-	uchar  bLength;
-	uchar  bDescriptorType;
-	ushort bcdUSB;
-	uchar  bDeviceClass;
-	uchar  bDeviceSubClass;
-	uchar  bDeviceProtocol;
-	uchar  bMaxPacketSize0;
-	ushort idVendor;
-	ushort idProduct;
-	ushort bcdDevice;
-	uchar  iManufacturer;
-	uchar  iProduct;
-	uchar  iSerialNumber;
-	uchar  bNumConfigurations;
-	uchar  reserved0;
-	uchar  reserved1;
+	uint8_t  bLength;
+	uint8_t  bDescriptorType;
+	uint16_t bcdUSB;
+	uint8_t  bDeviceClass;
+	uint8_t  bDeviceSubClass;
+	uint8_t  bDeviceProtocol;
+	uint8_t  bMaxPacketSize0;
+	uint16_t idVendor;
+	uint16_t idProduct;
+	uint16_t bcdDevice;
+	uint8_t  iManufacturer;
+	uint8_t  iProduct;
+	uint8_t  iSerialNumber;
+	uint8_t  bNumConfigurations;
+	uint8_t  reserved0;
+	uint8_t  reserved1;
 
 	struct usb_configuration_descriptor	*configuration;
 	struct usb_otg_descriptor *otg;
@@ -189,10 +189,10 @@ struct usbh_driver {
 
 /* Device infomation */
 typedef struct usbh_device_info{
-	uchar		dev_speed;
-	uchar		dev_addr;
-    uchar       dummy[2];
-   	struct usb_device_descriptor *descriptor;
+	uint8_t		dev_speed;
+	uint8_t		dev_addr;
+  uint8_t       dummy[2];
+  struct usb_device_descriptor *descriptor;
 	struct usbh_driver *driver;
 	void		*driver_data;
 	void		*pipe[MAX_PIPE];
@@ -200,11 +200,11 @@ typedef struct usbh_device_info{
 
 /* USB Setup Data */
 struct usb_setup{
-	uchar		bmRequestType;
-	uchar 		bRequest;
-	ushort		wValue;
-	ushort		wIndex;
-	ushort		wLength;
+	uint8_t		bmRequestType;
+	uint8_t 		bRequest;
+	uint16_t		wValue;
+	uint16_t		wIndex;
+	uint16_t		wLength;
 };
 
 /* USBD Request */
@@ -213,19 +213,19 @@ typedef void (*callback)(struct _URB *);
 typedef struct _URB {
 	void		*buffer;
 
-	ulong		length;
-	ulong		result;
+	uint32_t		length;
+	uint32_t		result;
 
-	ushort		timeout;
-	uchar       dma_enable;
-	uchar       dummy;
+	uint16_t		timeout;
+	uint8_t       dma_enable;
+	uint8_t       dummy;
 
 	void		*ed;	/* PHCD_ED */
 	struct usbh_device_info *dev;
 	struct usb_setup *setup;
 	callback	callback;
 
-	int		status;
+	int32_t status;
 	LIST_ENTRY	td_list;
 } URB, *PURB;
 
@@ -241,18 +241,18 @@ typedef struct _URB {
 void usbh_driver_install(struct usbh_driver *);
 void usbh_driver_uninstall(struct usbh_driver *);
 
-PDEVINFO usbh_connect(unsigned char);
-int usbh_disconnect(PDEVINFO *);
+PDEVINFO usbh_connect(uint8_t);
+int32_t usbh_disconnect(PDEVINFO *);
 
-void *usbh_create_pipe(PDEVINFO, uchar, uchar, ushort, uchar);
-void usbh_delete_pipe(PDEVINFO, uchar);
+void *usbh_create_pipe(PDEVINFO, uint8_t, uint8_t, uint16_t, uint8_t);
+void usbh_delete_pipe(PDEVINFO, uint8_t);
 
-int usbh_control_transfer(PDEVINFO, uchar, uchar, uchar, ushort, ushort, ushort, void *);
-int usbh_bulk_transfer_async(PDEVINFO, uchar, void *, ulong);
-int usbh_transfer_request(PURB urb);
+int32_t usbh_control_transfer(PDEVINFO, uint8_t, uint8_t, uint8_t, uint16_t, uint16_t, uint16_t, void *);
+int32_t usbh_bulk_transfer_async(PDEVINFO, uint8_t, void *, uint32_t);
+int32_t usbh_transfer_request(PURB urb);
 void usbh_transfer_cancel(PURB urb);
-int usbh_set_configuration(PDEVINFO, ushort);
-int usbhost_init(void);
+int32_t usbh_set_configuration(PDEVINFO, uint16_t);
+int32_t usbhost_init(void);
 void usbhost_exit(void);
 void usbhost_events(void);
 

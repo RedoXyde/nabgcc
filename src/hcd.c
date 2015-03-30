@@ -24,7 +24,7 @@ struct hcd_info hcd_info;
 
 void usbhost_interrupt(void);
 
-int hcd_init(void)
+int32_t hcd_init(void)
 {
 	ulong rev;
 	ulong fminterval;
@@ -93,7 +93,7 @@ int hcd_init(void)
 	return 0;
 }
 
-int hcd_rh_events(void)
+int32_t hcd_rh_events(void)
 {
 	if(hcd_info.rh_status & HcdRH_DISCONNECT){
 		hcd_info.rh_status &= ~HcdRH_DISCONNECT;
@@ -171,8 +171,8 @@ static void hcd_delete_td(PHCD_ED ed)
 }
 
 /* Must be called with OHCI IRQ masked */
-static int hcd_add_td(PHCD_ED ed, ulong control, void *buffer, int length,
-	 PURB urb, int index)
+static int32_t hcd_add_td(PHCD_ED ed, ulong control, void *buffer, int32_t length,
+	 PURB urb, int32_t index)
 {
 	PHCD_TD td_tail;
 	PHCD_TD td_next;
@@ -249,13 +249,13 @@ static void hcd_unlink_ed(PHCD_ED ed)
 		}
 	}
 
-	ed->HcED.NextED = NULL;
+	ed->HcED.NextED = 0;
 	ed->flag = ED_UNLINK;
 }
 
 static void hcd_pause_ed(PHCD_ED ed)
 {
-	int TailP;
+	uint32_t TailP;
 
 	if(ed->HcED.Control & HcED_SKIP) {
 		TailP = ed->HcED.TailP;
@@ -284,7 +284,7 @@ static void hcd_pause_ed(PHCD_ED ed)
 /* Must be called with OHCI IRQ masked */
 void hcd_delete_ed(PHCD_ED ed)
 {
-	int timeout = 0;
+	int32_t timeout = 0;
 
 #ifdef DEBUG_USB
 	DBG_USB(" hcd_delete_ed:\n");
@@ -305,7 +305,7 @@ void hcd_delete_ed(PHCD_ED ed)
 	hcd_free(ed);
 }
 
-int hcd_update_ed(PHCD_ED ed, uchar dev_addr, ushort maxpacket)
+int32_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
 {
 	ulong control;
 
@@ -323,8 +323,8 @@ int hcd_update_ed(PHCD_ED ed, uchar dev_addr, ushort maxpacket)
 }
 
 /* Must be called with OHCI IRQ masked */
-PHCD_ED hcd_create_ed(uchar speed, uchar dev_addr, uchar type, uchar ep_num,
-	ushort maxpacket, uchar interval)
+PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr, uint8_t type, uint8_t ep_num,
+	ushort maxpacket, uint8_t interval)
 {
 	PHCD_ED ed;
 	PHCD_TD td;
@@ -352,7 +352,7 @@ PHCD_ED hcd_create_ed(uchar speed, uchar dev_addr, uchar type, uchar ep_num,
 					 | dir | ((ulong)dev_addr & 0x7Fl) | HcED_SKIP;
 	ed->HcED.TailP = (ulong)td;
 	ed->HcED.HeadP = (ulong)td;
-	ed->HcED.NextED = NULL;
+	ed->HcED.NextED = 0;
 	ed->type = type;
 	ed->interval = interval;
 	ed->flag = ED_IDLE;
@@ -362,7 +362,7 @@ PHCD_ED hcd_create_ed(uchar speed, uchar dev_addr, uchar type, uchar ep_num,
 
 static void hcd_transfer_wait(PURB urb)
 {
-	int timeout = 0;
+	int32_t timeout = 0;
 
 #ifdef DEBUG_USB
 	DBG_USB(" hcd_transfer_wait:\r\n");
@@ -397,7 +397,7 @@ static void hcd_control_transfer_start(PURB urb)
 	ulong control;
 	PHCD_ED ed = (PHCD_ED)urb->ed;
 	PHCD_ED ed_list_tail;
-	int ret;
+	int32_t ret;
 
 #ifdef DEBUG_USB
 	DBG_USB(" hcd_control_transfer_start:\r\n");
@@ -449,8 +449,8 @@ static void hcd_control_transfer_start(PURB urb)
 			}
 			ed_list_tail->HcED.NextED = (ulong)ed;
 		}
-		ed->HcED.NextED = NULL;
-        ed->flag = ED_LINK;
+		ed->HcED.NextED = 0;
+    ed->flag = ED_LINK;
 
 		list_add(&ed->ed_list, &hcd_info.ed_control);
 
@@ -544,8 +544,8 @@ static void hcd_bulk_transfer_start(PURB urb)
 	PHCD_ED ed_list_tail;
 	char *buffer = (char *)urb->buffer;
 	ulong length = urb->length;
-	uchar cnt = 0;
-	int ret;
+	uint8_t cnt = 0;
+	int32_t ret;
 
 	DBG_USB(" hcd_bulk_transfer_start:\r\n");
 
@@ -582,8 +582,8 @@ static void hcd_bulk_transfer_start(PURB urb)
 			}
 			ed_list_tail->HcED.NextED = (ulong)ed;
 		}
-		ed->HcED.NextED = NULL;
-        	ed->flag = ED_LINK;
+		ed->HcED.NextED = 0;
+    ed->flag = ED_LINK;
 
 		list_add(&ed->ed_list, &hcd_info.ed_bulk);
 	}
@@ -617,7 +617,7 @@ void hcd_bulk_transfer(PURB urb)
 	}
 }
 
-int hcd_transfer_request(PURB urb)
+int32_t hcd_transfer_request(PURB urb)
 {
 	DBG_USB(" hcd_transfer_request:\r\n");
 
