@@ -8,41 +8,31 @@
 /***********************************************************************/
 MEMORY
 {
-  IntFLASH      (rx) : ORIGIN = 0x00080000, LENGTH = 30720
-  IntRAM        (rw) : ORIGIN = 0x00040000, LENGTH = 4096
+  IntROM  (rx) : ORIGIN = 0x08000000, LENGTH = 128k
+  IntRAM  (rw) : ORIGIN = 0x10000000, LENGTH = 16k
+  ExtROM  (rx) : ORIGIN = 0xC8000000, LENGTH = 0k
+  ExtRAM  (rx) : ORIGIN = 0xD0000000, LENGTH = 1024k
 }
 
-/* Make memory information available to startup scripts */
-Flash_Start            = 0x00080000 ;
-Flash_Length           = 30720 ;
-Ram_Start              = 0x00040000;
-Ram_Length             = 4096;
-
-PROVIDE (Flash_Start   = Flash_Start) ;
-PROVIDE (Flash_Length  = Flash_Length) ;
-PROVIDE (Ram_Start     = Ram_Start) ;
-PROVIDE (Ram_Length    = Ram_Length) ;
-PROVIDE (Top_Stack     = Ram_Start + Ram_Length) ;
-
-ENTRY(Flash_Start)
+ENTRY(__program_start)
 
 SECTIONS
 {
   /* first section is .text which is used for code */
   .text :
   {
-    *(startup)
-    *(.vectors)
+    *(.intvec)
+    *(.startup.*)
     *(.text.*)                   /* remaining code */
     *(.glue_7t) *(.glue_7)
-  } >IntFLASH
+  } >IntROM
   . = ALIGN(4);
 
   /* .rodata section which is used for read-only data (constants) */
   .rodata :
   {
     *(.rodata.*)
-  } >IntFLASH
+  } >IntROM
   . = ALIGN(4);
   _etext = . ;
   PROVIDE (etext = .);
@@ -59,7 +49,7 @@ SECTIONS
    PROVIDE (edata = .);
 
   /* .bss section which is used for uninitialized data */
-  .bss :
+  .bss (NOLOAD):
   {
     __bss_start = . ;
     __bss_start__ = . ;

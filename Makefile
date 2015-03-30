@@ -12,7 +12,7 @@ AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
 CFLAGS =  -DVREAL
-CFLAGS += -Wall -Os
+CFLAGS += -Wall -Os -g
 CFLAGS += -mthumb-interwork
 CFLAGS += -Wextra -Wno-unused-parameter -Wpointer-arith
 CFLAGS += -fdata-sections -ffunction-sections
@@ -32,7 +32,7 @@ LDFLAGS += -nostartfiles
 LDFLAGS += -mcpu=arm7tdmi -T$(LDSCRIPT)
 
 # Additional libraries
-LIBS = -lm -lc
+LIBS = -lm -lc_nano -lnosys
 
 # Compiler toolchain
 CC = arm-none-eabi-gcc
@@ -43,22 +43,24 @@ PROGRAM = arm-none-eabi-gdb
 OBJS = $(C_FILES:%.c=obj/%.o)
 OBJS += $(AS_FILES:%.s=obj/%.o)
 
-all: elf hex
+all: elf hex bin
 
 elf: $(TARGET).elf
 	$(SIZE) $<
 
 hex: $(TARGET).hex
 
+bin: $(TARGET).bin
+
 obj/%.o : %.c
 	@test -d obj || mkdir  -pm 775 obj
 	@test -d $(@D) || mkdir -pm 775 $(@D)
-	$(CC) -c $(CFLAGS) $< -o $@  $(LIBS)
+	$(CC) -c $(CFLAGS) -Wa,-adhln=$@.lst $< -o $@  $(LIBS)
 
 obj/%.o : %.s
 	@test -d obj || mkdir  -pm 775 obj
 	@test -d $(@D) || mkdir -pm 775 $(@D)
-	$(CC) -o $@ $(CFLAGS) -x assembler-with-cpp -c $<
+	$(CC) -o $@ $(CFLAGS) -Wa,-adhln=$@.lst -x assembler-with-cpp -c $<
 
 # compiler generated dependency info
 -include $(OBJS:.o=.d)
@@ -69,6 +71,9 @@ obj/%.o : %.s
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $< $@
 
+%.bin: %.elf
+	$(OBJCOPY) -O binary $< $@
+
 clean:
 	rm -f $(TARGET).elf $(TARGET).hex
 	rm -Rf obj/
@@ -76,4 +81,4 @@ clean:
 program: $(TARGET).elf
 	$(PROGRAM) $< < gdb_load
 
-.PHONY: clean program elf hex
+.PHONY: clean program elf hex bin
