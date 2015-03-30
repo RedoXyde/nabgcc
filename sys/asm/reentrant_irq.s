@@ -10,8 +10,7 @@
 ;@*                                                                              *
 ;@********************************************************************************
 
-        ;@rseg ICODE:CODE(2)
-        .arm
+.arm
 
 ;@   <<< bit field of status registers (CPSR, SPSR) >>>
 ;@   31  30  29  28        7   6   5   4   3   2   1   0
@@ -48,19 +47,19 @@
 ;@             IRQ mode           SYS mode         IRQ mode
 ;@
 ;@ now some standard definitions...
-.equ Mode_USR, 0x10
-.equ Mode_IRQ, 0x12
-.equ Mode_SVC, 0x13
-.equ Mode_SYS, 0x1F
+.equ Mode_USR,  0x10
+.equ Mode_IRQ,  0x12
+.equ Mode_SVC,  0x13
+.equ Mode_SYS,  0x1F
 
-.equ I_Bit   , 0x80
-.equ F_Bit   , 0x40
+.equ I_Bit,     0x80
+.equ F_Bit,     0x40
 
-.equ GPCTL   , 0xb7000000  ;@ address of GPCTL
+.equ GPCTL,     0xb7000000  ;@ address of GPCTL
 
-.equ IRQSIZE , 64          ;@ number of IRQ interrupt factor.
-.equ IRQ_BASE, 0x78000000  ;@ base address of registers about IRQ.
-.equ FIQ 	, 0x78000008
+.equ IRQSIZE ,  64          ;@ number of IRQ interrupt factor.
+.equ IRQ_BASE,  0x78000000  ;@ base address of registers about IRQ.
+.equ FIQ,       0x78000008
 
 ;@;@ definition of alias of registers
 ;@sp_IRQ               RN      sp ;@ r13
@@ -76,12 +75,11 @@
 ;@irq_base             RN      r5 ;@ base address of registers about IRQ is saved.
 ;@irn                  RN      r6 ;@ value of IRN register is saved.
 
-        .global  IRQ_HANDLER_TABLE
-        .global  count_interval
-        .global  FIQ_handler
-
-        .global  fiq_handler
-        .global  irq_handler
+.global  IRQ_HANDLER_TABLE
+.global  count_interval
+.global  FIQ_handler
+.global  fiq_handler
+.global  irq_handler
 
 ;@**********************************************************************
 ;@*  IRQ Handler                                                       *
@@ -209,6 +207,5 @@ fiq_handler:
 BRANCH_TO_FIQ_HANDLER:
         LDR     r2, =FIQ_handler
         BX      r2
-;@ end of BRANCH_TO_FIQ_HANDLER
 
-        .END
+.end

@@ -10,23 +10,22 @@
 ;@*                                                                                                *
 ;@**************************************************************************************************
 
-        ;@rseg ICODE:CODE(2)
-        .arm
+.arm
 
-.equ I_Bit, 0x80
-.equ F_Bit, 0x40
-.equ T_Bit, 0x20
+.equ I_Bit,   0x80
+.equ F_Bit,   0x40
+.equ T_Bit,   0x20
 
 ;@FIQ register definition
-.equ FIQ, 0x78000008    ;@ FIQ register
-.equ FIQRAW, 0x7800000C    ;@ FIQRAW register
-.equ FIQEN, 0x78000010    ;@ FIQEN register
-
-        .global swi_handler
+.equ FIQ,     0x78000008    ;@ FIQ register
+.equ FIQRAW,  0x7800000C    ;@ FIQRAW register
+.equ FIQEN,   0x78000010    ;@ FIQEN register
 
 ;@**************************************************************************************************
 ;@*      SWI Handler                                                                               *
 ;@**************************************************************************************************
+.global swi_handler
+
 swi_handler:
         STMFD   sp!, {r1-r12,lr}        ;@ save registers
         MRS     r1, spsr                ;@ move SPSR into general purpose register
@@ -104,6 +103,5 @@ SWI_pm_wfi:
 
 EndofSWI:
         LDMFD   sp!, {r1-r12,pc}^       ;@ restore registers
-;@ End of SWI
 
-        .END
+.end

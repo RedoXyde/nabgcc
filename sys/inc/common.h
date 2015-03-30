@@ -15,8 +15,9 @@
 #include <stdint.h>
 #define __no_operation()  asm volatile("nop")
 
-#define __enable_interrupt() // FIXME
-#define __disable_interrupt() // FIXME
+// Assume we run in System Mode
+#define __enable_interrupt() asm volatile ("msr     CPSR_c, #0x1F")// FIXME
+#define __disable_interrupt()  asm volatile ("msr     CPSR_c, #0x9F")// FIXME
 /*****************************************************/
 /*    internal I/O input/output macro                */
 /*****************************************************/

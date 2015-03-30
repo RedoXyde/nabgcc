@@ -147,22 +147,21 @@ _not_ringosc1:
 ;@ The USR mode uses the same stack as SYS.
 ;@ The stack segments must be defined in the linker command file,
 ;@ and be declared above.
+    mrs     r0,cpsr                             ;@ Original PSR value
+    bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
+    orr     r0,r0,#IRQ_MODE                     ;@ Set IRQ mode bits
+    msr     cpsr_c,r0                           ;@ Change the mode
+    @ldr     sp,=SFE(IRQ_STACK) & 0xFFFFFFF8     ;@ End of IRQ_STACK
 
-                mrs     r0,cpsr                             ;@ Original PSR value
-                bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
-                orr     r0,r0,#IRQ_MODE                     ;@ Set IRQ mode bits
-                msr     cpsr_c,r0                           ;@ Change the mode
-                @ldr     sp,=SFE(IRQ_STACK) & 0xFFFFFFF8     ;@ End of IRQ_STACK
+    bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
+    orr     r0,r0,#FIQ_MODE                     ;@ Set System mode bits
+    msr     cpsr_c,r0                           ;@ Change the mode
+    @ldr     sp,=SFE(FIQ_STACK) & 0xFFFFFFF8     ;@ End of FIQ_STACK
 
-                bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
-                orr     r0,r0,#FIQ_MODE                     ;@ Set System mode bits
-                msr     cpsr_c,r0                           ;@ Change the mode
-                @ldr     sp,=SFE(FIQ_STACK) & 0xFFFFFFF8     ;@ End of FIQ_STACK
-
-                bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
-                orr     r0,r0,#SVC_MODE                     ;@ Set System mode bits
-                msr     cpsr_c,r0                           ;@ Change the mode
-                @ldr     sp,=SFE(SVC_STACK) & 0xFFFFFFF8        ;@ End of SVC_STACK
+    bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
+    orr     r0,r0,#SVC_MODE                     ;@ Set System mode bits
+    msr     cpsr_c,r0                           ;@ Change the mode
+    @ldr     sp,=SFE(SVC_STACK) & 0xFFFFFFF8        ;@ End of SVC_STACK
 
 ;@ --- ring oscillator is srcsel?
     LDR  R0,=CLKCNT
