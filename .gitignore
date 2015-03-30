@@ -1,5 +1,8 @@
-OKI_Software/
 bin/
 mtl_c/
 obj/
 **/.svn
+*.hex
+*.elf
+*.bin
+.gdb_history
