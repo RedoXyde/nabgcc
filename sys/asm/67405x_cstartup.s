@@ -53,6 +53,27 @@
 .equ RAMAC_VALUE,       0x2
 .equ IO0AC_VALUE,       0x1
 
+;@ Standard definitions of Mode bits and Interrupt (I & F) flags in PSRs
+.equ I_Bit,          0x80   ;/* when I bit is set, IRQ is disabled */
+.equ F_Bit,          0x40   ;/* when F bit is set, FIQ is disabled */
+
+.equ Mode_USR,       0x10
+.equ Mode_FIQ,       0x11
+.equ Mode_IRQ,       0x12
+.equ Mode_SVC,       0x13
+.equ Mode_ABT,       0x17
+.equ Mode_UND,       0x1B
+.equ Mode_SYS,       0x1F
+
+;@ Stack sizes
+.equ UND_Stack_Size, 0x00000080
+.equ SVC_Stack_Size, 0x00000080
+.equ ABT_Stack_Size, 0x00000080
+.equ FIQ_Stack_Size, 0x00000100
+.equ IRQ_Stack_Size, 0x00000100
+.equ USR_Stack_Size, 0x00000400
+;@ total 0x780
+
 ;@---------------------------------------------------------------
 ;@ ?RESET
 ;@ Reset Vector.
@@ -142,26 +163,41 @@ cstartup:
 _not_ringosc1:
 
 ;@ Initialize the stack pointers.
-;@ The pattern below can be used for any of the exception stacks:
-;@ FIQ, IRQ, SVC, ABT, UND, SYS.
-;@ The USR mode uses the same stack as SYS.
-;@ The stack segments must be defined in the linker command file,
-;@ and be declared above.
-    mrs     r0,cpsr                             ;@ Original PSR value
-    bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
-    orr     r0,r0,#IRQ_MODE                     ;@ Set IRQ mode bits
-    msr     cpsr_c,r0                           ;@ Change the mode
-    @ldr     sp,=SFE(IRQ_STACK) & 0xFFFFFFF8     ;@ End of IRQ_STACK
+;# Setup Stack for each mode
+    .global __stack_start__
+    LDR     R0, =__stack_start__
 
-    bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
-    orr     r0,r0,#FIQ_MODE                     ;@ Set System mode bits
-    msr     cpsr_c,r0                           ;@ Change the mode
-    @ldr     sp,=SFE(FIQ_STACK) & 0xFFFFFFF8     ;@ End of FIQ_STACK
+;#  Enter Undefined Instruction Mode and set its Stack Pointer
+    MSR     CPSR_c, #Mode_UND|I_Bit|F_Bit
+    MOV     SP, R0
+    SUB     R0, R0, #UND_Stack_Size
 
-    bic     r0,r0,#MODE_BITS                    ;@ Clear the mode bits
-    orr     r0,r0,#SVC_MODE                     ;@ Set System mode bits
-    msr     cpsr_c,r0                           ;@ Change the mode
-    @ldr     sp,=SFE(SVC_STACK) & 0xFFFFFFF8        ;@ End of SVC_STACK
+;#  Enter Abort Mode and set its Stack Pointer
+    MSR     CPSR_c, #Mode_ABT|I_Bit|F_Bit
+    MOV     SP, R0
+    SUB     R0, R0, #ABT_Stack_Size
+
+;#  Enter FIQ Mode and set its Stack Pointer
+    MSR     CPSR_c, #Mode_FIQ|I_Bit|F_Bit
+    MOV     SP, R0
+    SUB     R0, R0, #FIQ_Stack_Size
+
+;#  Enter IRQ Mode and set its Stack Pointer
+    MSR     CPSR_c, #Mode_IRQ|I_Bit|F_Bit
+    MOV     SP, R0
+    SUB     R0, R0, #IRQ_Stack_Size
+
+;#  Enter Supervisor Mode and set its Stack Pointer
+    MSR     CPSR_c, #Mode_SVC|I_Bit|F_Bit
+    MOV     SP, R0
+    SUB     R0, R0, #SVC_Stack_Size
+
+;#  Enter User Mode and set its Stack Pointer
+    MSR     CPSR_c, #Mode_USR
+    MOV     SP, R0
+
+;#  Setup a default Stack Limit (when compiled with "-mapcs-stack-check")
+    SUB     SL, SP, #USR_Stack_Size
 
 ;@ --- ring oscillator is srcsel?
     LDR  R0,=CLKCNT
@@ -199,9 +235,29 @@ _not_ringosc2:
     LDR  R1,=IO0AC
     STR  R0,[R1]
 
+;# Relocate .data section (Copy from ROM to RAM)
+    LDR     R1, =_etext
+    LDR     R2, =_data
+    LDR     R3, =_edata
+LoopRel:        CMP     R2, R3
+    LDRLO   R0, [R1], #4
+    STRLO   R0, [R2], #4
+    BLO     LoopRel
+
+;# Clear .bss section (Zero init)
+    MOV     R0, #0
+    LDR     R1, =__bss_start__
+    LDR     R2, =__bss_end__
+LoopZI:         CMP     R1, R2
+    STRLO   R0, [R1], #4
+    BLO     LoopZI
+
 ;@ Continue to ?main for more IAR specific system startup
+    ldr     lr,return_main
     ldr     r0,=main
     bx      r0
+return_main:
+    b return_main
 
 undef_handler:
   b undef_handler

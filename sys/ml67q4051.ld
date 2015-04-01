@@ -59,6 +59,17 @@ SECTIONS
   . = ALIGN(4);
   __bss_end__ = . ;
 
+  /* Stack */
+  . = ALIGN(4);
+  PROVIDE(__stack_start__ = .);
+  /* Check in 76405x_cstartup for the stack size)
+  PROVIDE(__stack_end__ = ALIGN(__stack_start__ + 0x780 ,8));
+
+  /* Heap */
+  . = ALIGN(4);
+  PROVIDE(__heap_start__ = .);
+  PROVIDE(__heap_end__ = ALIGN(ORIGIN(IntRAM) + LENGTH(IntRAM) - 8 ,8));
+
   _end = .;
   PROVIDE (end = .);
 
