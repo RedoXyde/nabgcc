@@ -9,15 +9,15 @@ int32_t bc_nbfun;
 int32_t sys_start;
 int32_t global_start;
 
-int32_t loaderGetByte(uint8_t *src)
+int8_t loaderGetByte(uint8_t *src)
 {
-	int32_t i;
+	int8_t i;
 	i=(src[0]&255);
 	return i;
 }
-int32_t loaderGetShort(uint8_t *src)
+int16_t loaderGetShort(uint8_t *src)
 {
-	int32_t i;
+	int16_t i;
 	i=((src[1]&255)<<8)+(src[0]&255);
 	return i;
 }
@@ -65,9 +65,9 @@ uint8_t *loaderInitRec(uint8_t *src)
 	return src;
 }
 
-int32_t loaderSizeBC(uint8_t *src)
+uint32_t loaderSizeBC(uint8_t *src)
 {
-	int32_t n,b;
+	uint32_t n,b;
 	n=loaderGetInt(src);
 	src+=n;
 	b=loaderGetInt(src);
@@ -77,7 +77,7 @@ int32_t loaderSizeBC(uint8_t *src)
 	return n;
 }
 
-int32_t loaderInit(uint8_t *src)
+void loaderInit(uint8_t *src)
 {
 	int32_t n,nw,i;
 	uint8_t* src0;
@@ -108,8 +108,6 @@ int32_t loaderInit(uint8_t *src)
 	n+=2+(bc_nbfun<<2);
 	for(i=0;i<n;i++) bytecode[i]=src[i];
 	vmemSetstart((n+3)>>2);
-
-	return 0;
 }
 
 int32_t loaderFunstart(int32_t funnumber)

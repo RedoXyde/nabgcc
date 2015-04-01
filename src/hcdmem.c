@@ -46,16 +46,16 @@ static MBDL BufferTable[BufferBanks] = {
 /*--------------------------------------------------------------------------*/
 #define SetBoundary(Addr, Boundary) (((Addr) % (Boundary) == 0 ) ? (Addr) : \
 									(((Addr) / (Boundary) + 1) * (Boundary)))
-int hcd_malloc_init(uint32_t Address, uint32_t Size,
-                    uint32_t Boundary, int Bank)
+int8_t hcd_malloc_init(uint32_t Address, uint32_t Size,
+                    uint32_t Boundary, uint8_t Bank)
 {
 #ifdef DEBUG
-        sprintf(dbg_buffer, "Set up memory bank %d, addr 0x%08x, size %d\r\n",
+        sprintf(dbg_buffer, "Set up memory bank %d, addr 0x%08lx, size %ld\r\n",
 		Bank, Address, Size);
         DBG(dbg_buffer);
 #endif
 
-	if(Bank>=0 && Bank<BufferBanks){
+	if(Bank<BufferBanks){
 		BufferTable[Bank].MMDLs = NULL;
 		BufferTable[Bank].Address = Address;
 		BufferTable[Bank].Size = Size;
@@ -70,9 +70,9 @@ int hcd_malloc_init(uint32_t Address, uint32_t Size,
 	return 0;
 }
 
-int hcd_malloc_check(void * Address)
+int8_t hcd_malloc_check(void *Address)
 {
-	int Bank;
+	int8_t Bank;
 
 	for(Bank = 0; Bank < BufferBanks; Bank++){
 		if(((uint32_t)Address	< (uint32_t)BufferTable[Bank].Address
@@ -85,7 +85,7 @@ int hcd_malloc_check(void * Address)
 	return -1;
 }
 
-void *hcd_malloc(uint32_t Size, int Bank,int tag)
+void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 {
 	PMMDL	pLastMMDL;
 	PMMDL	pNextMMDL;
@@ -188,12 +188,12 @@ void *hcd_malloc(uint32_t Size, int Bank,int tag)
 	return (uint8_t *)NextBufferAddress;
 }
 
-int hcd_free(void * pAddress)
+int8_t hcd_free(void * pAddress)
 {
 	PMMDL	pLastMMDL;
 	PMMDL	pNowMMDL;
 	PMBDL	Buffer;
-	int		Bank;
+	int8_t	Bank;
 
 
 	Bank = hcd_malloc_check(pAddress);
@@ -244,7 +244,7 @@ int hcd_free(void * pAddress)
 	return 0;
 }
 
-int hcd_malloc_rest(int Bank)
+int32_t hcd_malloc_rest(uint8_t Bank)
 {
 	PMMDL	pLastMMDL;
 	uint32_t	LastBufferAddress;
@@ -253,7 +253,7 @@ int hcd_malloc_rest(int Bank)
 	uint32_t FreeMaxSize;
 	uint32_t rest;
 
-	if(Bank>=0 && Bank<BufferBanks){
+	if(Bank<BufferBanks){
 		Buffer = &BufferTable[Bank];
 	}else{
 		DBG_USB(" hcd_malloc_rest: Bad number of Bank.\r\n");

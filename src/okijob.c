@@ -9,8 +9,6 @@
     XV—š—ğ
     Mar.31,2003 rev1.00:V‹Kì¬
 *******************************************************************************/
-#define DEBUG
-
 #include   "ML674061.h"
 #include   "common.h"
 #include   "usbctrl.h"

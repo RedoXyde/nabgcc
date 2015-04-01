@@ -12,11 +12,11 @@
 
 /* Memory allocator */
 
-int hcd_malloc_init(unsigned long, unsigned long, unsigned long, int);
-void *hcd_malloc(unsigned long, int,int);
-int hcd_free(void *);
-void hcd_malloc_info(int);
-int hcd_malloc_check(void *);
-int hcd_malloc_rest(int);
+int8_t hcd_malloc_init(uint32_t, uint32_t, uint32_t, uint8_t);
+void *hcd_malloc(uint32_t, int8_t,int32_t);
+int8_t hcd_free(void *);
+void hcd_malloc_info(int32_t);
+int8_t hcd_malloc_check(void *);
+int32_t hcd_malloc_rest(uint8_t);
 
 #endif /* _HCDMEM_H_ */

@@ -23,9 +23,9 @@ extern int32_t sys_start;
 extern int32_t global_start;
 
 int32_t loaderGetInt(uint8_t *src);
-int32_t loaderGetShort(uint8_t *src);
+int16_t loaderGetShort(uint8_t *src);
 int32_t loaderFunstart(int32_t funnumber);
-int32_t loaderInit(uint8_t *src);
+void loaderInit(uint8_t *src);
 
 #endif
 

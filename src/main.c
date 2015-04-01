@@ -103,11 +103,7 @@ int32_t transfer_request = 0;
   #define FREE(a)			free(a)
 #endif
 
-extern const uint8_t dumpbc[21204];
-
-
-
-
+extern const uint8_t *dumpbc;
 
 //const uint8_t TAB_32K[100000];
 
@@ -183,18 +179,18 @@ void dump(uint8_t *src,int32_t len)
 {
   int32_t i,j;
   uint8_t buffer[64];
-  putst_uart((uint8_t*)"\r\n");
+  consolestr((uint8_t*)"\r\n");
   for(i=0;i<len;i+=16)
   {
     sprintf((char*)buffer,"%04lx ",i);
-    putst_uart(buffer);
+    consolestr(buffer);
     for(j=0;j<16;j++) if (i+j<len)
     {
-      sprintf((char*)buffer,"%02x ",src[i+j]); putst_uart(buffer);
+      sprintf((char*)buffer,"%02x ",src[i+j]); consolestr(buffer);
     }
-    else putst_uart((uint8_t*)"   ");
+    else consolestr((uint8_t*)"   ");
     for(j=0;j<16;j++) if (i+j<len) putch_uart(((src[i+j]>=32)&&(src[i+j]<128))?src[i+j]:'.');
-    putst_uart((uint8_t*)"\r\n");
+    consolestr((uint8_t*)"\r\n");
 //    DelayMs(100);
   }
 }
@@ -206,9 +202,9 @@ void dumpbin(uint8_t * p,int32_t n,int32_t ln)
   for(i=0;i<n;i++)
   {
     sprintf((char*)buffer,"%02x.",(p[i])&255);
-    putst_uart(buffer);
+    consolestr(buffer);
   }
-  if (ln) putst_uart((uint8_t*)"\r\n");
+  if (ln) consolestr((uint8_t*)"\r\n");
 }
 
 uint8_t tstarp[]=
@@ -332,7 +328,7 @@ void mkudp()
 
 void mypassword_to_pmk(const uint8_t *password, uint8_t *ssid, int32_t ssidlength, uint8_t *pmk);
 
-extern uint8_t buffer_temp[4096];
+extern uint8_t *buffer_temp;
 
 /****************************************************************************/
 /*  Entry point                                                             */
@@ -347,18 +343,14 @@ int32_t *foo;//=&stacktest;//(int*)0xD000FFFC;
 
 int main(void)
 {
-    int32_t iii;
+  int32_t iii;
 	int32_t ret;
 //        int st;
 //        int sendarp=0;
-        uint8_t *ptest;
-        //~ uint8_t buf[64];
+  uint8_t *ptest;
+  //~ uint8_t buf[64];
 
   uint8_t *address; /* address of read/write area */
-/*  ulong data_width_received;
-  ushort cmpt_audio_block;
-  ushort sampling_frequency;
-*/
   //Disable interrupts
   __disable_interrupt();
 
@@ -368,30 +360,30 @@ int main(void)
 #elif PCB_RELEASE == LLC2_2
   //setup of CLOCK register (CLKCNT@0xB700_0010)
   put_wvalue(CLKCNT, 0x00080000);
-      //Disactive ring oscillator and RTCCLK
-     //APB Clock = CPU Clock
+  //Disactive ring oscillator and RTCCLK
+  //APB Clock = CPU Clock
 #endif
   //setup of CLOCK peripheral register
   set_bit(PECLKCNT, 0x08000000);
-//  set_bit(PECLKCNT, 0x10000000);
+  //set_bit(PECLKCNT, 0x10000000);
 
   //Init I/O directions and default values
   init_io();
   //initialize IRQ
   init_irq();
-    //Setup external SRAM/ROM
+  //Setup external SRAM/ROM
   setup_ext_sram_rom();
 
   //Flash ROM programming is permitted
   init_uc_flash();
-//  set_bit(FLACON,0x01);
+  //  set_bit(FLACON,0x01);
 
   wdt_start();
 
   //Init System timer
   // Overflow in ms = ( 16 x (65536-value of TMRLR) x 1000 ) / (SystemClock)
   put_hvalue(TMRLR, 0xF830);  // set TMRLR for 1ms @ 32MHz
-//  put_hvalue(TMRLR, 0xF800);  // set TMRLR for 1ms @ 32.768MHz
+  //put_hvalue(TMRLR, 0xF800);  // set TMRLR for 1ms @ 32.768MHz
   put_value(TMEN, 0x01);      //Run timer
   counter_timer=0;
   counter_timer_s=0;
@@ -433,11 +425,11 @@ int main(void)
   //Init Uart
   uart_buffer_pointer=0;
   init_uart();
-  putst_uart((uint8_t*)"\r\n/****Start\r\n");
+  consolestr((uint8_t*)"\r\n/****Start\r\n");
   ptest=(uint8_t *)&iii;
   iii=1;
-  if (ptest[0]) putst_uart((uint8_t*)"Little Endian.\r\n");
-  if (ptest[3]) putst_uart((uint8_t*)"Big Endian.\r\n");
+  if (ptest[0]) consolestr((uint8_t*)"Little Endian.\r\n");
+  if (ptest[3]) consolestr((uint8_t*)"Big Endian.\r\n");
 
   // Configure USB
 	usbctrl_host_driver_set(NULL, usbhost_interrupt);
@@ -445,396 +437,81 @@ int main(void)
 	if(ret != OK) return ret;
 
 	reg_irq_handler();
-        put_value(FIQEN, 0x00 );
+  put_value(FIQEN, 0x00 );
 
 	__enable_interrupt();
 
 //xmodem_recv((uuint8_t *)SRAM_BASE);
 
-
-        ret = usbhost_init();
+  ret = usbhost_init();
 	if(ret != OK) return ret;
 
 	ret = rt2501_driver_install();
 	if(ret != OK) return ret;
 
-       	DBG("Nabaztag firmware ready.\r\n");
-//      while(rt2501_state() != RT2501_S_IDLE) usbhost_events();
+  DBG("Nabaztag firmware ready.\r\n");
+  consolestr("vmemInit\r\n");
+  vmemInit(0);
 
- /*       dumpbin(rt2501_mac,6,1);
-	while(rt2501_state() != RT2501_S_IDLE)
-		usbhost_events(); // Handle peripherals connecting and disconnecting
-*/
-//rt2501_setmode(IEEE80211_M_MASTER, "NabaztagAP", 1);
-/*
-        while(1)
-{
-  uint8_t buffer[128];
-    usbhost_events(); // Handle peripherals connecting and disconnecting
-    sprintf(buffer,"state %d\r\n",rt2501_state());
-    DBG(buffer);
-}
-*/
-/*    uint8_t key64[8]={1,2,3,4,5,0,0,0};
-    uint8_t key128[16]={1,2,3,4,5,6,7,8,9,0x10,0x11,0x12,0x13,0,0,0};
-    uint8_t mypmk[]={
-      0x05,0x68,0x57,0x9b,0xba,0x4a,0x67,0x07,
-      0x2c,0x02,0x66,0x8e,0xd5,0x1f,0x02,0x51,
-      0x03,0x07,0xb6,0x87,0xcc,0xd1,0x18,0x50,
-      0xd2,0xd6,0xf5,0x6e,0x63,0x58,0x4e,0x03
-    };
+  consolestr("loaderInit\r\n");
+  loaderInit((uint8_t*)&dumpbc);
 
-
-        uint8_t * ssid="ConnectionPoin";
-	mypassword_to_pmk("foobarfoobar",ssid,strlen(ssid), bpmk);
-*/
-/*
-      while(rt2501_state() != RT2501_S_IDLE)
-		usbhost_events();
-
-      	DBG_WIFI("Computing PMK...");
-        uint8_t bpmk[64];
-
-//        uint8_t * ssid="WANADOO-96B0";
-//	mypassword_to_pmk("DEAD5EC03E2690D68171CB26EC",ssid,strlen(ssid), bpmk);
-
-//        uint8_t * ssid="ConnectionPoin";
-//	mypassword_to_pmk("foobarfoobar",ssid,strlen(ssid), bpmk);
-
-        uint8_t * ssid="NETGEAR";
-	mypassword_to_pmk("test tagtag",ssid,strlen(ssid), bpmk);
-
-        scanssid=ssid;
-	rt2501_scan(ssid, scantest, NULL);
-        sprintf(buf,"auth %s\n",sresult.ssid);
-        putst_uart(buf);
-
-	rt2501_auth(sresult.ssid, sresult.mac, sresult.bssid, sresult.channel,
-		    sresult.rateset,
-		    IEEE80211_AUTH_OPEN,
-		    IEEE80211_CRYPT_WPA,
-		    bpmk);
-
-        putst_uart("Loop\n");
-
-        int32_tk;
-        int32_tlastk=-1;
-        int32_tt0=sysTimems();
-        while(1)
-        {
-          struct rt2501buffer *r;
-          uint8_t buffer[64];
-          usbhost_events();
-          k=rt2501_state();
-          if (k!=lastk)
-          {
-            putst_uart("state=");
-            putint_uart(k);
-            putst_uart("\n");
-            if (k==4)
-            {
-              mkarp(targetip);
-              putst_uart("send arp\n");
-              dump(tstarp, 8+7*4);
-              rt2501_send((const uint8_t *)tstarp, 8+7*4,targetmac,1,1);
-            }
-          }
-          lastk=k;
-           while(r=rt2501_receive())
-           {
-              sprintf(buffer,"receive frame size %d from ",r->length);
-              putst_uart(buffer);
-              dumpbin(r->source_mac,6,0);
-              putst_uart(" to ");
-              dumpbin(r->dest_mac,6,1);
-
-              dump((uuint8_t *)r->data,r->length);
-              disable_ohci_irq();
-              hcd_free(r);
-              enable_ohci_irq();
-            }
-          int32_tt=sysTimems();
-          if (t-t0>1000)
-          {
-            t0=t;
-            rt2501_timer();
-            putst_uart(".");
-          }
-
-        }
-*/
-
-  putst_uart((uint8_t*)"vmemInit\r\n");
-
-		vmemInit(0);
-
-putst_uart((uint8_t*)"loaderInit\r\n");
-
-//                loaderInit((uint8_t *)SRAM_BASE);
-		loaderInit((uint8_t *)dumpbc);
-putst_uart((uint8_t*)"Done\r\n");
-putst_uart((uint8_t*)"dumpShort\r\n");
-		vmemDumpShort();
+  consolestr("dumpShort\r\n");
+  vmemDumpShort();
 //		vmemDump();
 
 //		for(i=0;i<6;i++) printf("fun %d at %d\n",i,loaderFunstart(i));
-putst_uart((uint8_t*)"main\r\n");
+  consolestr("main\r\n");
 
-		VPUSH(INTTOVAL(0));
-		interpGo();
-		(void)VPULL();
-                int32_t counttimer=0;
+  VPUSH(INTTOVAL(0));
+  interpGo();
+  (void)VPULL();
+  int32_t counttimer=0;
 
-
-                while(1)
-//                for(iii=0;iii<10000;iii++)
-		{
-                    int32_t t;
-                        CLR_WDT;
-
-			VPUSH(VCALLSTACKGET(sys_start,SYS_CBLOOP));
-			if (VSTACKGET(0)!=NIL) interpGo();
-			(void)VPULL();
-                        t=sysTimems();
-                        do
-                        {
-//                           uint8_t buffer[64];
-                           struct rt2501buffer *r;
-                           play_check(0);
-                           rec_check();
-
-                           CLR_WDT;
-
-
-                           usbhost_events();
-                           while((sysTimems()-t<1000)&&(r=rt2501_receive()))
-                           {
-                              CLR_WDT;
-
-//                              sprintf(buffer,"receive frame size %d\r\n",r->length);
-//                              DBG(buffer);
-//                              dump((uuint8_t *)r->data,r->length);
-                              netCb((uint8_t *)r->data,r->length,(uint8_t *)r->source_mac);
-                              disable_ohci_irq();
-                              hcd_free(r);
-                              enable_ohci_irq();
-                              play_check(0);
-                              rec_check();
-                            }
-
-                        }while(sysTimems()-t<50);
-                        counttimer=(counttimer+1)&3;
-                        if (!counttimer)
-                        {
-                          rt2501_timer();
-                          putst_uart((uint8_t*)".");
-//                          int32_txx=sysButton3();
-//                          int32_txx=get_motor_position(1);
-//                          putint_uart(xx);
-
-/*                          foo=(int*)0xD000FFFC;
-                          asm (
-                               " PUSH {R0,R1}\n"
-                               " MOV R0,R13\n"
-                                 " MOV R1,#0xd0\n"
-                               " LSL R1,R1,#16\n"
-                                 " ADD R1,R1,#0xFF\n"
-                               " LSL R1,R1,#8\n"
-                                 " ADD R1,R1,#0xFC\n"
-                               //  " LDR R1,foo\n"
-//                                "MOV R1,#0x2FFF0004\n"
-                               " STR R0,[R1]\n"
-                               " POP {R0,R1}\n"
-                               );
-                          puthx_uart(*foo);
-//                          puthx_uart(t);
-*/
-//                               "  MOV R0,#805240836\n"
-//                               "  STR R13,805240836"
-                        }
-
-//			DelayMs(50);
-		}
-
-
-/*
-     putst_uart("test flash\n");
-   sysSrand(0);
-   int32_tj;
-   for(j=0;j<16;j++)
-//   while(1)
-   {
-     uint8_t buffer[256];
-     uint8_t res[256];
-     putint_uart(j);
-     putst_uart(":loop\n");
-
-     int32_ti;
-     for(i=0;i<256;i++)
-     {
-       int32_tx=0x3ff&sysRand();
-       if (x>=0x300) x=0xff;
-       else if (x>=0x200) x=0;
-       else x&=0xff;
-
-       buffer[i]=x;
-     }
-//       dump(buffer,256);
-     putst_uart("x");
-  __disable_interrupt();
-        write_uc_flash(0,buffer,256,buffer_temp);
-  __enable_interrupt();
-//     putst_uart("y");
-        read_uc_flash(0,res,256);
-     putst_uart("z");
-     int32_terr=0;
-     for(i=0;i<256;i++) if (res[i]!=buffer[i])
-     {
-       puthx_uart(i);
-       putst_uart(",");
-       err=1;
-     }
-     if (err)
-     {
-       putst_uart("\n");
-       dump(buffer,256);
-       dump(res,256);
-     }
-     else putst_uart(" ok\n");
-
-   }
-
-*/
-/*
-  {
-    int32_ti,is,j,k,t0;
-    int32_tcol;
-    int32_t*tb;
-    uint8_t buffer[256];
-    while(1)
-    {
-
-      // test timer
-      putst_uart("Timer test\r\n");
-      is=counter_timer;
-      for(i=0;i<10000;i++)
-      {
-        j=(counter_timer-is)&0xffff;
-        sprintf((uint8_t *)buffer,"\r%d",j); putst_uart((uint8_t*)buffer);
-      }
-      putst_uart("\r\n");
-
-// test moteurs
-      putst_uart("Motor test\r\n");
-      stop_motor(1);
-      stop_motor(2);
-
-      run_motor(1,0xff,REVERSE);
-      i=0;
-      j=get_motor_position(1);
-      while(1)
-      {
-        k=get_motor_position(1);
-        if (k!=j)
-        {
-          sprintf((uint8_t *)buffer,"motor FORWARD deltaCount=%d during %d\r\n",j,i);
-          putst_uart((uint8_t*)buffer);
-          j=k;
-          i=0;
-        }
-        DelayMs(100);
-        i++;
-      }
-      for(i=1;i<=2;i++)
-      {
-        k=get_motor_position(i);
-        run_motor(i,0xff,FORWARD);
-        DelayMs(4000);
-        k=get_motor_position(i)-k;
-        sprintf((uint8_t *)buffer,"motor %d FORWARD deltaCount=%d\r\n",i,k); putst_uart((uint8_t*)buffer);
-        k=get_motor_position(i);
-        run_motor(i,0xff,REVERSE);
-        DelayMs(4000);
-        k=get_motor_position(i)-k;
-        sprintf((uint8_t *)buffer,"motor %d REVERSE deltaCount=%d\r\n",i,k); putst_uart((uint8_t*)buffer);
-        stop_motor(i);
-      }
-
-// test memory
-      tb=(int*)SRAM_BASE;
-      k=128*1024;
-
-      putst_uart("RAM read-write test\r\n");
-
-      for(i=0;i<k;i++) tb[i]=i;
-      for(i=0;i<k;i++) if (tb[i]!=i)
-      {
-        putst_uart("Memory error\r\n");
-        i=k;
-      }
-
-      putst_uart("RAM gc test\r\n");
-      t0=counter_timer;
-      i=0;
-      is=0;
-      while(is<k)
-      {
-        for(j=0;j<256;j++) tb[i+j]=tb[is+j];
-        i+=256;
-        is+=512;
-      }
-      t0=counter_timer-t0;
-      sprintf((uint8_t *)buffer,"delta %d ms\r\n",t0); putst_uart((uint8_t*)buffer);
-
-// test leds
-      putst_uart("Leds test\r\n");
-      col=0x7f0000;
-      for(j=0;j<3;j++)
-      {
-        for(i=0;i<5;i++) set_led(i,0);
-        for(i=0;i<5;i++)
-        {
-          set_led(i,col);
-          DelayMs(250);
-        }
-        col>>=8;
-      }
-      for(k=0;k<3;k++)
-      {
-        col=0;
-        for(j=0;j<=128;j++)
-        {
-          for(i=0;i<5;i++) set_led(i,col);
-          col+=0x010101;
-          DelayMs(20);
-        }
-      }
-    }
-  }
-  */
-/*****************/
-/* DEBUG END */
-/*****************/
-
-/********************
-      MAIN LOOP
-********************/
-/*
-  putst_uart("Host transfer Cancel\r\n");
-  transfer_request = 0;
   while(1)
+//                for(iii=0;iii<10000;iii++)
   {
-    if( old_state != STATE_HOST_ACTV ){
-      putst_uart("USB Host Active!\r\n");
-      ret = usbhost_init();
-      if( ret != OK ){
-        return ret;
+    int32_t t;
+    CLR_WDT;
+
+    VPUSH(VCALLSTACKGET(sys_start,SYS_CBLOOP));
+    if (VSTACKGET(0)!=NIL)
+      interpGo();
+    (void)VPULL();
+    t=sysTimems();
+    do
+    {
+//                           uint8_t buffer[64];
+      struct rt2501buffer *r;
+      play_check(0);
+      rec_check();
+
+      CLR_WDT;
+
+
+      usbhost_events();
+      while((sysTimems()-t<1000)&&(r=rt2501_receive()))
+      {
+        CLR_WDT;
+
+      //                              sprintf(buffer,"receive frame size %d\r\n",r->length);
+      //                              DBG(buffer);
+      //                              dump((uuint8_t *)r->data,r->length);
+        netCb((uint8_t *)r->data,r->length,(uint8_t *)r->source_mac);
+        disable_ohci_irq();
+        hcd_free(r);
+        enable_ohci_irq();
+        play_check(0);
+        rec_check();
       }
-      old_state = STATE_HOST_ACTV;
+    } while(sysTimems()-t<50);
+    counttimer=(counttimer+1)&3;
+    if (!counttimer)
+    {
+      rt2501_timer();
+      consolestr((uint8_t*)".");
     }
-    usbhost_main();
   }
-*/
 }
 
 /****************************************************************************/

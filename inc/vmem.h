@@ -92,8 +92,6 @@ void vmemGC();
 #define VFETCH(p,i) (vmem_heap[(p)+HEADER_LENGTH+(i)])
 #define VSTORE(p,i,v) vmem_heap[(p)+HEADER_LENGTH+(i)]=(v)
 
-
-
 void vmemDumpHeap();
 void vmemDumpStack();
 void vmemDump();

@@ -3,23 +3,24 @@
 
 #include <stdio.h>
 #include "uart.h"
+#include "vlog.h"
 
 extern char dbg_buffer[];
 
 #ifdef DEBUG
-#define DBG(x) putst_uart(x)
+#define DBG(x) consolestr(x)
 #else
 #define DBG(x)
 #endif
 
 #ifdef DEBUG_USB
-#define DBG_USB(x) putst_uart(x)
+#define DBG_USB(x) consolestr(x)
 #else
 #define DBG_USB(x)
 #endif
 
 #ifdef DEBUG_WIFI
-#define DBG_WIFI(x) putst_uart(x)
+#define DBG_WIFI(x) consolestr(x)
 #else
 #define DBG_WIFI(x)
 #endif
