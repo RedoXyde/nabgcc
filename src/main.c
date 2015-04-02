@@ -378,7 +378,7 @@ int main(void)
   init_uc_flash();
   //  set_bit(FLACON,0x01);
 
-  wdt_start();
+  //~ wdt_start();
 
   //Init System timer
   // Overflow in ms = ( 16 x (65536-value of TMRLR) x 1000 ) / (SystemClock)
@@ -425,7 +425,7 @@ int main(void)
   //Init Uart
   uart_buffer_pointer=0;
   init_uart();
-  consolestr((uint8_t*)"\r\n/****Start\r\n");
+  consolestr((uint8_t*)"\r\n****Reset\r\n");
   ptest=(uint8_t *)&iii;
   iii=1;
   if (ptest[0]) consolestr((uint8_t*)"Little Endian.\r\n");
@@ -604,12 +604,10 @@ void uart0_interrupt(void)
 {
     //Save received byte in the UART buffer
     uint8_t c=get_value(UARTRBR0);
-    UART_BUFFER[uart_buffer_pointer] = c;
-
-    // update write pointer
-    uart_buffer_pointer++;
-    if(uart_buffer_pointer >= UART_BUFFER_SIZE)
-        uart_buffer_pointer = 0;
+  if(uart_buffer_pointer < UART_BUFFER_SIZE)
+    UART_BUFFER[uart_buffer_pointer++] = c;
+  else
+    uart_buffer_pointer = 0;
 }
 
 /****************************************************************************/

@@ -46,7 +46,7 @@ static MBDL BufferTable[BufferBanks] = {
 /*--------------------------------------------------------------------------*/
 #define SetBoundary(Addr, Boundary) (((Addr) % (Boundary) == 0 ) ? (Addr) : \
 									(((Addr) / (Boundary) + 1) * (Boundary)))
-int8_t hcd_malloc_init(uint32_t Address, uint32_t Size,
+int8_t hcd_malloc_init(int32_t Address, uint32_t Size,
                     uint32_t Boundary, uint8_t Bank)
 {
 #ifdef DEBUG

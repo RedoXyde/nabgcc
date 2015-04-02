@@ -2,6 +2,7 @@
 #include "common.h"
 #include "mem.h"
 #include "hcdmem.h"
+#include "vlog.h"
 
 /*******************************************************************************/
 /*  Init the internal flash memory                                             */
@@ -20,6 +21,108 @@ __attribute__ ((section(".ramfunc"))) void init_uc_flash(void)
   __no_operation();
 }
 
+__attribute__ ((section(".ramfunc"))) void write_uc_flash_sec(uint32_t address, uint8_t *data, uint32_t nb_byte, uint8_t *temp)
+{
+
+  uint16_t cmpt_int=0x42;
+  //~ uint8_t write_ok;
+
+  //Stop watchdog clock
+  set_bit(TBGCON,0x80);
+  uint8_t *read_char;
+
+  read_char=(uint8_t*)(address);
+
+  if(data && nb_byte)
+  {
+    //----------------------------------
+    // Save data present on flash sector
+    //----------------------------------
+    for(cmpt_int=0; cmpt_int<4096; cmpt_int++)
+      temp[cmpt_int]=read_char[cmpt_int];
+
+    //----------------------------------
+    // Update data into temporary buffer
+    //----------------------------------
+    for(cmpt_int=0; cmpt_int<nb_byte; cmpt_int++)
+      temp[cmpt_int]=data[cmpt_int];
+  }
+  //~ dump(temp,0xe0);
+  //--------------
+  // Erase sector
+  //--------------
+  //Flash ROM programming is permitted
+  put_value(FLACON,0x03);
+  set_bit(FLACON,0x02);
+  __no_operation();
+  __no_operation();
+  __no_operation();
+  __no_operation();
+
+  //SPD Command to erase sector 31 on ML67Q4051 ( 4kbyte from 0x1F000 to 0x1FFFF )
+  put_value(0x08000000+0x15554,0xAA);
+  put_value(0x08000000+0x0AAA8,0x55);
+  put_value(0x08000000+0x15554,0x80);
+  put_value(0x08000000+0x15554,0xAA);
+  put_value(0x08000000+0x0AAA8,0x55);
+  put_value(address>32 ? address/4096:address,0x30);
+  __no_operation();
+  __no_operation();
+  __no_operation();
+  __no_operation();
+  //Wait for the completion of the command
+  while((get_value(FLACON) & (0x04|0x8)));
+  //~ consolestr("2");
+//-----------------------------
+// Loop to write 1024 x 4 bytes
+//-----------------------------
+  address += 0x08000000;
+  for(cmpt_int=0; cmpt_int<4096; cmpt_int+=4)
+  {
+    consolestr("\n\rsrc:");consolehx(temp+cmpt_int);consolestr("\t dst:"); consolehx(address+cmpt_int);
+    if(temp[cmpt_int] == 0xFF && temp[cmpt_int+1] == 0xFF &&
+       temp[cmpt_int+2] == 0xFF && temp[cmpt_int+3] == 0xFF
+    ) continue;
+    //~ Reset the status flag of the completed command in SPD format
+    set_bit(FLACON,0x02);
+    __no_operation();
+    __no_operation();
+    __no_operation();
+    __no_operation();
+
+
+    //~ //SPD Command to write 4 bytes
+    //~ put_value(0x08000000+0x15554,0xAA);
+    //~ put_value(0x08000000+0x0AAA8,0x55);
+    //~ put_value(0x08000000+0x15554,0xA0);
+    //~ put_value(address+cmpt_int,temp[cmpt_int]);
+    //~ put_value(address+1+cmpt_int,temp[cmpt_int+1]);
+    //~ put_value(address+2+cmpt_int,temp[cmpt_int+2]);
+    //~ put_value(address+3+cmpt_int,temp[cmpt_int+3]);
+    __no_operation();
+    __no_operation();
+    __no_operation();
+    __no_operation();
+	  //Wait for the completion of the command
+	  while(( get_value(FLACON) & (0x04|0x8));
+  }
+
+  //Reset the status flag of the completed command in SPD format
+    set_bit(FLACON,0x02);
+    __no_operation();
+    __no_operation();
+    __no_operation();
+    __no_operation();
+  //Flash ROM programming is prohibited
+  clr_bit(FLACON,0x01);
+    __no_operation();
+    __no_operation();
+    __no_operation();
+    __no_operation();
+  //Start watchdog clock
+  clr_bit(TBGCON,0x80);
+}
+
 /*******************************************************************************/
 /*  Write non volatile parameters in the last sector of internal uc flash      */
 /*  memory, 4096 bytes in the last sector from 0x1F000 to 0x1FFFF              */
@@ -35,237 +138,20 @@ __attribute__ ((section(".ramfunc"))) void init_uc_flash(void)
 /*******************************************************************************/
 __attribute__ ((section(".ramfunc"))) void write_uc_flash(uint32_t address, uint8_t *data, uint32_t nb_byte, uint8_t *temp)
 {
-  uint8_t *read_char;
   uint16_t cmpt_int;
-  uint8_t write_ok;
 
-  //Stop watchdog clock
-  set_bit(TBGCON,0x80);
+  //----------------------------------
+  // Save data present on flash sector
+  //----------------------------------
+  read_uc_flash(0,temp,4096);
 
-//----------------------------------
-// Save data present on flash sector
-//----------------------------------
-  read_char=(uint8_t*)(0x1F000);
-
-  for(cmpt_int=0; cmpt_int<4096; cmpt_int++)
-    temp[cmpt_int]=read_char[cmpt_int];
-
-//----------------------------------
-// Update data into temporary buffer
-//----------------------------------
+  //----------------------------------
+  // Update data into temporary buffer
+  //----------------------------------
   for(cmpt_int=0; cmpt_int<nb_byte; cmpt_int++)
     temp[address+cmpt_int]=data[cmpt_int];
 
-//  dump(temp,0xe0);
-
-//--------------
-// Erase sector
-//--------------
-  //Flash ROM programming is permitted
-  set_bit(FLACON,0x01);
-  __no_operation();
-  __no_operation();
-  __no_operation();
-
-  //Reset the status flag of the completed command in SPD format
-  set_bit(FLACON,0x02);
-  __no_operation();
-  __no_operation();
-  __no_operation();
-
-  //SPD Command to erase sector 31 on ML67Q4051 ( 4kbyte from 0x1F000 to 0x1FFFF )
-  put_value(0x15554,0xAA);
-  put_value(0x0AAA8,0x55);
-  put_value(0x15554,0x80);
-  put_value(0x15554,0xAA);
-  put_value(0x0AAA8,0x55);
-  put_value(0x1F000,0x30);
-
-  //Wait for the completion of the command
-  while(( get_value(FLACON) & 0x04));
-
-/*
-  //Wait for the completion of the command
-  while(!( get_value(FLACON) & 0x02));
-  //Clear flash programming flag
-  set_bit(FLACON,0x02);
-*/
-  //Verification if memory is cleared
-
-  for(cmpt_int=0; cmpt_int<4096; cmpt_int++)
-    while(read_char[cmpt_int]!=0xFF);
-
-//  dump(read_char,0xe0);
-
-//-----------------------------
-// Loop to write 1024 x 4 bytes
-//-----------------------------
-  for(cmpt_int=0; cmpt_int<4096; cmpt_int+=4)
-  {
-    write_ok=0;
-    while(!write_ok)
-    {
-    //--------------
-    // Write 4 bytes
-    //--------------
-	  //Reset the status flag of the completed command in SPD format
-	  set_bit(FLACON,0x02);
-	  __no_operation();
-	  __no_operation();
-	  __no_operation();
-      //SPD Command to write 4 bytes
-      put_value(0x15554,0xAA);
-      put_value(0x0AAA8,0x55);
-      put_value(0x15554,0xA0);
-      put_value(0x1F000+cmpt_int,temp[cmpt_int]);
-      put_value(0x1F001+cmpt_int,temp[cmpt_int+1]);
-      put_value(0x1F002+cmpt_int,temp[cmpt_int+2]);
-      put_value(0x1F003+cmpt_int,temp[cmpt_int+3]);
-
-	  //Wait for the completion of the command
-	  while(( get_value(FLACON) & 0x04));
-
-/*
-  //Wait for the completion of the command
-//      while(!( get_value(FLACON) & 0x02));
-    //Clear flash programming flag
-      set_bit(FLACON,0x02);
-*/
-      write_ok=1;
-    //Verification if memory was written
-      if( read_char[cmpt_int] != temp[cmpt_int] ) write_ok=0;
-      if( read_char[cmpt_int+1] != temp[cmpt_int+1] ) write_ok=0;
-      if( read_char[cmpt_int+2] != temp[cmpt_int+2] ) write_ok=0;
-      if( read_char[cmpt_int+3] != temp[cmpt_int+3] ) write_ok=0;
-    }
-  }
-
-  //Flash ROM programming is prohibited
-  clr_bit(FLACON,0x01);
-  __no_operation();
-  __no_operation();
-  __no_operation();
-
-  //Start watchdog clock
-  clr_bit(TBGCON,0x80);
-}
-
-__attribute__ ((section(".ramfunc"))) void write_uc_flash_sec(uint32_t address, uint8_t *data, uint32_t nb_byte, uint8_t *temp)
-{
-  uint8_t *read_char;
-  uint16_t cmpt_int;
-  uint8_t write_ok;
-
-  //Stop watchdog clock
-  set_bit(TBGCON,0x80);
-
-//----------------------------------
-// Save data present on flash sector
-//----------------------------------
-  read_char=(uint8_t*)(address);
-
-  for(cmpt_int=0; cmpt_int<4096; cmpt_int++)
-    temp[cmpt_int]=read_char[cmpt_int];
-
-//----------------------------------
-// Update data into temporary buffer
-//----------------------------------
-  for(cmpt_int=0; cmpt_int<nb_byte; cmpt_int++)
-    temp[cmpt_int]=data[cmpt_int];
-
-//  dump(temp,0xe0);
-
-//--------------
-// Erase sector
-//--------------
-  //Flash ROM programming is permitted
-  set_bit(FLACON,0x01);
-  __no_operation();
-  __no_operation();
-  __no_operation();
-
-  //Reset the status flag of the completed command in SPD format
-  set_bit(FLACON,0x02);
-  __no_operation();
-  __no_operation();
-  __no_operation();
-
-  //SPD Command to erase sector 31 on ML67Q4051 ( 4kbyte from 0x1F000 to 0x1FFFF )
-  put_value(0x15554,0xAA);
-  put_value(0x0AAA8,0x55);
-  put_value(0x15554,0x80);
-  put_value(0x15554,0xAA);
-  put_value(0x0AAA8,0x55);
-  put_value(address,0x30);
-
-  //Wait for the completion of the command
-  while(( get_value(FLACON) & 0x04));
-
-/*
-  //Wait for the completion of the command
-  while(!( get_value(FLACON) & 0x02));
-  //Clear flash programming flag
-  set_bit(FLACON,0x02);
-*/
-  //Verification if memory is cleared
-
-  for(cmpt_int=0; cmpt_int<4096; cmpt_int++)
-    while(read_char[cmpt_int]!=0xFF);
-
-//  dump(read_char,0xe0);
-
-//-----------------------------
-// Loop to write 1024 x 4 bytes
-//-----------------------------
-  for(cmpt_int=0; cmpt_int<4096; cmpt_int+=4)
-  {
-    write_ok=0;
-    while(!write_ok)
-    {
-    //--------------
-    // Write 4 bytes
-    //--------------
-	  //Reset the status flag of the completed command in SPD format
-	  set_bit(FLACON,0x02);
-	  __no_operation();
-	  __no_operation();
-	  __no_operation();
-
-      //SPD Command to write 4 bytes
-      put_value(0x15554,0xAA);
-      put_value(0x0AAA8,0x55);
-      put_value(0x15554,0xA0);
-      put_value(address+cmpt_int,temp[cmpt_int]);
-      put_value(address+1+cmpt_int,temp[cmpt_int+1]);
-      put_value(address+2+cmpt_int,temp[cmpt_int+2]);
-      put_value(address+3+cmpt_int,temp[cmpt_int+3]);
-
-	  //Wait for the completion of the command
-	  while(( get_value(FLACON) & 0x04));
-
-/*
-  //Wait for the completion of the command
-//      while(!( get_value(FLACON) & 0x02));
-    //Clear flash programming flag
-      set_bit(FLACON,0x02);
-*/
-      write_ok=1;
-    //Verification if memory was written
-      if( read_char[cmpt_int] != temp[cmpt_int] ) write_ok=0;
-      if( read_char[cmpt_int+1] != temp[cmpt_int+1] ) write_ok=0;
-      if( read_char[cmpt_int+2] != temp[cmpt_int+2] ) write_ok=0;
-      if( read_char[cmpt_int+3] != temp[cmpt_int+3] ) write_ok=0;
-    }
-  }
-
-  //Flash ROM programming is prohibited
-  clr_bit(FLACON,0x01);
-  __no_operation();
-  __no_operation();
-  __no_operation();
-
-  //Start watchdog clock
-  clr_bit(TBGCON,0x80);
+  write_uc_flash_sec(0x1F000,NULL,0,temp);
 }
 
 __attribute__ ((section(".ramfunc"))) void flash_uc(uint8_t *data, int32_t nb_byte, uint8_t *temp)

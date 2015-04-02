@@ -1,5 +1,9 @@
 // VLISP Virtual Machine - 2006 - by Sylvain Huet
 // Lowcost IS Powerfull
+#include <stdint.h>
+#include <string.h>
+#include <stdio.h>
+
 #include"vmem.h"
 #ifdef VSIMU
 #include<windows.h>

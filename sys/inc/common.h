@@ -15,9 +15,8 @@
 #include <stdint.h>
 #define __no_operation()  asm volatile("nop")
 
-// Assume we run in System Mode
-#define __enable_interrupt() //asm volatile ("msr     CPSR_c, #0x1F")// FIXME
-#define __disable_interrupt()  //asm volatile ("msr     CPSR_c, #0x9F")// FIXME
+extern void __disable_interrupt(void);
+extern void __enable_interrupt(void);
 /*****************************************************/
 /*    internal I/O input/output macro                */
 /*****************************************************/
@@ -79,7 +78,7 @@
 #define BIT_7   0x80
 
 
-#define CLR_WDT {put_value(WDTCON,0xC3);put_value(WDTCON,0x3C);}
+#define CLR_WDT do {put_value(WDTCON,0xC3);put_value(WDTCON,0x3C);} while(0)
 //#define CLR_WDT
 
 #define LLC2_2  0

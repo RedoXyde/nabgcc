@@ -1,5 +1,6 @@
 // VLISP Virtual Machine - 2006 - by Sylvain Huet
 // Lowcost IS Powerfull
+#include <stdint.h>
 #include"vmem.h"
 #include"vloader.h"
 #ifdef VSIMU
@@ -98,7 +99,7 @@ int32_t sysLoad(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,
 #endif
 }
 
-uint8_t  buffer_temp[4096];
+static uint8_t  buffer_temp[4096];
 
 // pour le firmware, le "fichier" ouvert est toujours l'eeprom
 int32_t sysSave(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len)

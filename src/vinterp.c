@@ -1,5 +1,7 @@
 // VLISP Virtual Machine - 2006 - by Sylvain Huet
 // Lowcost IS Powerfull
+#include <stdint.h>
+#include <string.h>
 
 #include"vmem.h"
 #include"vloader.h"
@@ -98,14 +100,15 @@ void interpGo()
 		consoleint(VSTACKGET(0));consolestr(".");
 		consoleint(vmem_stack);consolestr("/");
 	}
-
 	if (vmem_broken) return;
 	while(1)
 	{
+
 		do
 		{
 			cont=0;
 			currentop=op;
+     //~ consolestr("\r\n"); consoleint(currentop);consolestr("\r\n");
 			if (tron)
 			{
 //				displaybc(pc-1,pcbase);

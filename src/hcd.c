@@ -25,12 +25,12 @@ void usbhost_interrupt(void);
 
 int32_t hcd_init(void)
 {
-	ulong rev;
-	ulong fminterval;
-	ulong mask;
+	uint32_t rev;
+	uint32_t fminterval;
+	uint32_t mask;
 
 #ifdef DEBUG_USB
-	sprintf(dbg_buffer,"HCD: Controller Address = %08lX\r\n", (ulong)HostCtl_addr);
+	sprintf(dbg_buffer,"HCD: Controller Address = %08lX\r\n", (uint32_t)HostCtl_addr);
 	DBG_USB(dbg_buffer);
 #endif
 
@@ -38,7 +38,7 @@ int32_t hcd_init(void)
 	rev = get_wvalue(HcRevision);
 	if(rev != RevisonNumber){
 #ifdef DEBUG_USB
-		sprintf(dbg_buffer,"Bad Revision Register : %08lX\r\n", (ulong)rev);
+		sprintf(dbg_buffer,"Bad Revision Register : %08lX\r\n", (uint32_t)rev);
 		DBG_USB(dbg_buffer);
 #endif
 		return -1;
@@ -59,7 +59,7 @@ int32_t hcd_init(void)
 		return -1;
 	}
 	memset((long *)hcd_info.hcca, 0, sizeof(struct hcca));
-	put_wvalue(HcHCCA, (ulong)hcd_info.hcca);
+	put_wvalue(HcHCCA, (uint32_t)hcd_info.hcca);
 
 	//Set addres of the control ED
 	put_wvalue(HcControlHeadED, 0);
@@ -118,7 +118,7 @@ int32_t hcd_rh_events(void)
 }
 
 #ifdef DEBUG_USB
-static char *hcd_cc_string(ulong cc)
+static char *hcd_cc_string(uint32_t cc)
 {
 	char *cc_s;
 
@@ -148,11 +148,11 @@ static void hcd_delete_td(PHCD_ED ed)
 {
 	PURB urb;
 	PHCD_TD td_next, td_prev;
-	ulong HeadP = ed->HcED.HeadP;
-	ulong TailP = ed->HcED.TailP;
+	uint32_t HeadP = ed->HcED.HeadP;
+	uint32_t TailP = ed->HcED.TailP;
 
 	td_next = (PHCD_TD)(HeadP & 0xFFFFFFF0);
-	while((ulong)td_next != TailP){
+	while((uint32_t)td_next != TailP){
 	 	urb = td_next->urb;
 		if(urb){
 			list_del(&td_next->list);
@@ -170,7 +170,7 @@ static void hcd_delete_td(PHCD_ED ed)
 }
 
 /* Must be called with OHCI IRQ masked */
-static int32_t hcd_add_td(PHCD_ED ed, ulong control, void *buffer, int32_t length,
+static int32_t hcd_add_td(PHCD_ED ed, uint32_t control, void *buffer, int32_t length,
 	 PURB urb, int32_t index)
 {
 	PHCD_TD td_tail;
@@ -195,12 +195,12 @@ static int32_t hcd_add_td(PHCD_ED ed, ulong control, void *buffer, int32_t lengt
 
 	td_tail->HcTD.Control = control;
 	td_tail->HcTD.CBP = (!buffer || !length) ? 0: buffer;
-	td_tail->HcTD.NextTD = (ulong)td_next;
+	td_tail->HcTD.NextTD = (uint32_t)td_next;
 	td_tail->HcTD.BE = (!buffer || !length ) ? 0: (char *)buffer + length - 1;
 	td_tail->urb = urb;
 	td_tail->index = index;
 
-	ed->HcED.TailP = (ulong)td_next;
+	ed->HcED.TailP = (uint32_t)td_next;
 
 	list_add(&td_tail->list, &urb->td_list);
 
@@ -306,7 +306,7 @@ void hcd_delete_ed(PHCD_ED ed)
 
 int32_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
 {
-	ulong control;
+	uint32_t control;
 
 #ifdef DEBUG_USB
 	DBG_USB(" hcd_update_ed:\r\n");
@@ -314,7 +314,7 @@ int32_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
 
 	if(ed->HcED.Control & HcED_SKIP){
 		control = ed->HcED.Control & (HcED_FA | HcED_EN | HcED_SPEED | HcED_SKIP);
-		ed->HcED.Control = control | ((ulong)maxpacket << 16) | dev_addr;
+		ed->HcED.Control = control | ((uint32_t)maxpacket << 16) | dev_addr;
 		return 0;
 	}
 
@@ -327,7 +327,7 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr, uint8_t type, uint8_t ep_
 {
 	PHCD_ED ed;
 	PHCD_TD td;
-	ulong dir;
+	uint32_t dir;
 
 #ifdef DEBUG_USB
 	DBG_USB(" hcd_create_ed:\r\n");
@@ -345,12 +345,12 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr, uint8_t type, uint8_t ep_
 	}
 	memset((long *)td, 0, sizeof(HCD_TD));
 
-	dir = (type == USB_CTRL) ? (ulong)0:
-		((ep_num & USB_DIR_IN) ? (ulong)HcED_DIR_IN : (ulong)HcED_DIR_OUT);
-	ed->HcED.Control = ((ulong)maxpacket << 16) | ((ulong)speed << 13 ) | ((ulong)ep_num << 7)
-					 | dir | ((ulong)dev_addr & 0x7Fl) | HcED_SKIP;
-	ed->HcED.TailP = (ulong)td;
-	ed->HcED.HeadP = (ulong)td;
+	dir = (type == USB_CTRL) ? (uint32_t)0:
+		((ep_num & USB_DIR_IN) ? (uint32_t)HcED_DIR_IN : (uint32_t)HcED_DIR_OUT);
+	ed->HcED.Control = ((uint32_t)maxpacket << 16) | ((uint32_t)speed << 13 ) | ((uint32_t)ep_num << 7)
+					 | dir | ((uint32_t)dev_addr & 0x7Fl) | HcED_SKIP;
+	ed->HcED.TailP = (uint32_t)td;
+	ed->HcED.HeadP = (uint32_t)td;
 	ed->HcED.NextED = 0;
 	ed->type = type;
 	ed->interval = interval;
@@ -393,7 +393,7 @@ static void hcd_transfer_wait(PURB urb)
 
 static void hcd_control_transfer_start(PURB urb)
 {
-	ulong control;
+	uint32_t control;
 	PHCD_ED ed = (PHCD_ED)urb->ed;
 	PHCD_ED ed_list_tail;
 	int32_t ret;
@@ -439,14 +439,14 @@ static void hcd_control_transfer_start(PURB urb)
 
 	if(ed->flag == ED_IDLE || ed->flag == ED_UNLINK){
 		if(list_empty(&hcd_info.ed_control)){
-			put_wvalue(HcControlHeadED, (ulong)ed);
+			put_wvalue(HcControlHeadED, (uint32_t)ed);
 		}
 		else{
 			ed_list_tail = (PHCD_ED)get_wvalue(HcControlHeadED);
 			while(ed_list_tail->HcED.NextED){
 				ed_list_tail = (PHCD_ED)ed_list_tail->HcED.NextED;
 			}
-			ed_list_tail->HcED.NextED = (ulong)ed;
+			ed_list_tail->HcED.NextED = (uint32_t)ed;
 		}
 		ed->HcED.NextED = 0;
     ed->flag = ED_LINK;
@@ -456,11 +456,11 @@ static void hcd_control_transfer_start(PURB urb)
 	}
 
 	if(ed->HcED.HeadP & HcED_HeadP_HALT){
-		ed->HcED.HeadP &= (ulong)(~HcED_HeadP_HALT);
+		ed->HcED.HeadP &= (uint32_t)(~HcED_HeadP_HALT);
 	}
 
 	if(ed->HcED.Control & HcED_SKIP){
-		ed->HcED.Control &= (ulong)(~HcED_SKIP);
+		ed->HcED.Control &= (uint32_t)(~HcED_SKIP);
 	}
 
 	if( (hcd_info.hc_control & OHCI_CTRL_CLE) == 0 ){
@@ -542,7 +542,7 @@ static void hcd_bulk_transfer_start(PURB urb)
 	PHCD_ED ed = (PHCD_ED)urb->ed;
 	PHCD_ED ed_list_tail;
 	char *buffer = (char *)urb->buffer;
-	ulong length = urb->length;
+	uint32_t length = urb->length;
 	uint8_t cnt = 0;
 	int32_t ret;
 
@@ -573,13 +573,13 @@ static void hcd_bulk_transfer_start(PURB urb)
 
 	if(ed->flag == ED_IDLE || ed->flag == ED_UNLINK){
 		if(list_empty(&hcd_info.ed_bulk)){
-			put_wvalue(HcBulkHeadED, (ulong)ed);
+			put_wvalue(HcBulkHeadED, (uint32_t)ed);
 		} else {
 			ed_list_tail = (PHCD_ED)get_wvalue(HcBulkHeadED);
 			while(ed_list_tail->HcED.NextED){
 				ed_list_tail = (PHCD_ED)ed_list_tail->HcED.NextED;
 			}
-			ed_list_tail->HcED.NextED = (ulong)ed;
+			ed_list_tail->HcED.NextED = (uint32_t)ed;
 		}
 		ed->HcED.NextED = 0;
     ed->flag = ED_LINK;
@@ -588,11 +588,11 @@ static void hcd_bulk_transfer_start(PURB urb)
 	}
 
 	if(ed->HcED.HeadP & HcED_HeadP_HALT){
-		ed->HcED.HeadP &= (ulong)(~HcED_HeadP_HALT);
+		ed->HcED.HeadP &= (uint32_t)(~HcED_HeadP_HALT);
 	}
 
 	if(ed->HcED.Control & HcED_SKIP){
-		ed->HcED.Control &= (ulong)(~HcED_SKIP);
+		ed->HcED.Control &= (uint32_t)(~HcED_SKIP);
 	}
 
 	if((hcd_info.hc_control & OHCI_CTRL_BLE) == 0) {
@@ -658,7 +658,7 @@ static PHCD_TD hcd_get_done_list(void)
 	while (td_next) {
 
 #ifdef DEBUG_USB
-            sprintf(dbg_buffer,"HCD: Done TD = %08lX\r\n", (ulong)td_next);
+            sprintf(dbg_buffer,"HCD: Done TD = %08lX\r\n", (uint32_t)td_next);
             DBG_USB(dbg_buffer);
 #endif
 
@@ -670,21 +670,21 @@ static PHCD_TD hcd_get_done_list(void)
 		td_temp = td_done;
 		td_done = td_next;
 		td_next = (PHCD_TD)(td_next->HcTD.NextTD & 0xFFFFFFF0);
-		td_done->HcTD.NextTD = (ulong)td_temp;
+		td_done->HcTD.NextTD = (uint32_t)td_temp;
 	}
 
 	return td_done;
 }
 
-static ulong hcd_transfer_count(PHCD_TD td, void *buffer)
+static uint32_t hcd_transfer_count(PHCD_TD td, void *buffer)
 {
-	ulong result;
+	uint32_t result;
 
 	if (td->HcTD.CBP == 0 && td->HcTD.BE != 0){
-		result = (ulong)td->HcTD.BE - (ulong)buffer + 1;
+		result = (uint32_t)td->HcTD.BE - (uint32_t)buffer + 1;
 	}
 	else{
-		result = (ulong)td->HcTD.CBP - (ulong)buffer;
+		result = (uint32_t)td->HcTD.CBP - (uint32_t)buffer;
 	}
 
 	return result;
@@ -696,7 +696,7 @@ static PHCD_TD hcd_control_transfer_done(PHCD_TD td)
 	PURB urb = td->urb;
 	PHCD_ED ed = (PHCD_ED)urb->ed;
 	PHCD_TD td_next;
-	ulong cc;
+	uint32_t cc;
 
 	if(td->index == TD_DATA){
 		urb->result = hcd_transfer_count(td, urb->buffer);
@@ -710,7 +710,7 @@ static PHCD_TD hcd_control_transfer_done(PHCD_TD td)
 	if(cc){
 
 #ifdef DEBUG_USB
-                sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02X(%s): %08lX\r\n", cc, hcd_cc_string(cc), (ulong)td);
+                sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02X(%s): %08lX\r\n", cc, hcd_cc_string(cc), (uint32_t)td);
                 DBG_USB(dbg_buffer);
 #endif
 		urb->result = cc;
@@ -734,7 +734,7 @@ static PHCD_TD hcd_bulk_transfer_done(PHCD_TD td)
 	PURB urb = td->urb;
 	PHCD_ED ed = (PHCD_ED)urb->ed;
 	PHCD_TD td_next;
-	ulong cc;
+	uint32_t cc;
 
 	urb->result = hcd_transfer_count(td, urb->buffer);
 
@@ -743,7 +743,7 @@ static PHCD_TD hcd_bulk_transfer_done(PHCD_TD td)
 	if((cc != 0) && (cc != CC_DATAOVERRUN) && (cc != CC_DATAUNDERRUN)) {
 
 #ifdef DEBUG_USB
-                sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02lX: %08lX\r\n", cc, (ulong)HostCtl_addr);
+                sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02lX: %08lX\r\n", cc, (uint32_t)HostCtl_addr);
                 DBG_USB(dbg_buffer);
 #endif
 
@@ -888,8 +888,8 @@ void hcd_ed_delete_list(void)
 
 void usbhost_interrupt(void)
 {
-	ulong status;
-	ulong b;
+	uint32_t status;
+	uint32_t b;
 
 	status = get_wvalue(SttTrnsCnt);
 	if(status & B_DMAIRQ) {

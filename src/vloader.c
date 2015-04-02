@@ -1,5 +1,6 @@
 // VLISP Virtual Machine - 2006 - by Sylvain Huet
 // Lowcost IS Powerfull
+#include <stdint.h>
 
 #include"vmem.h"
 #include"vloader.h"
