@@ -85,7 +85,7 @@ obj/%.o : %.s
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean:
-	rm -f $(TARGET).elf $(TARGET).hex
+	rm -f $(TARGET).elf $(TARGET).hex $(TARGET).bin
 	rm -Rf obj/
 
 program: $(TARGET).elf
