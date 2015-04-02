@@ -1,15 +1,3 @@
-;@**************************************************************************************************
-;@*                                                                                                *
-;@*    Copyright (C) 2005 Oki Electric Industry Co., LTD.                                          *
-;@*                                                                                                *
-;@*    System Name    :  ML67Q4051/ML67Q4061 CPU Board                                             *
-;@*    Module Name    :  SWI handler with ARM Thumb interworking                                   *
-;@*    File   Name    :  swi_handler.s                                                             *
-;@*    Revision       :  1.00                                                                      *
-;@*    Date           :  2004/02/09                                                                *
-;@*                                                                                                *
-;@**************************************************************************************************
-
 .arm
 
 .equ I_Bit,   0x80
