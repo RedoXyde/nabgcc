@@ -8,13 +8,13 @@
 /***********************************************************************/
 MEMORY
 {
-  IntROM  (rx) : ORIGIN = 0x08000000, LENGTH = 128k
+  IntROM  (rx) : ORIGIN = 0x08000000, LENGTH = 124k /* Actually 128k, but last sector is config data*/
   IntRAM  (rw) : ORIGIN = 0x10000000, LENGTH = 16k
   ExtROM  (rx) : ORIGIN = 0xC8000000, LENGTH = 0k
   ExtRAM  (rx) : ORIGIN = 0xD0000000, LENGTH = 1024k
 }
 
-ENTRY(__program_start)
+ENTRY(Reset_Handler)
 
 SECTIONS
 {
@@ -42,6 +42,8 @@ SECTIONS
   {
     _data = . ;
     *(.data.*)
+      . = ALIGN(4);
+    *(.ramfunc)
     SORT(CONSTRUCTORS)
   } >IntRAM
   . = ALIGN(4);
@@ -62,8 +64,8 @@ SECTIONS
   /* Stack */
   . = ALIGN(4);
   PROVIDE(__stack_start__ = .);
-  /* Check in 76405x_cstartup for the stack size)
-  PROVIDE(__stack_end__ = ALIGN(__stack_start__ + 0x780 ,8));
+  /* Check in 76405x_cstartup for the stack size) */
+  PROVIDE(__stack_end__ = ALIGN(__stack_start__ + 0x1680 +8 ,8));
 
   /* Heap */
   . = ALIGN(4);

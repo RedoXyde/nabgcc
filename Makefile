@@ -11,10 +11,11 @@ C_FILES += $(wildcard sys/src/*.c)
 AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
-CFLAGS =  -DVREAL -DDEBUG -DWIFI -DUSB
-CFLAGS += -Wall -Os -g -gdwarf
-CFLAGS += -mthumb
-CFLAGS += -mthumb-interwork
+CFLAGS =  -DVREAL -DDEBUG
+#~ CFLAGS += -DDEBUG_WIFI
+#~ CFLAGS += -DDEBUG_USB
+CFLAGS += -Wall -O3 -g -gdwarf
+CFLAGS += -mthumb -mthumb-interwork
 CFLAGS += -Wextra -Wno-unused-parameter -Wpointer-arith
 CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -fno-exceptions -fno-delete-null-pointer-checks
