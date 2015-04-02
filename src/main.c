@@ -579,21 +579,6 @@ void timer_handler(void)
 }
 
 /****************************************************************************/
-/*  Process of the FIQ interrupt                                            */
-/*  Function : FIQ_handler                                                  */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
-void FIQ_handler(void)
-{
-    /* Clear FIQ flag*/
-     put_value(EXFIQ, 0x01 );
-     __no_operation();
-    return;
-}
-
-/****************************************************************************/
 /*  Process of the UART0 interrupt                                          */
 /*  Function : uart0_interrupt                                              */
 /*      Parameters                                                          */

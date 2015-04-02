@@ -124,7 +124,7 @@ bypass_tmr_init:
   SUB     R0, R0, #SVC_Stack_Size
 
   ;@ Enter User Mode and set its Stack Pointer
-  MSR     CPSR_c, #Mode_USR
+  MSR     CPSR_c, #Mode_USR|I_Bit|F_Bit
   MOV     SP, R0
 
   ;@ Setup a default Stack Limit (when compiled with "-mapcs-stack-check")

@@ -66,7 +66,7 @@ irq_handler:
   mov     LR,       PC
   bx      r2
 
-  LDMFD   sp!, {r0, r12, lr};@ R0, R12 and link register is restored.
+  ldmfd   sp!, {r0, r12, lr};@ R0, R12 and link register is restored.
 return_irq_handler:
 
   ;@ Switch to SYS Mode, with IRQ disabled, keep FIQ status
@@ -79,26 +79,32 @@ return_irq_handler:
 ;@ IRQ Mode with IRQ disabled
   ;@ Any write to CILCL clears the most significant '1' bit of CIL register
   ldr     r5,       =#CILCL
-  STR     r2,       [r5]
+  str     r2,       [r5]
 
   ;@ Restore SPSR
-  LDMFD   sp!, {r4}^
-  MSR     spsr_cf,  r4       ;@ Restore SPSR of IRQ Mode
+  ldmfd   sp!, {r4}
+  msr     spsr_cf,  r4       ;@ Restore SPSR of IRQ Mode
 
 exit_irq_handler:
   ;@ Restore inital registers
-  LDMFD   sp!, {r1-r6, pc}^
+  ldmfd   sp!, {r1-r6, pc}^
 
 ;@==============================================================================
 ;@ FIQ Mode
 fiq_handler:
     sub     LR,     #4 ;@ Return address
-    STMFD   sp!,    {LR} ;@ store low registers to FIQ stack
+    stmfd   sp!,    {LR} ;@ store low registers to FIQ stack
 
-    LDR     r2,     =FIQ_handler
+    ldr     r2,     =FIQ_handler
     mov     LR,     PC
-    BX      r2
+    bx      r2
 
-    LDMFD   SP!,    {PC}^  ;@ restore registers & return from FIQ
+    ldmfd   SP!,    {PC}^  ;@ restore registers & return from FIQ
+
+.weak FIQ_handler
+.thumb
+.thumb_func
+FIQ_handler:
+  b FIQ_handler
 
 .end

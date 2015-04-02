@@ -22,43 +22,15 @@ extern void *_sbrk(int32_t incr)
 
 extern void _port_disable_thumb(void);
 extern void _port_enable_thumb(void);
+
 void __disable_interrupt(void)
 {
-  _port_disable_thumb();
+  asm volatile ("swi 1");   // Disable IRQ
+  //~ asm volatile ("swi 3");   // Disable FIQ
 }
 
 void __enable_interrupt(void)
 {
-  _port_enable_thumb();
+  asm volatile ("swi 0");   // Enable IRQ
+  //~ asm volatile ("swi 2");   // Enable FIQ
 }
-/*
-
-@ int di();
-
-.thumb
-di:
-bx pc
-nop
-.arm
-di_arm:
-mrs r0,cpsr
-orr r1,r0,#0xc0
-msr cpsr_c,r1
-bx lr
-.thumb
-
-@ void ei(int oldmask);
-.thumb
-ei:
-bx pc
-nop
-.arm
-ei_arm:
-and r0,r0,#0xc0 @ only modify F and I
-mrs r1,cpsr
-bic r1,r1,r0
-msr cpsr_c,r1
-bx lr
-*/
-
-
