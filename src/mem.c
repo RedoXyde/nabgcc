@@ -53,8 +53,6 @@ __attribute__ ((section(".ramfunc"))) void write_uc_flash_sec(uint32_t address, 
   //--------------
   //Flash ROM programming is permitted
   put_value(FLACON,0x03);
-  set_bit(FLACON,0x02);
-  __no_operation();
   __no_operation();
   __no_operation();
   __no_operation();
@@ -65,56 +63,46 @@ __attribute__ ((section(".ramfunc"))) void write_uc_flash_sec(uint32_t address, 
   put_value(0x08000000+0x15554,0x80);
   put_value(0x08000000+0x15554,0xAA);
   put_value(0x08000000+0x0AAA8,0x55);
-  put_value(address>32 ? address/4096:address,0x30);
-  __no_operation();
+  if(address < 0x08000000)
+    address += 0x08000000;
+  put_value(address,0x30);
   __no_operation();
   __no_operation();
   __no_operation();
   //Wait for the completion of the command
-  while((get_value(FLACON) & (0x04|0x8)));
-  //~ consolestr("2");
+  while((get_value(FLACON) & (0x04|0x8|0x2))!= 0x2);
 //-----------------------------
 // Loop to write 1024 x 4 bytes
 //-----------------------------
-  address += 0x08000000;
+
   for(cmpt_int=0; cmpt_int<4096; cmpt_int+=4)
   {
-    consolestr("\n\rsrc:");consolehx(temp+cmpt_int);consolestr("\t dst:"); consolehx(address+cmpt_int);
     if(temp[cmpt_int] == 0xFF && temp[cmpt_int+1] == 0xFF &&
        temp[cmpt_int+2] == 0xFF && temp[cmpt_int+3] == 0xFF
     ) continue;
     //~ Reset the status flag of the completed command in SPD format
-    set_bit(FLACON,0x02);
-    __no_operation();
+    put_value(FLACON,0x03);
     __no_operation();
     __no_operation();
     __no_operation();
 
-
-    //~ //SPD Command to write 4 bytes
-    //~ put_value(0x08000000+0x15554,0xAA);
-    //~ put_value(0x08000000+0x0AAA8,0x55);
-    //~ put_value(0x08000000+0x15554,0xA0);
-    //~ put_value(address+cmpt_int,temp[cmpt_int]);
-    //~ put_value(address+1+cmpt_int,temp[cmpt_int+1]);
-    //~ put_value(address+2+cmpt_int,temp[cmpt_int+2]);
-    //~ put_value(address+3+cmpt_int,temp[cmpt_int+3]);
-    __no_operation();
+    //SPD Command to write 4 bytes
+    put_value(0x08000000+0x15554,0xAA);
+    put_value(0x08000000+0x0AAA8,0x55);
+    put_value(0x08000000+0x15554,0xA0);
+    put_value(address+cmpt_int,temp[cmpt_int]);
+    put_value(address+1+cmpt_int,temp[cmpt_int+1]);
+    put_value(address+2+cmpt_int,temp[cmpt_int+2]);
+    put_value(address+3+cmpt_int,temp[cmpt_int+3]);
     __no_operation();
     __no_operation();
     __no_operation();
 	  //Wait for the completion of the command
-	  while(( get_value(FLACON) & (0x04|0x8));
+	  while((get_value(FLACON) & (0x04|0x8|0x2))!= 0x2);
   }
 
   //Reset the status flag of the completed command in SPD format
-    set_bit(FLACON,0x02);
-    __no_operation();
-    __no_operation();
-    __no_operation();
-    __no_operation();
-  //Flash ROM programming is prohibited
-  clr_bit(FLACON,0x01);
+    put_value(FLACON,0x02);
     __no_operation();
     __no_operation();
     __no_operation();
@@ -195,6 +183,7 @@ __attribute__ ((section(".ramfunc"))) void flash_uc(uint8_t *data, int32_t nb_by
 /*          Input   :   number of bytes to write                               */
 /*          Output  :   pointer to the buffer for returning bytes              */
 /*******************************************************************************/
+__attribute__ ((section(".ramfunc")))
 void read_uc_flash(uint32_t address, uint8_t *data, uint32_t nb_byte)
 {
   uint16_t cmpt_int;
