@@ -2,7 +2,10 @@
 TARGET = Nab
 
 # User options
-OPTIONS =
+OPTIONS =  -DVREAL
+OPTIONS += -DDEBUG
+#~ OPTIONS += -DDEBUG_WIFI
+#~ OPTIONS += -DDEBUG_USB
 
 # C Files to compile (take all)
 C_FILES = $(wildcard src/*.c)
@@ -11,12 +14,10 @@ C_FILES += $(wildcard sys/src/*.c)
 AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
-CFLAGS =  -DVREAL -DDEBUG
-#~ CFLAGS += -DDEBUG_WIFI
-#~ CFLAGS += -DDEBUG_USB
-CFLAGS += -Wall -O1 -g -gdwarf
+CFLAGS += -O1
+CFLAGS += -g -gdwarf
 CFLAGS += -mthumb -mthumb-interwork
-CFLAGS += -Wextra -Wno-unused-parameter -Wpointer-arith
+CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wpointer-arith
 CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -fno-exceptions -fno-delete-null-pointer-checks
 CFLAGS += -mcpu=arm7tdmi -MMD
