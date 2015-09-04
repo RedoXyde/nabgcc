@@ -3,10 +3,8 @@
 #include "audio.h"
 #include "spi.h"
 #include "delay.h"
-#include "led.h"
-#include "uart.h"
 #include "vlog.h"
-
+#include "hcd.h"
 
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
 
@@ -28,40 +26,48 @@
 
 #endif
 
-/****************************************************************************/
-/*  Analog to digital conversion of channel #2                              */
-/*  Function : get_adc_value                                                */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   return of the ADC result of channel #2 in 8bits     */
-/****************************************************************************/
+/**
+ * @brief Analog to digital conversion of channel #2
+ * @return 8 Most significant bits of the ADC result
+ */
 uint8_t get_adc_value(void)
 {
-  uint16_t adc_result;
   //Start ADC for channel #2
   set_hbit(ADCON1, ADCON1_STS | ADCON1_CH2);
   //Wait for the ADC to be done
   while(get_hvalue(ADCON1) & ADCON1_STS);
   //Return the ADC in a 8bits result
-  adc_result=get_hvalue(ADR2);
-  return (uint8_t)(adc_result>>2);
+  return (uint8_t)(get_hvalue(ADR2)>>2);
 }
 
+/**
+ * @brief Read a register from the VLSI chip, using SPI
+ *
+ * @param [in] reg  VLSI register address
+ *
+ * @return Value of the register
+ */
 uint16_t vlsi_read_sci(uint8_t reg)
 {
-    uint16_t received_short;
-    while( !(INT_AUDIO_READ & INT_AUDIO_BIT) ) CLR_WDT;
-    CS_AUDIO_SCI_CLEAR;
-    WriteSPI(VS1003_READ);
-    WriteSPI(reg);
+  uint16_t received_short;
+  while( !(INT_AUDIO_READ & INT_AUDIO_BIT) ) CLR_WDT;
+  CS_AUDIO_SCI_CLEAR;
+  WriteSPI(VS1003_READ);
+  WriteSPI(reg);
   //Clear reception buffer
-    while( get_wvalue(SPSR0) & SPSR0_RFD ) get_value(SPDRR0);
-    received_short = ReadSPI()<<8;
-    received_short += ReadSPI();
-    CS_AUDIO_SCI_SET;
-    return received_short;
+  while( get_wvalue(SPSR0) & SPSR0_RFD ) get_value(SPDRR0);
+  received_short = ReadSPI()<<8;
+  received_short += ReadSPI();
+  CS_AUDIO_SCI_SET;
+  return received_short;
 }
 
+/**
+ * @brief Write a register of the VLSI, using SPI
+ *
+ * @param [in] reg VLSI register address
+ * @param [in] val Value
+ */
 void vlsi_write_sci(uint8_t reg,uint16_t val)
 {
   while( !(INT_AUDIO_READ & INT_AUDIO_BIT) ) CLR_WDT;
@@ -73,22 +79,40 @@ void vlsi_write_sci(uint8_t reg,uint16_t val)
   CS_AUDIO_SCI_SET;
 }
 
-int32_t vlsi_feed_sdi(uint8_t* data,int32_t len)
+/**
+ * @brief Write a buffer/feed to the VLSI
+ *
+ * @param [in] data Pointer to the buffer
+ * @param [in] len  Length
+ *
+ * @return Number of written bytes
+ */
+uint32_t vlsi_feed_sdi(uint8_t* data,uint32_t len)
 {
-  int32_t i=0;
+  uint32_t i=0;
   CS_AUDIO_SDI_CLEAR;
   while((i<len)&&(INT_AUDIO_READ & INT_AUDIO_BIT)) WriteSPI(data[i++]);
   CS_AUDIO_SDI_SET;
   return i;
 }
 
-int32_t vlsi_fifo_ready()
+/**
+ * @brief Get the status of the VLSI chip
+ *
+ * @retval true when ready
+ * @retval false when not ready
+ */
+uint8_t vlsi_fifo_ready()
 {
-  if (INT_AUDIO_READ & INT_AUDIO_BIT) return 1;
-  return 0;
+  return ((INT_AUDIO_READ & INT_AUDIO_BIT) == INT_AUDIO_BIT);
 }
 
-void vlsi_ampli(int32_t on)
+/**
+ * @brief Turn ON or OFF the amplifier
+ *
+ * @param [in] on new status
+ */
+void vlsi_ampli(uint8_t on)
 {
   if (on)
   {
@@ -101,7 +125,7 @@ void vlsi_ampli(int32_t on)
 }
 
 #define patchwma_len 10
-const int32_t patchwma_data[patchwma_len]=
+const uint32_t patchwma_data[patchwma_len]=
 {
 0x0207800e,0x02062801,0x02063f80,0x02060006,0x020653d7,
 0x020784fe,0x02062000,0x02060000,0x02063f05,0x0206c024
@@ -109,20 +133,16 @@ const int32_t patchwma_data[patchwma_len]=
 
 void patchwma()
 {
-  int32_t i;
+  uint8_t i;
   for(i=0;i<patchwma_len;i++)
   {
-    int32_t k=patchwma_data[i];
-    vlsi_write_sci(k>>16,k);
+    uint32_t k=patchwma_data[i];
+    vlsi_write_sci((k>>16)&0xFF,k);
   }
 }
-/****************************************************************************/
-/*  Init VLSI peripheral                                                    */
-/*  Function : init_vlsi                                                    */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Init the VLSI peripheral
+ */
 void init_vlsi(void)
 {
   //Set SPI0 to low speed before initialising PLL of VS1003 => 2.11MHz max
@@ -137,11 +157,10 @@ void init_vlsi(void)
   RST_AUDIO_SET;
   DelayMs(1);
 
-//Update CLKI of VS 1003 from 12.688MHz to 12.688MHZ x 4 = 49.152MHz
-//So SCI write and SDI can be up to 49.152MHz/4 = 12.288MHZ
-//So SCI read can be up to 49.152MHz/6 = 8.192MHZ
-
-//  vlsi_write_sci(VS1003_CLOCKF,0xc430);
+  //Update CLKI of VS 1003 from 12.688MHz to 12.688MHZ x 4 = 49.152MHz
+  //So SCI write and SDI can be up to 49.152MHz/4 = 12.288MHZ
+  //So SCI read can be up to 49.152MHz/6 = 8.192MHZ
+  //vlsi_write_sci(VS1003_CLOCKF,0xc430);
   vlsi_write_sci(VS1003_CLOCKF,0xc000);
 
   //Set SPI0 to low speed before initialising PLL of VS1003 => 8.458MHz max
@@ -150,172 +169,197 @@ void init_vlsi(void)
   put_wvalue(SPBRR0,0x00000002);
   set_wbit(SPCR0,SPCR0_SPE);
 
-//Config MODE
-  vlsi_write_sci(VS1003_MODE,(VS1003_MODE_VALUE_H<<8)|VS1003_MODE_VALUE_L | SM_RESET);
+  //Config MODE
+  vlsi_write_sci(VS1003_MODE,
+                 (VS1003_MODE_VALUE_H<<8)|VS1003_MODE_VALUE_L | SM_RESET);
 
-//Config VOLUME
+  //Config VOLUME
   vlsi_write_sci(VS1003_VOLUME,0xffff);
 
   patchwma();
 }
 
-/****************************************************************************/
-/*  Set configuration for adpcm encoding                                    */
-/*  Function : init_adpcm_encode                                            */
-/*      Parameters                                                          */
-/*          Input   :   sampling frequency in Hz on 16bits, up to 48kHz     */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
-void init_adpcm_encode(uint16_t sampling_frequency,uint16_t gain)
+/**
+ * @brief Set configuration for adpcm encoding
+ *
+ * @param [in] sampling_frequency Sampling freq in Hz on 16bits, up to 48kHz
+ * @param [in] gain               Gain control
+ */
+void init_adpcm_encode(uint16_t sampling_frequency, uint16_t gain)
 {
   uint16_t config_frequency;
 
-//Sampling frequency up to 48kHz
-//XTALI id 12.288MHz x 4 = 49.152MHz and /256 => 192000
+  //Sampling frequency up to 48kHz
+  //XTALI id 12.288MHz x 4 = 49.152MHz and /256 => 192000
   config_frequency=(uint16_t)(192000/sampling_frequency);
 
-//Config Sampling frequency
+  //Config Sampling frequency
   vlsi_write_sci(VS1003_AICTRL0,config_frequency);
 
-//Config Automatic Gain Control
+  //Config Automatic Gain Control
   vlsi_write_sci(VS1003_AICTRL1,gain);
 
-//Config MODE
-  vlsi_write_sci(VS1003_MODE,((VS1003_MODE_VALUE_H | SM_ADPCM_HP | SM_ADPCM)<<8)|VS1003_MODE_VALUE_L | SM_RESET);
+  //Config MODE
+  vlsi_write_sci(VS1003_MODE,
+                 ((VS1003_MODE_VALUE_H | SM_ADPCM_HP | SM_ADPCM)<<8)|
+                  VS1003_MODE_VALUE_L | SM_RESET);
 }
 
-/****************************************************************************/
-/*  Close adpcm mode                                                        */
-/*  Function : stop_adpcm_encode                                            */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief  Exit adpcm mode
+ */
 void stop_adpcm_encode(void)
 {
-//Config MODE
-  vlsi_write_sci(VS1003_MODE,((VS1003_MODE_VALUE_H)<<8)|VS1003_MODE_VALUE_L | SM_RESET);
+  //Config MODE
+  vlsi_write_sci(VS1003_MODE,
+                 ((VS1003_MODE_VALUE_H)<<8)|VS1003_MODE_VALUE_L | SM_RESET);
 }
 
 
 
-/****************************************************************************/
-/*  Set output volume of the VLSI                                           */
-/*  Function : set_vlsi_volume                                              */
-/*      Parameters                                                          */
-/*          Input   :   volume on 8bits ; the maximum is 0x00               */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Set output volume of the VLSI
+ *
+ * @param [in] volume Volume on 8bits; the maximum is 0x00
+ */
 void set_vlsi_volume(uint8_t volume)
 {
-//Config VOLUME
+  //Config VOLUME
   vlsi_write_sci(VS1003_VOLUME,(volume<<8)|volume);
-  if (volume>=0x7f)TURN_OFF_AUDIO_AMPLIFIER;
-  else TURN_ON_AUDIO_AMPLIFIER;
-
+  vlsi_ampli(volume<0x7f);
 }
 
 
+int32_t audioPlayTryFeed(int32_t ask);
+int32_t audioPlayFetchByte();
 int32_t audioPlayFetch(char* dst,int32_t ask);
 char* audioRecFeed_begin(int32_t size);
 void audioRecFeed_end();
 
-uint8_t play_state=0;
-
-uint8_t rec_state=0;
-
-void rec_start(int32_t sampling_frequency,int32_t gain)
-{
-  if (play_state) return;
-  consolestr("rec_start\n");
-  clear_vlsi_fifo();
-  TURN_OFF_AUDIO_AMPLIFIER;
-  init_adpcm_encode(sampling_frequency,gain);
-  rec_state=1;
-}
-
-void rec_stop()
-{
-  if (!rec_state) return;
-  consolestr("rec_stop\n");
-  stop_adpcm_encode();
-  TURN_OFF_AUDIO_AMPLIFIER;
-  clear_vlsi_fifo();
-  rec_state=0;
-}
-
-void rec_check()
-{
-  short received_short;
-  if (!rec_state) return;
-  //each audio block is 256bytes long, but the buffer fill information is
-  //in 16bits word information
-//consolestr("r");
-  received_short=vlsi_read_sci(VS1003_HDAT1);
-
-  //putint_uart(received_short);
-
-      received_short&=0xff80;
-      if (received_short)
-      {
-        short val;
-        char* dst=audioRecFeed_begin(received_short<<1);
-        if (dst)
-          while(received_short--)
-          {
-            val=vlsi_read_sci(VS1003_HDAT0);
-            *(dst++)=val>>8;
-            *(dst++)=val;
-          }
-        audioRecFeed_end();
-      }
-}
-
+uint8_t play_state=0,
+        rec_state=0;
 int32_t valtrytofeed=2048;
 
+/**
+ * @brief Start a recording
+ *
+ * @param [in] sampling_frequency Sampling freq in Hz on 16bits, up to 48kHz
+ * @param [in] gain               Gain control
+ */
+void rec_start(uint16_t sampling_frequency,uint16_t gain)
+{
+  // Playing something, exit
+  if (play_state)
+    return;
+  consolestr("rec_start\n");
+  clear_vlsi_fifo();
+  vlsi_ampli(0);  // Turn off amplifier
+  init_adpcm_encode(sampling_frequency,gain);
+  rec_state=1;  // Update state
+}
+
+/**
+ * @brief Stop an ongoing recording
+ */
+void rec_stop()
+{
+  // Not recording, exit
+  if (!rec_state)
+    return;
+  consolestr("rec_stop\n");
+  stop_adpcm_encode();
+  vlsi_ampli(0);  // Turn off amplifier
+  clear_vlsi_fifo();
+  rec_state=0;  // Update state
+}
+
+/**
+ * @brief Check if ther's an ongoing recording
+ */
+void rec_check()
+{
+  uint16_t received_short;
+  // Not recording, exit
+  if (!rec_state)
+    return;
+  //each audio block is 256bytes long, but the buffer fill information is
+  //in 16bits word information
+
+  received_short=vlsi_read_sci(VS1003_HDAT1)&0xFF80;
+  if (received_short)
+  {
+    uint16_t val;
+    char* dst=audioRecFeed_begin(received_short<<1);
+    if (dst)
+      while(received_short--)
+      {
+        val=vlsi_read_sci(VS1003_HDAT0);
+        *(dst++)=val>>8;
+        *(dst++)=val;
+      }
+    audioRecFeed_end();
+  }
+}
+
+/**
+ * @brief Start playing FIXME
+ *
+ * @param [in]  trytofeed FIXME
+ */
 void play_start(int32_t trytofeed)
 {
-  if (rec_state) return;
+  // Recording something, exit
+  if (rec_state)
+    return;
   consolestr("play_start\n");
   clear_vlsi_fifo();
   patchwma();
 
-  if (trytofeed<=0) trytofeed=1024;
+  if (trytofeed<=0)
+    trytofeed=1024;
   valtrytofeed=trytofeed;
-  TURN_ON_AUDIO_AMPLIFIER;
+  vlsi_ampli(1); // Turn ampli ON
   play_state=1;
 }
 
+/**
+ * @brief Stop an ongoing replay
+ */
 void play_stop()
 {
-  if (!play_state) return;
+  // Not playing, exit
+  if (!play_state)
+    return;
   consolestr("play_stop\n");
-  TURN_OFF_AUDIO_AMPLIFIER;
+  vlsi_ampli(0);  // Turn ampli OFF
   clear_vlsi_fifo();
   play_state=0;
 }
 
-#include"hcd.h"
-int32_t audioPlayTryFeed(int32_t ask);
-int32_t audioPlayFetchByte();
-
+/**
+ * @brief Check if there's an ongoing replay
+ *
+ * @param [in]  nocb  FIXME
+ */
 void play_check(int32_t nocb)
 {
   int32_t empty=0;
   int32_t nb=0;
 
-  if (!play_state) return;
-//consolestr("<");
+  /* Not playing
+   * or buffer busy
+   * => Exit
+   */
+  if (!play_state || !vlsi_fifo_ready())
+    return;
 
- if ( !(INT_AUDIO_READ & INT_AUDIO_BIT) ) return;  // buffer occupé
+  if (!nocb)
+    nocb=1-audioPlayTryFeed(valtrytofeed);
 
-if (!nocb) nocb=1-audioPlayTryFeed(valtrytofeed);
-
-disable_ohci_irq();
+  disable_ohci_irq();
 
   // au moins 32 octets dispos
-
-  while((INT_AUDIO_READ & INT_AUDIO_BIT)&& (!empty))
+  while(vlsi_fifo_ready() && !empty)
   {
     CLR_WDT;
     int32_t val=audioPlayFetchByte();
@@ -328,82 +372,67 @@ disable_ohci_irq();
     if (val>=0)
     {
       nb++;
-  CS_AUDIO_SDI_CLEAR;
+      CS_AUDIO_SDI_CLEAR;
       WriteSPI(val);
-  CS_AUDIO_SDI_SET;
+      CS_AUDIO_SDI_SET;
     }
     else
     {
       empty=1;
-      if (play_state==2) play_state=0;
+      if (play_state==2)
+        play_state=0;
     }
   }
-//  consolestr(":");  putint_uart(nb);
-enable_ohci_irq();
-
+  enable_ohci_irq();
 }
 
+/**
+ * @brief FIXME
+ */
 void play_eof()
 {
-  if (play_state==1) play_state=2;
+  if (play_state==1)
+    play_state=2;
 }
 
-/****************************************************************************/
-/*  Clear the VLSI input FIFO to be ready for a new file to be played       */
-/*  Function : clear_vlsi_fifo                                              */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief  Clear the VLSI input FIFO to be ready for a new file to be played
+ */
 void clear_vlsi_fifo(void)
 {
   consolestr("clear_vlsi_fifo\n");
-//Config MODE
-  vlsi_write_sci(VS1003_MODE,(VS1003_MODE_VALUE_H<<8)|VS1003_MODE_VALUE_L | SM_RESET);
-//  vlsi_write_sci(VS1003_MODE,0x0805);
+  sw_reset_vlsi();
 }
 
 
-/****************************************************************************/
-/*  Software reset of VS1003                                                */
-/*  Function : sw_reset_vlsi                                                */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Software reset of VS1003
+ */
 void sw_reset_vlsi(void)
 {
-//Config MODE
-  vlsi_write_sci(VS1003_MODE,(VS1003_MODE_VALUE_H<<8)|VS1003_MODE_VALUE_L | SM_RESET);
+  //Config MODE
+  vlsi_write_sci(VS1003_MODE,
+                 (VS1003_MODE_VALUE_H<<8)|VS1003_MODE_VALUE_L | SM_RESET);
 }
 
-/****************************************************************************/
-/*  Check the audio file specs which is played                              */
-/*  Function : check_audio_file                                             */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   return of HDAT1 and HDAT0                           */
-/****************************************************************************/
+/**
+ * @brief Check the audio file specs which is played
+ *
+ * @return HDAT1 and HDAT0
+ */
 uint32_t check_audio_file(void)
 {
-  uint32_t file_state=0x00000000;
-
-  file_state=vlsi_read_sci(VS1003_HDAT1)<<16;
-  file_state|=vlsi_read_sci(VS1003_HDAT0)&0xffff;
-
-  return file_state;
+  return ((uint32_t)vlsi_read_sci(VS1003_HDAT1)<<16)|
+          vlsi_read_sci(VS1003_HDAT0);
 }
 
-/****************************************************************************/
-/*  Check the number of seconds of data decoded                             */
-/*  Function : check_decode_time                                            */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   return the number of seconds decoded                */
+/**
+ * @brief Check the number of seconds of data decoded
+ *
+ * @return  Number of seconds decoded
+ */
 /****************************************************************************/
 uint16_t check_decode_time(void)
 {
   return vlsi_read_sci(VS1003_DECODE_TIME);
 }
-
-

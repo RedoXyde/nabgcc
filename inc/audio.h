@@ -50,35 +50,29 @@
 /* Functions */
 /*************/
 uint8_t get_adc_value(void);
+
 void init_vlsi(void);
-void init_adpcm_encode(uint16_t sampling_frequency,uint16_t gain);
-void stop_adpcm_encode(void);
-void add_riff_header(uint8_t *data, uint16_t cmpt_audio_block, uint16_t sampling_frequency);
-void encode_adpcm(uint8_t *data, uint16_t cmpt_audio_block, uint16_t sampling_frequency);
 void set_vlsi_volume(uint8_t volume);
 void clear_vlsi_fifo(void);
+void sw_reset_vlsi(void);
+uint16_t vlsi_read_sci(uint8_t reg);
+void vlsi_write_sci(uint8_t reg,uint16_t val);
+uint32_t vlsi_feed_sdi(uint8_t* data,uint32_t len);
+uint8_t vlsi_fifo_ready();
+void vlsi_ampli(uint8_t on);
+
+void init_adpcm_encode(uint16_t sampling_frequency,uint16_t gain);
+void stop_adpcm_encode(void);
+
 uint32_t check_audio_file(void);
 uint16_t check_decode_time(void);
-void config_bass(uint32_t config_value);
-void sw_reset_vlsi(void);
-uint8_t* stop_decoding(uint8_t *addr_mem);
-void play_audio(uint8_t *addr_mem, uint32_t nb_byte_to_play);
 
 void play_start(int32_t trytofeed);
 void play_stop();
 void play_check(int32_t nocb);
 void play_eof();
-void rec_start(int32_t sampling_frequency,int32_t gain);
+
+void rec_start(uint16_t sampling_frequency,uint16_t gain);
 void rec_stop();
 void rec_check();
-
-uint16_t vlsi_read_sci(uint8_t reg);
-void vlsi_write_sci(uint8_t reg,uint16_t val);
-int32_t vlsi_feed_sdi(uint8_t* data,int32_t len);
-int32_t vlsi_fifo_ready();
-void vlsi_ampli(int32_t on);
-
-int32_t push_button_value();
-
-
 #endif
