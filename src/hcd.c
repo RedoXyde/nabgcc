@@ -23,7 +23,7 @@ struct hcd_info hcd_info;
 
 void usbhost_interrupt(void);
 
-int32_t hcd_init(void)
+int8_t hcd_init(void)
 {
 	uint32_t rev;
 	uint32_t fminterval;
@@ -92,7 +92,7 @@ int32_t hcd_init(void)
 	return 0;
 }
 
-int32_t hcd_rh_events(void)
+uint8_t hcd_rh_events(void)
 {
 	if(hcd_info.rh_status & HcdRH_DISCONNECT){
 		hcd_info.rh_status &= ~HcdRH_DISCONNECT;
@@ -170,7 +170,7 @@ static void hcd_delete_td(PHCD_ED ed)
 }
 
 /* Must be called with OHCI IRQ masked */
-static int32_t hcd_add_td(PHCD_ED ed, uint32_t control, void *buffer, int32_t length,
+static int8_t hcd_add_td(PHCD_ED ed, uint32_t control, void *buffer, int32_t length,
 	 PURB urb, int32_t index)
 {
 	PHCD_TD td_tail;
@@ -304,7 +304,7 @@ void hcd_delete_ed(PHCD_ED ed)
 	hcd_free(ed);
 }
 
-int32_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
+int8_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
 {
 	uint32_t control;
 
@@ -616,7 +616,7 @@ void hcd_bulk_transfer(PURB urb)
 	}
 }
 
-int32_t hcd_transfer_request(PURB urb)
+int8_t hcd_transfer_request(PURB urb)
 {
 	DBG_USB(" hcd_transfer_request:\r\n");
 
@@ -946,11 +946,10 @@ void usbhost_interrupt(void)
 	}
 }
 
-int32_t hcd_transfer_cancel(PURB urb)
+int8_t hcd_transfer_cancel(PURB urb)
 {
 	DBG_USB(" hcd_transfer_cancel:\n");
 
-	/* コントローラの状態確認 */
 	if (hcd_info.disabled) {
 		urb->status = URB_ABORT;
 		return urb->status;

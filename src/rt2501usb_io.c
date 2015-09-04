@@ -1,25 +1,20 @@
 /*
-	Ralink RT2501 driver for Violet embedded platforms
-	(c) 2006 Sebastien Bourdeauducq
+ * Ralink RT2501 driver for Violet embedded platforms
+ * (c) 2006 Sebastien Bourdeauducq
+ *
+ * RedoX <dev@redox.ws> - 2015 - GCC Port
 */
 
-#include <stdio.h>
-#include "ML674061.h"
 #include "common.h"
-#include "hcd.h"
-#include "usbctrl.h"
 #include "usbh.h"
-#include "ml60842.h"
-#include "delay.h"
-#include "debug.h"
 
 #include "rt2501usb_hw.h"
 #include "rt2501usb_io.h"
 
-unsigned int rt2501_read(PDEVINFO dev, short unsigned int reg)
+uint32_t rt2501_read(PDEVINFO dev, uint16_t reg)
 {
-	unsigned int val;
-	int ret;
+	uint32_t val;
+	int8_t ret;
 
 	ret = usbh_control_transfer(dev,
 				 0,				/* pipe */
@@ -33,9 +28,9 @@ unsigned int rt2501_read(PDEVINFO dev, short unsigned int reg)
 	return val;
 }
 
-int rt2501_write(PDEVINFO dev, short unsigned int reg, unsigned int val)
+uint8_t rt2501_write(PDEVINFO dev, uint16_t reg, uint32_t val)
 {
-	int ret;
+	int8_t ret;
 
 	ret = usbh_control_transfer(dev,
 				 0,				/* pipe */
@@ -48,9 +43,9 @@ int rt2501_write(PDEVINFO dev, short unsigned int reg, unsigned int val)
 	return (ret == sizeof(val));
 }
 
-int rt2501_read_eeprom(PDEVINFO dev, short int address, void *buf, int len)
+uint8_t rt2501_read_eeprom(PDEVINFO dev, uint16_t address, void *buf, uint16_t len)
 {
-	int ret;
+	int8_t ret;
 
 	ret = usbh_control_transfer(dev,
 				 0,				/* pipe */
@@ -63,7 +58,7 @@ int rt2501_read_eeprom(PDEVINFO dev, short int address, void *buf, int len)
 	return (ret == len);
 }
 
-unsigned char rt2501_read_bbp(PDEVINFO dev, unsigned char reg)
+uint8_t rt2501_read_bbp(PDEVINFO dev, uint8_t reg)
 {
 	PHY_CSR3_STRUC csr;
 
@@ -89,7 +84,7 @@ unsigned char rt2501_read_bbp(PDEVINFO dev, unsigned char reg)
 	return (csr.field.Value);
 }
 
-int rt2501_write_bbp(PDEVINFO dev, unsigned char reg, unsigned char val)
+uint8_t rt2501_write_bbp(PDEVINFO dev, uint8_t reg, uint8_t val)
 {
 	PHY_CSR3_STRUC csr;
 
@@ -107,7 +102,7 @@ int rt2501_write_bbp(PDEVINFO dev, unsigned char reg, unsigned char val)
 	return 1;
 }
 
-int rt2501_write_rf(PDEVINFO dev, unsigned int val)
+uint8_t rt2501_write_rf(PDEVINFO dev, uint32_t val)
 {
 	PHY_CSR4_STRUC	csr;
 

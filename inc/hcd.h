@@ -140,17 +140,17 @@ extern struct hcd_info hcd_info;
 #define disable_ohci_irq() put_wvalue(HostCtl, B_OHCIIRQ_MASK)
 #define enable_ohci_irq() put_wvalue(HostCtl, 0)
 
-int32_t hcd_init(void);
+int8_t hcd_init(void);
 void hcd_exit(void);
 
-int32_t hcd_rh_events(void);
+uint8_t hcd_rh_events(void);
 
 PHCD_ED hcd_create_ed(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t, uint8_t);
-int32_t hcd_update_ed(PHCD_ED, uint8_t, uint16_t);
+int8_t hcd_update_ed(PHCD_ED, uint8_t, uint16_t);
 void hcd_delete_ed(PHCD_ED);
 
-int32_t hcd_transfer_request(PURB);
-int32_t hcd_transfer_cancel(PURB);
-int32_t hcd_rh_disconnect(void);
+int8_t hcd_transfer_request(PURB);
+int8_t hcd_transfer_cancel(PURB);
+int8_t hcd_rh_disconnect(void);
 
 #endif	/* _HCD_H_ */

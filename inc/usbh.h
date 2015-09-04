@@ -225,7 +225,7 @@ typedef struct _URB {
 	struct usb_setup *setup;
 	callback	callback;
 
-	int32_t status;
+	int8_t status;
 	LIST_ENTRY	td_list;
 } URB, *PURB;
 

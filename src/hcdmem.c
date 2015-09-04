@@ -272,7 +272,7 @@ int32_t hcd_malloc_rest(uint8_t Bank)
 		pLastMMDL = pLastMMDL->Next;
 	}
 
-	FreeMaxSize = Buffer->Size - (LastBufferAddress - Buffer->Address);
+	FreeMaxSize = Buffer->Size - (int32_t)(LastBufferAddress - Buffer->Address);
 
 	rest = max(Gap2MaxSize, FreeMaxSize)-sizeof(MMDL);
 

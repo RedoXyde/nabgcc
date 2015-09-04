@@ -334,7 +334,7 @@ static int32_t rt2501_setup_eeprom(void)
 	if(value != 0x00FF) rt2501_RfFreqOffset = value;
 	else rt2501_RfFreqOffset = 0;
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "EEPROM: RF freq offset=0x%x\r\n", rt2501_RfFreqOffset);
+	sprintf(dbg_buffer, "EEPROM: RF freq offset=0x%lx\r\n", rt2501_RfFreqOffset);
 	DBG_WIFI(dbg_buffer);
 #endif
 
@@ -414,7 +414,7 @@ static void rt2501_antenna_setting()
         if(rt2501_Antenna.field.RxDefaultAntenna == RT2501_SOFTWARE_DIVERSITY)
 		rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_A;
 
-        // SH 060918 : on force le mode HARDWARE_DIVERSITY pour améliorer la réception de l'antenne
+        // SH 060918 : on force le mode HARDWARE_DIVERSITY pour amÃ©liorer la rÃ©ception de l'antenne
 //        rt2501_Antenna.field.RxDefaultAntenna = RT2501_HARDWARE_DIVERSITY;
         rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_A;
         rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_B;
@@ -666,7 +666,7 @@ void rt2501_switch_channel(uint8_t channel)
 	rt2501_write(rt2501_dev, RT2501_TXRX_CSR0, 0x025eb032);
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "SwitchChannel(RF=%d) to #%d, TXPwr=%d, R1=0x%08x, R2=0x%08x, R3=0x%08x, R4=0x%08x\r\n",
+	sprintf(dbg_buffer, "SwitchChannel(RF=%d) to #%d, TXPwr=%d, R1=0x%08lx, R2=0x%08x, R3=0x%08x, R4=0x%08x\r\n",
 		rt2501_Antenna.field.RfIcType,
 		rt2501_LatchRfRegs.Channel,
 		(R3 & 0x00003e00) >> 9,
@@ -783,7 +783,7 @@ static void rt2501_rx_callback(PURB urb)
 	PRXD_STRUC rxd;
 
 	if(urb->status < 0) {
-		sprintf(dbg_buffer, "USB BULK RX ERROR, status=%ld, result=%ld\r\n",
+		sprintf(dbg_buffer, "USB BULK RX ERROR, status=%d, result=%ld\r\n",
 			urb->status, urb->result);
 		DBG_WIFI(dbg_buffer);
 		rt2501_connected = 0;

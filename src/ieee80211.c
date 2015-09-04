@@ -772,7 +772,7 @@ static void ieee80211_send_challenge_reply(uint8_t *challenge, uint32_t challeng
 	auth->txd.IvOffset = sizeof(struct ieee80211_frame);
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "IV = 0x%08x, offset 0x%04x\r\n", auth->txd.Iv, auth->txd.IvOffset);
+	sprintf(dbg_buffer, "IV = 0x%08lx, offset 0x%04x\r\n", auth->txd.Iv, auth->txd.IvOffset);
 	DBG_WIFI(dbg_buffer);
 #endif
 
@@ -1212,7 +1212,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 				assoc_code = ((frame_current[2] << 0)|(frame_current[3] << 8));
 				if(assoc_code != IEEE80211_STATUS_SUCCESS)  {
 #ifdef DEBUG_WIFI
-					sprintf(dbg_buffer, "Assoc failed by AP (0x%04x)\r\n", assoc_code);
+					sprintf(dbg_buffer, "Assoc failed by AP (0x%04lx)\r\n", assoc_code);
 					DBG_WIFI(dbg_buffer);
 #endif
 					ieee80211_state = IEEE80211_S_IDLE;
@@ -1924,7 +1924,7 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 	}
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "in rt2501_send, encryption=%d, length=%d, fc0=0x%02x, fc1=0x%02x\r\n",
+	sprintf(dbg_buffer, "in rt2501_send, encryption=%d, length=%ld, fc0=0x%02x, fc1=0x%02x\r\n",
 		encryption, length, fr->header.i_fc[0], fr->header.i_fc[1]);
 	DBG_WIFI(dbg_buffer);
 #endif
