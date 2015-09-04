@@ -4,18 +4,17 @@ TARGET = Nab
 # User options
 OPTIONS =  -DVREAL
 OPTIONS += -DDEBUG
-#~ OPTIONS += -DDEBUG_WIFI
-#~ OPTIONS += -DDEBUG_USB
+OPTIONS += -DDEBUG_WIFI
+OPTIONS += -DDEBUG_USB
 
 # C Files to compile (take all)
 C_FILES = $(wildcard src/*.c)
 C_FILES += $(wildcard sys/src/*.c)
-
 AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
 CFLAGS += -O1
-CFLAGS += -g -gdwarf
+CFLAGS += -g
 CFLAGS += -mthumb -mthumb-interwork
 CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wpointer-arith
 CFLAGS += -fdata-sections -ffunction-sections
@@ -66,15 +65,11 @@ dis: $(TARGET).elf
 	$(DUMP) -d $< > obj/$(TARGET).dis
 
 obj/%.o : %.c
-	@test -d obj || mkdir  -pm 775 obj
-	@test -d obj/lst || mkdir -pm 775 obj/lst
 	@test -d $(@D) || mkdir -pm 775 $(@D)
 	@test -d obj/lst/$(<D) || mkdir -pm 775 obj/lst/$(<D)
 	$(CC) -c $(CFLAGS) -Wa,-adhln=obj/lst/$<.lst $< -o $@  $(LIBS)
 
 obj/%.o : %.s
-	@test -d obj || mkdir  -pm 775 obj
-	@test -d obj/lst || mkdir  -pm 775 obj/lst
 	@test -d $(@D) || mkdir -pm 775 $(@D)
 	@test -d obj/lst/$(<D) || mkdir -pm 775 obj/lst/$(<D)
 	$(CC) -o $@ $(CFLAGS) -Wa,-adhln=obj/lst/$<.lst -x assembler-with-cpp -c $<
@@ -86,8 +81,8 @@ obj/%.o : %.s
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean:
-	rm -f $(TARGET).elf $(TARGET).hex $(TARGET).bin
-	rm -Rf obj/
+	@rm -f $(TARGET).elf $(TARGET).hex $(TARGET).bin
+	@rm -Rf obj/
 
 program: $(TARGET).elf
 	$(PROGRAM) $< < gdb_load
