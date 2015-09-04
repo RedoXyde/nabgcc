@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Project Name="NabzGCC" InternalType="">
+  <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00010001N0005Debug000000000000]]>
+    </Plugin>
+    <Plugin Name="CMakePlugin">
+      <![CDATA[[{
+  "name": "Debug",
+  "enabled": false,
+  "buildDirectory": "build",
+  "sourceDirectory": "$(ProjectPath)",
+  "generator": "",
+  "buildType": "",
+  "arguments": [],
+  "parentProject": ""
+ }]]]>
+    </Plugin>
+  </Plugins>
+  <VirtualDirectory Name="sys">
+    <VirtualDirectory Name="asm">
+      <File Name="sys/asm/reentrant_irq.s"/>
+      <File Name="sys/asm/init.s"/>
+      <File Name="sys/asm/swi_handler.s"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="src">
+      <File Name="sys/src/irq.c"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="inc">
+      <File Name="sys/inc/common.h"/>
+      <File Name="sys/inc/ML674061.h"/>
+      <File Name="sys/inc/irq.h"/>
+      <File Name="sys/inc/ml60842.h"/>
+    </VirtualDirectory>
+    <File Name="sys/ml67q4051.ld"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="openocd">
+    <VirtualDirectory Name="interface">
+      <VirtualDirectory Name="ftdi">
+        <File Name="openocd/interface/ftdi/dp_busblaster.cfg"/>
+      </VirtualDirectory>
+    </VirtualDirectory>
+    <VirtualDirectory Name="target">
+      <File Name="openocd/target/ml67q4051.cfg"/>
+    </VirtualDirectory>
+    <File Name="openocd/nabaztagv2.cfg"/>
+  </VirtualDirectory>
+  <Reconciliation>
+    <Regexes/>
+    <Excludepaths/>
+    <Ignorefiles/>
+    <Extensions>
+      <![CDATA[c;h;ld;s]]>
+    </Extensions>
+    <Topleveldir>../NabzGCC</Topleveldir>
+  </Reconciliation>
+  <Description/>
+  <Dependencies/>
+  <VirtualDirectory Name="inc">
+    <File Name="inc/rt2501usb_internal.h"/>
+    <File Name="inc/delay.h"/>
+    <File Name="inc/rc4.h"/>
+    <File Name="inc/vbc.h"/>
+    <File Name="inc/hcd.h"/>
+    <File Name="inc/motor.h"/>
+    <File Name="inc/hash.h"/>
+    <File Name="inc/mem.h"/>
+    <File Name="inc/debug.h"/>
+    <File Name="inc/vlog.h"/>
+    <File Name="inc/usbh.h"/>
+    <File Name="inc/vnet.h"/>
+    <File Name="inc/audio.h"/>
+    <File Name="inc/spi.h"/>
+    <File Name="inc/eapol.h"/>
+    <File Name="inc/vmem.h"/>
+    <File Name="inc/hcdmem.h"/>
+    <File Name="inc/i2c.h"/>
+    <File Name="inc/vbc_str.h"/>
+    <File Name="inc/vloader.h"/>
+    <File Name="inc/rt2501usb_hw.h"/>
+    <File Name="inc/rt2501usb_io.h"/>
+    <File Name="inc/vaudio.h"/>
+    <File Name="inc/usbctrl.h"/>
+    <File Name="inc/uart.h"/>
+    <File Name="inc/list.h"/>
+    <File Name="inc/led.h"/>
+    <File Name="inc/rt2501usb.h"/>
+    <File Name="inc/rfid.h"/>
+    <File Name="inc/rt2501usb_firmware.h"/>
+    <File Name="inc/vinterp.h"/>
+    <File Name="inc/ieee80211.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="mtl">
+    <File Name="mtl/boot.0.0.0.10.mtl"/>
+    <File Name="mtl/boot.0.0.0.2.mtl"/>
+    <File Name="mtl/boot.0.0.0.5.mtl"/>
+    <File Name="mtl/boot.0.0.0.7.mtl"/>
+    <File Name="mtl/boot.0.0.0.8.mtl"/>
+    <File Name="mtl/boot.0.0.0.11.mtl"/>
+    <File Name="mtl/boot.0.0.0.12.mtl"/>
+    <File Name="mtl/boot.0.0.0.6.mtl"/>
+    <File Name="mtl/boot.0.0.0.3.mtl"/>
+    <File Name="mtl/boot.0.0.0.9.mtl"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="src">
+    <File Name="src/hcd.c"/>
+    <File Name="src/led.c"/>
+    <File Name="src/eapol.c"/>
+    <File Name="src/usbctrl.c"/>
+    <File Name="src/rt2501usb_buffer.c"/>
+    <File Name="src/list.c"/>
+    <File Name="src/uart.c"/>
+    <File Name="src/rt2501usb_io.c"/>
+    <File Name="src/vnet.c"/>
+    <File Name="src/i2c.c"/>
+    <File Name="src/vloader.c"/>
+    <File Name="src/rc4.c"/>
+    <File Name="src/bc.c"/>
+    <File Name="src/ieee80211.c"/>
+    <File Name="src/main.c"/>
+    <File Name="src/delay.c"/>
+    <File Name="src/vaudio.c"/>
+    <File Name="src/rfid.c"/>
+    <File Name="src/spi.c"/>
+    <File Name="src/hcdmem.c"/>
+    <File Name="src/motor.c"/>
+    <File Name="src/sys.c"/>
+    <File Name="src/hash.c"/>
+    <File Name="src/audio.c"/>
+    <File Name="src/mem.c"/>
+    <File Name="src/vlog.c"/>
+    <File Name="src/rt2501usb.c"/>
+    <File Name="src/vmem.c"/>
+    <File Name="src/vinterp.c"/>
+    <File Name="src/usbhcore.c"/>
+  </VirtualDirectory>
+  <Settings Type="Dynamic Library">
+    <GlobalSettings>
+      <Compiler Options="" C_Options="" Assembler="">
+        <IncludePath Value="."/>
+      </Compiler>
+      <Linker Options="">
+        <LibraryPath Value="."/>
+      </Linker>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+    <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g" C_Options="-g" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="."/>
+      </Compiler>
+      <Linker Options="" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="" IntermediateDirectory="./Debug" Command="" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="yes">
+        <RebuildCommand/>
+        <CleanCommand>make clean</CleanCommand>
+        <BuildCommand>make</BuildCommand>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory>$(WorkspacePath)</WorkingDirectory>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="" C_Options="" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="."/>
+      </Compiler>
+      <Linker Options="-O2" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="" IntermediateDirectory="./Release" Command="" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="yes">
+        <RebuildCommand/>
+        <CleanCommand>make clean</CleanCommand>
+        <BuildCommand>make</BuildCommand>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory>$(WorkspacePath)</WorkingDirectory>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+  </Settings>
+  <Dependencies Name="Debug"/>
+  <Dependencies Name="Release"/>
+</CodeLite_Project>
