@@ -1,11 +1,10 @@
-/*******************************************************************************
-    hcd.c
-    Copyright(C) 2003, Oki Electric Industry Co.,Ltd.
-      All rights reserved.
-
-    Mar.31,2003 rev1.00
-*******************************************************************************/
-
+/**
+ * @file hcd.c
+ * @author Oki Electric Industry Co.,Ltd. - 2003 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief USB Host
+ */
 #include <string.h>
 #include <stdio.h>
 #include "ml674061.h"
@@ -23,50 +22,57 @@ struct hcd_info hcd_info;
 
 void usbhost_interrupt(void);
 
+/**
+ * @brief Init the HCD
+ *
+ * @retval  -1  on error
+ * @retval  0   on success
+ */
 int8_t hcd_init(void)
 {
 	uint32_t rev;
 	uint32_t fminterval;
 	uint32_t mask;
 
-#ifdef DEBUG_USB
-	sprintf(dbg_buffer,"HCD: Controller Address = %08lX\r\n", (uint32_t)HostCtl_addr);
+  #ifdef DEBUG_USB
+	sprintf(dbg_buffer,"HCD: Controller Address = %08lX\r\n",
+                                                        (uint32_t)HostCtl_addr);
 	DBG_USB(dbg_buffer);
-#endif
+  #endif
 
 	//Check chip revision
 	rev = get_wvalue(HcRevision);
 	if(rev != RevisonNumber){
-#ifdef DEBUG_USB
+    #ifdef DEBUG_USB
 		sprintf(dbg_buffer,"Bad Revision Register : %08lX\r\n", (uint32_t)rev);
 		DBG_USB(dbg_buffer);
-#endif
+    #endif
 		return -1;
 	}
 
-	//Embedded RAM address setup register
+	/* Embedded RAM address setup register */
 	put_wvalue(RamAdr, ComRAMAddr);
 
-	//Set default address for allocation in RAM of USB chip
+	/* Set default address for allocation in RAM of USB chip */
 	hcd_malloc_init(ComRAMAddr, ComRAMSize, 16, COMRAM);
 
-	//Init hcd_info
+	/* Init hcd_info */
 	memset(&hcd_info, 0, sizeof(struct hcd_info));
 
-	//Set RAM for HCCA and send address to USB chip
+	/* Set RAM for HCCA and send address to USB chip */
 	hcd_info.hcca = (struct hcca *)hcd_malloc(sizeof(struct hcca), COMRAM,2);
 	if (!hcd_info.hcca){
 		return -1;
 	}
-	memset((long *)hcd_info.hcca, 0, sizeof(struct hcca));
+	memset((uint64_t *)hcd_info.hcca, 0, sizeof(struct hcca));
 	put_wvalue(HcHCCA, (uint32_t)hcd_info.hcca);
 
-	//Set addres of the control ED
+	/* Set addres of the control ED */
 	put_wvalue(HcControlHeadED, 0);
-	//Set addres of the bulk ED
+	/* Set addres of the bulk ED */
 	put_wvalue(HcBulkHeadED, 0);
 
-	//Set SOF frame interval
+	/* Set SOF frame interval */
 	fminterval = 0x2edf;
 	put_wvalue(HcPeriodicStart,(fminterval * 9) / 10);
 	fminterval |= ((((fminterval - MAXIMUM_OVERHEAD) * 6) / 7) << 16);
@@ -81,12 +87,13 @@ int8_t hcd_init(void)
 	hcd_info.hc_control = OHCI_CTRL_PLE | OHCI_USB_OPER;
 	put_wvalue(HcControl, hcd_info.hc_control);
 
-	//Config interrupt Enable
-	mask = OHCI_INTR_MIE | OHCI_INTR_UE | OHCI_INTR_WDH | OHCI_INTR_RHSC | OHCI_INTR_SO;
+	/* Config interrupt Enable */
+	mask = OHCI_INTR_MIE | OHCI_INTR_UE |
+         OHCI_INTR_WDH | OHCI_INTR_RHSC | OHCI_INTR_SO;
 	put_wvalue(HcInterruptEnable, mask);
 	put_wvalue(HostCtl, 0x0);
-	//here comes the first interrupt ! after initialisation
 
+	/* here comes the first interrupt ! after initialisation */
 	put_wvalue(HcRhStatus, RH_HS_LPSC);
 
 	return 0;
@@ -109,7 +116,7 @@ uint8_t hcd_rh_events(void)
 		hcd_info.rh_status &= ~HcdRH_CONNECT;
 
 		DBG_USB(" HCD: connected a new device.\r\n");
-		hcd_info.rh_device = usbh_connect((unsigned char)((hcd_info.rh_status & HcdRH_SPEED) ? 1 : 0));
+		hcd_info.rh_device = usbh_connect(((hcd_info.rh_status & HcdRH_SPEED)?1:0));
 
 		return HcdRH_CONNECT;
 	}
