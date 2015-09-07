@@ -1,7 +1,7 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 
 /***************/

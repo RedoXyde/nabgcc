@@ -9,7 +9,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "ML674061.h"
+#include "ml674061.h"
 #include "mem.h"
 #include "common.h"
 #include "usbh.h"

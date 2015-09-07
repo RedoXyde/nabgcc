@@ -28,9 +28,9 @@
     </VirtualDirectory>
     <VirtualDirectory Name="inc">
       <File Name="sys/inc/common.h"/>
-      <File Name="sys/inc/ML674061.h"/>
       <File Name="sys/inc/irq.h"/>
       <File Name="sys/inc/ml60842.h"/>
+      <File Name="sys/inc/ml674061.h"/>
     </VirtualDirectory>
     <File Name="sys/ml67q4051.ld"/>
   </VirtualDirectory>

@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 #include "usbctrl.h"
 #include "mem.h"

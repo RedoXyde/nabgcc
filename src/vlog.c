@@ -9,7 +9,7 @@
 #include<time.h>
 #endif
 #ifdef VREAL
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 #include "irq.h"
 #include "spi.h"
@@ -155,7 +155,7 @@ int32_t sysTime()
 
 int32_t rndval;
 
-// retourne une valeur aléatoire entre 0 et 65535
+// retourne une valeur alÃ©atoire entre 0 et 65535
 int32_t sysRand()
 {
 	rndval=rndval*0x1234567+11;
@@ -246,7 +246,7 @@ void sysStrputword(uint8_t *src,int32_t len,int32_t ind,int32_t val)
   src[ind]=val;
 }
 
-// lecture d'une chaîne décimale (s'arrête au premier caractère incorrect)
+// lecture d'une chaÃ®ne dÃ©cimale (s'arrÃªte au premier caractÃ¨re incorrect)
 int32_t sysAtoi(uint8_t* src)
 {
   int32_t x,c,s;
@@ -260,7 +260,7 @@ int32_t sysAtoi(uint8_t* src)
   return (s?(-x):x);
 }
 
-// lecture d'une chaîne hexadécimale (s'arrête au premier caractère incorrect)
+// lecture d'une chaÃ®ne hexadÃ©cimale (s'arrÃªte au premier caractÃ¨re incorrect)
 int32_t sysHtoi(uint8_t* src)
 {
 	int32_t x,c;
@@ -611,28 +611,28 @@ int32_t sysUncrypt(uint8_t* src,int32_t indexsrc,int32_t len,int32_t lensrc,uint
   return decode8(src+indexsrc,len,key,alpha);
 }
 
-// Fonctions pour les périphérique I2C
-// Arg 1 : Adresse du périphérique
-// Arg 2 : Taille du buffer qu'on souhaite récupérer
+// Fonctions pour les pÃ©riphÃ©rique I2C
+// Arg 1 : Adresse du pÃ©riphÃ©rique
+// Arg 2 : Taille du buffer qu'on souhaite rÃ©cupÃ©rer
 int32_t sysI2cRead(uint8_t addr_i2c, int32_t bufsize)
 {
   uint8_t* data=NULL;
   int32_t nmax=1000;
-  // Tente la lecture jusqu'à ce qu'elle soit faite.
+  // Tente la lecture jusqu'Ã  ce qu'elle soit faite.
   while((nmax>0)&&(read_i2c(addr_i2c,data,bufsize)==FALSE)){ nmax--;__no_operation(); }
   // Retour pour le ByteCode
   VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)data,bufsize)));
   return nmax;
 }
 
-// Fonction pour l'écriture sur le périphérique
-// Arg1 : Adresse du périphérique
-// Arg2 : Contenu à écrire
-// Arg3 : Taille du contenu à écrire
+// Fonction pour l'Ã©criture sur le pÃ©riphÃ©rique
+// Arg1 : Adresse du pÃ©riphÃ©rique
+// Arg2 : Contenu Ã  Ã©crire
+// Arg3 : Taille du contenu Ã  Ã©crire
 int32_t sysI2cWrite(uint8_t addr_i2c, uint8_t *data, uint32_t bufsize)
 {
   int32_t nmax=1000;
-  // Tente l'écriture jusqu'à sa réussite
+  // Tente l'Ã©criture jusqu'Ã  sa rÃ©ussite
   while((nmax>0)&&(write_i2c(addr_i2c,data,bufsize)==FALSE)){ nmax--;__no_operation(); }
   return nmax;
 }

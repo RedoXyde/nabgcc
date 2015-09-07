@@ -14,7 +14,7 @@
 /*                            1 stop and no flow control                  */
 /**************************************************************************/
 
-#include   "ML674061.h"
+#include   "ml674061.h"
 #include   "common.h"
 #include   "irq.h"
 #include   "uart.h"

@@ -1,4 +1,4 @@
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 #include "led.h"
 #include "spi.h"
@@ -95,7 +95,7 @@ void set_led_rgb(uint32_t color)
 	uint8_t led_rgb = 0x000F & (color>>24);
 
 //Set current
-//Attention aux effets de bord entre 2 courants de 2 leds, pas dépasser 127 en intensité pour une couleur
+//Attention aux effets de bord entre 2 courants de 2 leds, pas dÃ©passer 127 en intensitÃ© pour une couleur
 //RGB_1
 	if( led_rgb == 1 )
 	{

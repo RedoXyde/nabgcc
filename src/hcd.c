@@ -8,7 +8,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 #include "hcd.h"
 #include "mem.h"

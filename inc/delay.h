@@ -1,7 +1,7 @@
 #ifndef _DELAY_H_
 #define _DELAY_H_
 
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 
 /* Overflow in ms = ( 16 x (65536-value of TMRLR) ) / (SystemClock x 1000) */

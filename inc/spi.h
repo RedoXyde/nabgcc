@@ -1,7 +1,7 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 
 /*************/

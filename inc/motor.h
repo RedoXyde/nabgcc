@@ -1,7 +1,7 @@
 #ifndef _MOTOR_H_
 #define _MOTOR_H_
 
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 
 /*************/

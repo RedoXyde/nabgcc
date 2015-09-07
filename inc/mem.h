@@ -1,7 +1,7 @@
 #ifndef _MEM_H_
 #define _MEM_H_
 
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 
 //#define SRAM_BASE   (0xD0000000)    /* base address of external SRAM */

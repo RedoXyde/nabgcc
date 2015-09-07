@@ -10,7 +10,7 @@
 /*                          Initial version                                          */
 /*                                                                                   */
 /*************************************************************************************/
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 #include "irq.h"
 #include "spi.h"
@@ -93,8 +93,8 @@ int32_t transfer_request = 0;
   #define DATABUFFER		0
 #endif
 
-/* DATABUFFER==0 ML60841内部RAMをバッファにする */
-/* DATABUFFER==1 外部RAMをバッファにする        */
+/* DATABUFFER==0 ML60841ﾂ禿ﾂ閉燃AMﾂづｰﾂバﾂッﾂフﾂァﾂづ可つｷﾂづｩ */
+/* DATABUFFER==1 ﾂ外ﾂ閉燃AMﾂづｰﾂバﾂッﾂフﾂァﾂづ可つｷﾂづｩ        */
 #if (DATABUFFER==0)
   #define MALLOC(a)			usbh_malloc(a)
   #define FREE(a)			usbh_free(a)

@@ -7,7 +7,7 @@
     Mar.31,2003 rev.1.00
 *******************************************************************************/
 
-#include "ML674061.h"
+#include "ml674061.h"
 #include "common.h"
 #include "usbctrl.h"
 #include "ml60842.h"
