@@ -3,7 +3,7 @@
  * @author Oki Electric Industry Co., LTD. - 2005 - Initial version
  * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
  * @date 2015/09/07
- * @brief Manage the audio chip, record and replay
+ * @brief Manage the IRQ
  */
 #include "ml674061.h"
 #include "common.h"

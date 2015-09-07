@@ -1,3 +1,10 @@
+/**
+ * @file I2c.c
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Manage the I2C low-level access
+ */
 #include "ml674061.h"
 #include "common.h"
 #include "i2c.h"
