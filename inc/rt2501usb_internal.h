@@ -117,14 +117,14 @@ struct ieee80211_sta_state {
 	uint8_t mac[IEEE80211_ADDR_LEN];
 };
 
-enum {
+typedef enum {
 	EAPOL_S_MSG1,  /* awaiting first message */
 	EAPOL_S_MSG3,  /* awaiting third message */
 	EAPOL_S_GROUP, /* awaiting group key     */
 	EAPOL_S_RUN,
-};
+} eapol_state_t;
 
-extern int32_t eapol_state;
+extern eapol_state_t eapol_state;
 extern uint8_t ptk_tsc[];
 
 #endif /* _RT2501_INTERNAL_H_ */

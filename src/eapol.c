@@ -1,8 +1,10 @@
-/*
-	Ralink RT2501 driver for Violet embedded platforms
-	(c) 2006 Sebastien Bourdeauducq
-*/
-
+/**
+ * @file eapol.c
+ * @author Sebastien Bourdeauducq - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Ralink RT2501 driver for Violet embedded platforms - EAPOL
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,79 +26,132 @@
 #include "hash.h"
 #include "rc4.h"
 
+/**
+ * @brief Fill a buffer with random data
+ *
+ * @param [in] buffer Address of the buffer
+ * @param [in] length Length of the buffer
+ */
 static void randbuffer(uint8_t *buffer, uint32_t length)
 {
 	uint32_t i;
-
 	for(i=0;i<length;i++)
-		buffer[i] = rand() & 0xff;
+		buffer[i] = rand() & 0xFF;
 }
 
-/*
+/**
+ * @brief FIXME
+ *
  * F(P,  S, c, i) = U1 xor U2 xor ... Uc
  * U1 =  PRF(P, S || Int(i))
  * U2 =  PRF(P, U1)
  * Uc =  PRF(P, Uc-1)
+ *
+ * @param [in]  password       Buffer of the password
+ * @param [in]  passwordlength Length of the password
+ * @param [in]  ssid           Buffer of the SSID
+ * @param [in]  ssidlength     Length of the SSID
+ * @param [in]  iterations     FIXME
+ * @param [in]  count          FIXME
+ * @param [out] ouput          Output buffer
+ *
  */
-void F(const char *password, int passwordlength, char *ssid, int ssidlength, int iterations, int count, uint8_t *output)
+void F(const uint8_t *password, uint16_t passwordlength,
+       uint8_t *ssid, uint16_t ssidlength,
+       uint16_t iterations, uint32_t count, uint8_t *output)
 {
-	uint8_t digest[36], digest1[20];
-	int i, j;
-        struct rt2501buffer *r;
+	uint8_t digest[36], digest1[20], j;
+	uint16_t i;
+  struct rt2501buffer *r;
 
 	/* U1 = PRF(P, S || int(i)) */
 	memcpy(digest, ssid, ssidlength);
-	digest[ssidlength] = (uint8_t)((count>>24) & 0xff);
-	digest[ssidlength+1] = (uint8_t)((count>>16) & 0xff);
-	digest[ssidlength+2] = (uint8_t)((count>>8) & 0xff);
-	digest[ssidlength+3] = (uint8_t)(count & 0xff);
-	hmac_sha1((uint8_t *)password, passwordlength, digest, ssidlength+4, digest1);
+	digest[ssidlength] =   (uint8_t)((count>>24) & 0xFF);
+	digest[ssidlength+1] = (uint8_t)((count>>16) & 0xFF);
+	digest[ssidlength+2] = (uint8_t)((count>>8) & 0xFF);
+	digest[ssidlength+3] = (uint8_t)(count & 0xFF);
+	hmac_sha1(password, passwordlength, digest, ssidlength+4, digest1);
 	/* output = U1 */
 	memcpy(output, digest1, 20);
 	for(i=1;i<iterations;i++) {
 		/* Un = PRF(P, Un-1) */
-		hmac_sha1((uint8_t *)password, passwordlength, digest1, 20, digest);
+		hmac_sha1(password, passwordlength, digest1, 20, digest);
 		memcpy(digest1, digest, 20);
 		/* output = output xor Un */
 		for(j=0;j<20;j++)
 			output[j] ^= digest[j];
-                if (!(i&63))
-                {
-                  j=(i>>6)&3;
-                  set_led(1,(j==0)?0xff:0);
-                  set_led(2,(j&1)?0xff:0);
-                  set_led(3,(j==2)?0xff:0);
-                  usbhost_events();
-                  CLR_WDT;
-                  while((r=rt2501_receive()))
-                  {
-                        CLR_WDT;
-                        disable_ohci_irq();
-                        hcd_free(r);
-                        enable_ohci_irq();
-                  }
-                }
+      if (!(i&63))
+      {
+        j=(i>>6)&3;
+        set_led(1,(j==0)?0xff:0);
+        set_led(2,(j&1)?0xff:0);
+        set_led(3,(j==2)?0xff:0);
+        usbhost_events();
+        CLR_WDT;
+        while((r=rt2501_receive()))
+        {
+          CLR_WDT;
+          disable_ohci_irq();
+          hcd_free(r);
+          enable_ohci_irq();
+        }
+      }
 	}
 }
 
-/* output must be 40 bytes long, only the first 32 bytes are useful */
-static void password_to_pmk(const char *password, char *ssid, int ssidlength, uint8_t *pmk)
+/**
+ * @brief FIXME
+ * Output must be 40 bytes long, only the first 32 bytes are useful
+ *
+ * @param [in]  password    Buffer for the password
+ * @param [in]  ssid        Buffer of the SSID
+ * @param [in]  ssidlength  Length of the SSID
+ * @param [out] pmk         Ouput buffer for PMK
+ */
+static void password_to_pmk(const uint8_t *password,
+                            uint8_t *ssid, uint16_t ssidlength,
+                            uint8_t *pmk)
 {
-	F(password, strlen(password), ssid, ssidlength, 4096, 1, pmk);
-	F(password, strlen(password), ssid, ssidlength, 4096, 2, pmk+20);
+	F(password, strlen((char*)password), ssid, ssidlength, 4096, 1, pmk);
+	F(password, strlen((char*)password), ssid, ssidlength, 4096, 2, pmk+20);
 }
 
-void mypassword_to_pmk(const char *password, char *ssid, int ssidlength, uint8_t *pmk)
+/**
+ * @brief Abstraction for password_to_pmk
+ *
+ * @param [in]  password    Buffer for the password
+ * @param [in]  ssid        Buffer of the SSID
+ * @param [in]  ssidlength  Length of the SSID
+ * @param [out] pmk         Ouput buffer for PMK
+ */
+void mypassword_to_pmk(const uint8_t *password,
+                            uint8_t *ssid, uint16_t ssidlength,
+                            uint8_t *pmk)
 {
   password_to_pmk(password,ssid,ssidlength,pmk);
 }
 
-void prf(const uint8_t *key, int key_len, const uint8_t *prefix, int prefix_len, const uint8_t *data, int data_len, uint8_t *output, int len)
+/**
+ * @brief FIXME
+ *
+ * @param [in]  key         Key buffer
+ * @param [in]  key_len     Key length
+ * @param [in]  prefix      Prefix buffer
+ * @param [in]  prefix_len  Prefix length
+ * @param [in]  data        Data buffer
+ * @param [in]  data_len    Data length
+ * @param [out] output      Output buffer
+ * @param [in]  len         Output length
+ */
+void prf(const uint8_t *key, uint16_t key_len,
+         const uint8_t *prefix, uint16_t prefix_len,
+         const uint8_t *data, uint16_t data_len,
+         uint8_t *output, uint16_t len)
 {
-	int i;
+	uint16_t i;
 	uint8_t *input; /* concatenated input */
-	int currentindex = 0;
-	int total_len;
+	uint16_t currentindex = 0;
+	uint16_t total_len;
 
 	disable_ohci_irq();
 	input = hcd_malloc(1024, EXTRAM,1);
@@ -113,7 +168,7 @@ void prf(const uint8_t *key, int key_len, const uint8_t *prefix, int prefix_len,
 	total_len++;
 	for(i=0;i<(len+19)/20;i++) {
 		hmac_sha1(key, key_len, input, total_len, &output[currentindex]);
-		currentindex += 20; /* next concatenation location */
+		currentindex += 20;   /* next concatenation location */
 		input[total_len-1]++; /* increment octet count */
 	}
 	disable_ohci_irq();
@@ -121,14 +176,29 @@ void prf(const uint8_t *key, int key_len, const uint8_t *prefix, int prefix_len,
 	enable_ohci_irq();
 }
 
-static const uint8_t ptk_prefix[] = { 'P', 'a', 'i', 'r', 'w', 'i', 's', 'e', ' ', 'k', 'e', 'y', ' ', 'e', 'x', 'p', 'a', 'n', 's', 'i', 'o', 'n' };
+static const uint8_t ptk_prefix[] = {
+  'P', 'a', 'i', 'r', 'w', 'i', 's', 'e', ' ',
+  'k', 'e', 'y', ' ',
+  'e', 'x', 'p', 'a', 'n', 's', 'i', 'o', 'n' };
 
-static void compute_ptk(uint8_t *pmk, uint8_t *anonce, uint8_t *aa, uint8_t *snonce, uint8_t *sa, uint8_t *ptk, uint32_t length)
+/**
+ * @brief Compute PTK FIXME
+ *
+ * @param [in]  pmk     PMK buffer
+ * @param [in]  anonce  ANonce buffer FIXME
+ * @param [in]  aa      AA buffer FIXME
+ * @param [in]  snonce  SNonce buffer FIXME
+ * @param [in]  sa      SA buffer FIXME
+ * @param [out] ptk     PTK buffer
+ * @param [in]  length  Output/PTK length
+ */
+static void compute_ptk(uint8_t *pmk,
+                        uint8_t *anonce, uint8_t *aa,
+                        uint8_t *snonce, uint8_t *sa,
+                        uint8_t *ptk, uint32_t length)
 {
 	uint8_t concatenation[128];
-	uint32_t position;
-
-	position = 0;
+	uint32_t position = 0;
 
 	/* Get min */
 	if(memcmp(sa, aa, IEEE80211_ADDR_LEN) > 0)
@@ -158,11 +228,15 @@ static void compute_ptk(uint8_t *pmk, uint8_t *anonce, uint8_t *aa, uint8_t *sno
 		memcpy(&concatenation[position], anonce, EAPOL_NONCE_LENGTH);
 	position += EAPOL_NONCE_LENGTH;
 
-	prf(pmk, EAPOL_MASTER_KEY_LENGTH, ptk_prefix, sizeof(ptk_prefix), concatenation, position, ptk, length);
+	prf(pmk, EAPOL_MASTER_KEY_LENGTH,
+      ptk_prefix, sizeof(ptk_prefix),
+      concatenation, position,
+      ptk, length);
 }
 
 const uint8_t eapol_llc[LLC_LENGTH] =
 	{ 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00, 0x88, 0x8e };
+
 static const uint8_t wpa_rsn[] = {
 	0xdd, 0x16, 0x00, 0x50, 0xf2,
 	0x01, 0x01, 0x00, 0x00, 0x50, 0xf2, 0x02, 0x01,
@@ -170,7 +244,7 @@ static const uint8_t wpa_rsn[] = {
 	0x50, 0xf2, 0x02
 };
 
-int32_t eapol_state;
+eapol_state_t eapol_state;
 static uint8_t pmk[EAPOL_MASTER_KEY_LENGTH];
 static uint8_t replay_active;
 static uint8_t replay_counter[EAPOL_RPC_LENGTH];
@@ -180,13 +254,11 @@ static uint8_t ptk[EAPOL_PTK_LENGTH+20];
 static uint8_t gtk[EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH];
 uint8_t ptk_tsc[EAPOL_TSC_LENGTH];
 
+/**
+ * @brief Init EAPOL
+ */
 void eapol_init(void)
 {
-//	uint8_t buffer[40];
-#ifdef DEBUG_WIFI
-	int i;
-#endif
-
 	eapol_state = EAPOL_S_MSG1;
 	replay_active = 0;
 	/* Derive PMK */
@@ -198,6 +270,7 @@ void eapol_init(void)
 	memcpy(pmk, ieee80211_key, EAPOL_MASTER_KEY_LENGTH);
 
 #ifdef DEBUG_WIFI
+  uint16_t i;
 	DBG_WIFI("done, ");
 	for(i=0;i<EAPOL_MASTER_KEY_LENGTH;i++) {
 		sprintf(dbg_buffer, "0x%02x,", pmk[i]);
@@ -207,6 +280,12 @@ void eapol_init(void)
 #endif
 }
 
+/**
+ * @brief Process EAPOL Message 1
+ *
+ * @param [in]  frame   Frame buffer
+ * @param [in]  length  Frame length
+ */
 static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 {
 	struct eapol_frame *fr_in = (struct eapol_frame *)frame;
@@ -215,9 +294,6 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 		uint8_t rsn[sizeof(wpa_rsn)];
 	} fr_out;
 	uint8_t ptk_buffer[80];
-#ifdef DEBUG_WIFI
-	int i;
-#endif
 
 	DBG_WIFI("Received EAPOL message 1/4\r\n");
 
@@ -235,11 +311,15 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 	randbuffer(snonce, EAPOL_NONCE_LENGTH);
 
 	/* Derive PTK */
-	compute_ptk(pmk, anonce, ieee80211_assoc_mac, snonce, rt2501_mac, ptk_buffer, EAPOL_PTK_LENGTH);
+	compute_ptk(pmk,
+              anonce, ieee80211_assoc_mac,
+              snonce, rt2501_mac,
+              ptk_buffer, EAPOL_PTK_LENGTH);
 	memcpy(ptk, ptk_buffer, EAPOL_PTK_LENGTH);
 
 #ifdef DEBUG_WIFI
 	DBG_WIFI("PTK computed, ");
+  uint16_t i;
 	for(i=0;i<EAPOL_PTK_LENGTH;i++) {
 		sprintf(dbg_buffer, "%02x", ptk[i]);
 		DBG_WIFI(dbg_buffer);
@@ -251,8 +331,12 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 	memcpy(fr_out.llc_eapol.llc, eapol_llc, LLC_LENGTH);
 	fr_out.llc_eapol.protocol_version = EAPOL_VERSION;
 	fr_out.llc_eapol.packet_type = EAPOL_TYPE_KEY;
-	fr_out.llc_eapol.body_length[0] = ((sizeof(struct eapol_key_frame)+sizeof(wpa_rsn)) & 0xff00) >> 8;
-	fr_out.llc_eapol.body_length[1] = ((sizeof(struct eapol_key_frame)+sizeof(wpa_rsn)) & 0x00ff) >> 0;
+	fr_out.llc_eapol.body_length[0] = ((sizeof(struct eapol_key_frame)+
+                                      sizeof(wpa_rsn)
+                                     ) & 0xff00) >> 8;
+	fr_out.llc_eapol.body_length[1] = ((sizeof(struct eapol_key_frame)+
+                                      sizeof(wpa_rsn)
+                                     ) & 0x00ff);
 
 	fr_out.llc_eapol.key_frame.descriptor_type = EAPOL_DTYPE_WPAKEY;
 	fr_out.llc_eapol.key_frame.key_info.reserved = 0;
@@ -268,19 +352,22 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 	fr_out.llc_eapol.key_frame.key_info.ekd = 0;
 	fr_out.llc_eapol.key_frame.key_length[0] = 0;
 	fr_out.llc_eapol.key_frame.key_length[1] = 0;
-	memcpy(fr_out.llc_eapol.key_frame.replay_counter, replay_counter, EAPOL_RPC_LENGTH);
+	memcpy(fr_out.llc_eapol.key_frame.replay_counter,
+                                    replay_counter, EAPOL_RPC_LENGTH);
 	memcpy(fr_out.llc_eapol.key_frame.key_nonce, snonce, EAPOL_NONCE_LENGTH);
 	memset(fr_out.llc_eapol.key_frame.key_iv, 0, EAPOL_KEYIV_LENGTH);
 	memset(fr_out.llc_eapol.key_frame.key_rsc, 0, EAPOL_KEYRSC_LENGTH);
-	memcpy(fr_out.llc_eapol.key_frame.key_id, fr_in->key_frame.key_id, EAPOL_KEYID_LENGTH);
-	fr_out.llc_eapol.key_frame.key_data_length[0] = (sizeof(wpa_rsn) & 0xff00) >> 8;
-	fr_out.llc_eapol.key_frame.key_data_length[1] = (sizeof(wpa_rsn) & 0x00ff) >> 0;
+	memcpy(fr_out.llc_eapol.key_frame.key_id,
+                   fr_in->key_frame.key_id, EAPOL_KEYID_LENGTH);
+	fr_out.llc_eapol.key_frame.key_data_length[0] = (sizeof(wpa_rsn)&0xff00) >> 8;
+	fr_out.llc_eapol.key_frame.key_data_length[1] = (sizeof(wpa_rsn)&0x00ff);
 	memcpy(fr_out.llc_eapol.key_frame.key_data, wpa_rsn, sizeof(wpa_rsn));
 
 	/* Compute MIC */
 	memset(fr_out.llc_eapol.key_frame.key_mic, 0, EAPOL_KEYMIC_LENGTH);
 	hmac_md5(ptk, EAPOL_MICK_LENGTH,
-		 (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)+sizeof(wpa_rsn)-LLC_LENGTH,
+		 (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)+
+                                    sizeof(wpa_rsn)-LLC_LENGTH,
 		 fr_out.llc_eapol.key_frame.key_mic);
 
 	DBG_WIFI("Response computed\r\n");
@@ -297,6 +384,12 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 	eapol_state = EAPOL_S_MSG3;
 }
 
+/**
+ * @brief Process EAPOL Message 3
+ *
+ * @param [in]  frame   Frame buffer
+ * @param [in]  length  Frame length
+ */
 static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 {
 	struct eapol_frame *fr_in = (struct eapol_frame *)frame;
@@ -313,10 +406,12 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 		return;
 	}
 
-	if(fr_in->key_frame.key_info.key_type != 1) return;
+	if(fr_in->key_frame.key_info.key_type != 1)
+    return;
 
 	/* Check ANonce */
-	if(memcmp(fr_in->key_frame.key_nonce, anonce, EAPOL_NONCE_LENGTH) != 0) return;
+	if(memcmp(fr_in->key_frame.key_nonce, anonce, EAPOL_NONCE_LENGTH) != 0)
+    return;
 	DBG_WIFI("ANonce OK\r\n");
 
 	/* Check MIC */
@@ -326,7 +421,8 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 		 frame+LLC_LENGTH,
 		 ((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4,
 		 fr_in->key_frame.key_mic);
-	if(memcmp(fr_in->key_frame.key_mic, old_mic, EAPOL_KEYMIC_LENGTH) != 0) return;
+	if(memcmp(fr_in->key_frame.key_mic, old_mic, EAPOL_KEYMIC_LENGTH) != 0)
+    return;
 	DBG_WIFI("MIC OK\r\n");
 
 	eapol_state = EAPOL_S_MSG3;
@@ -335,8 +431,8 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 	memcpy(fr_out.llc_eapol.llc, eapol_llc, LLC_LENGTH);
 	fr_out.llc_eapol.protocol_version = EAPOL_VERSION;
 	fr_out.llc_eapol.packet_type = EAPOL_TYPE_KEY;
-	fr_out.llc_eapol.body_length[0] = (sizeof(struct eapol_key_frame) & 0xff00) >> 8;
-	fr_out.llc_eapol.body_length[1] = (sizeof(struct eapol_key_frame) & 0x00ff) >> 0;
+	fr_out.llc_eapol.body_length[0] = (sizeof(struct eapol_key_frame)&0xff00)>> 8;
+	fr_out.llc_eapol.body_length[1] = (sizeof(struct eapol_key_frame)&0x00ff);
 
 	fr_out.llc_eapol.key_frame.descriptor_type = EAPOL_DTYPE_WPAKEY;
 	fr_out.llc_eapol.key_frame.key_info.reserved = 0;
@@ -352,7 +448,8 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 	fr_out.llc_eapol.key_frame.key_info.ekd = 0;
 	fr_out.llc_eapol.key_frame.key_length[0] = fr_in->key_frame.key_length[0];
 	fr_out.llc_eapol.key_frame.key_length[1] = fr_in->key_frame.key_length[1];
-	memcpy(fr_out.llc_eapol.key_frame.replay_counter, replay_counter, EAPOL_RPC_LENGTH);
+	memcpy(fr_out.llc_eapol.key_frame.replay_counter,
+                                    replay_counter, EAPOL_RPC_LENGTH);
 	memset(fr_out.llc_eapol.key_frame.key_nonce, 0, EAPOL_NONCE_LENGTH);
 	memset(fr_out.llc_eapol.key_frame.key_iv, 0, EAPOL_KEYIV_LENGTH);
 	memset(fr_out.llc_eapol.key_frame.key_rsc, 0, EAPOL_KEYRSC_LENGTH);
@@ -376,6 +473,12 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 	eapol_state = EAPOL_S_GROUP;
 }
 
+/**
+ * @brief Process GTK message
+ *
+ * @param [in]  frame   Frame buffer
+ * @param [in]  length  Frame length
+ */
 static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 {
 	uint32_t i;
@@ -400,7 +503,8 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 	hmac_md5(ptk, EAPOL_MICK_LENGTH, frame+LLC_LENGTH,
 		 ((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4,
 		 fr_in->key_frame.key_mic);
-	if(memcmp(fr_in->key_frame.key_mic, old_mic, EAPOL_KEYMIC_LENGTH) != 0) return;
+	if(memcmp(fr_in->key_frame.key_mic, old_mic, EAPOL_KEYMIC_LENGTH) != 0)
+    return;
 	DBG_WIFI("MIC OK\r\n");
 
 	/* Make response frame */
@@ -408,7 +512,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 	fr_out.protocol_version = EAPOL_VERSION;
 	fr_out.packet_type = EAPOL_TYPE_KEY;
 	fr_out.body_length[0] = (sizeof(struct eapol_key_frame) & 0xff00) >> 8;
-	fr_out.body_length[1] = (sizeof(struct eapol_key_frame) & 0x00ff) >> 0;
+	fr_out.body_length[1] = (sizeof(struct eapol_key_frame) & 0x00ff);
 
 	fr_out.key_frame.descriptor_type = EAPOL_DTYPE_WPAKEY;
 	fr_out.key_frame.key_info.reserved = 0;
@@ -441,7 +545,8 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 	DBG_WIFI("Response computed\r\n");
 
 	/* Send the response */
-	rt2501_send((uint8_t *)&fr_out, sizeof(struct eapol_frame), ieee80211_assoc_mac, 1, 1);
+	rt2501_send((uint8_t *)&fr_out, sizeof(struct eapol_frame),
+              ieee80211_assoc_mac, 1, 1);
 
 	DBG_WIFI("Response sent\r\n");
 
@@ -449,23 +554,32 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 	memcpy(&key[0], fr_in->key_frame.key_iv, EAPOL_KEYIV_LENGTH);
 	memcpy(&key[EAPOL_KEYIV_LENGTH], &ptk[EAPOL_MICK_LENGTH], 16);
 	rc4_init(&rc4, key, 32);
-	for(i=0;i<256;i++) rc4_byte(&rc4); /* discard first 256 bytes */
-	rc4_cipher(&rc4, gtk, fr_in->key_frame.key_data, EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
-#ifdef DEBUG_WIFI
+	for(i=0;i<256;i++)
+    rc4_byte(&rc4); /* discard first 256 bytes */
+	rc4_cipher(&rc4, gtk, fr_in->key_frame.key_data,
+                                             EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
+  #ifdef DEBUG_WIFI
 	DBG_WIFI("GTK is ");
 	for(i=0;i<EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH;i++) {
 		sprintf(dbg_buffer, "%02x", gtk[i]);
 		DBG_WIFI(dbg_buffer);
 	}
 	DBG_WIFI("\r\n");
-#endif
-	rt2501_set_key(fr_in->key_frame.key_info.key_index, &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_TKIP);
+  #endif
+	rt2501_set_key(fr_in->key_frame.key_info.key_index,
+                             &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_TKIP);
 
 	eapol_state = EAPOL_S_RUN;
 	ieee80211_state = IEEE80211_S_RUN;
 	ieee80211_timeout = IEEE80211_RUN_TIMEOUT;
 }
 
+/**
+ * @brief Process EAPOL Frame
+ *
+ * @param [in]  frame   Frame buffer
+ * @param [in]  length  Frame length
+ */
 void eapol_input(uint8_t *frame, uint32_t length)
 {
 	struct eapol_frame *fr = (struct eapol_frame *)frame;
@@ -477,18 +591,23 @@ void eapol_input(uint8_t *frame, uint32_t length)
 	DBG_WIFI(dbg_buffer);
 #endif
 
-	/* drop EAPOL frames when WPA is disabled */
-	if(ieee80211_encryption != IEEE80211_CRYPT_WPA) return;
+	/*
+   * drop EAPOL frames when WPA is disabled
+   * other errors
+   */
 
-	if(length < sizeof(struct eapol_frame)) return;
+	if( ieee80211_encryption != IEEE80211_CRYPT_WPA ||
+      length < sizeof(struct eapol_frame) ||
+      fr->protocol_version != EAPOL_VERSION ||
+      fr->packet_type != EAPOL_TYPE_KEY ||
+      fr->key_frame.descriptor_type != EAPOL_DTYPE_WPAKEY)
+    return;
 
-	if(fr->protocol_version != EAPOL_VERSION) return;
-	if(fr->packet_type != EAPOL_TYPE_KEY) return;
-	if(fr->key_frame.descriptor_type != EAPOL_DTYPE_WPAKEY) return;
 
 	/* Validate replay counter */
 	if(replay_active) {
-		if(memcmp(fr->key_frame.replay_counter, replay_counter, EAPOL_RPC_LENGTH) <= 0) {
+		if(memcmp(fr->key_frame.replay_counter,
+                            replay_counter, EAPOL_RPC_LENGTH) <= 0) {
 			DBG_WIFI("Replay counter ERR\r\n");
 			return;
 		}
@@ -499,11 +618,14 @@ void eapol_input(uint8_t *frame, uint32_t length)
 	DBG_WIFI("Replay counter OK\r\n");
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "KeyInfo Key Description Version %d\r\n", fr->key_frame.key_info.key_desc_ver);
+	sprintf(dbg_buffer, "KeyInfo Key Description Version %d\r\n",
+                      fr->key_frame.key_info.key_desc_ver);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Key Type %d\r\n", fr->key_frame.key_info.key_type);
+	sprintf(dbg_buffer, "KeyInfo Key Type %d\r\n",
+                      fr->key_frame.key_info.key_type);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Key Index %d\r\n", fr->key_frame.key_info.key_index);
+	sprintf(dbg_buffer, "KeyInfo Key Index %d\r\n",
+                      fr->key_frame.key_info.key_index);
 	DBG_WIFI(dbg_buffer);
 	sprintf(dbg_buffer, "KeyInfo Install %d\r\n", fr->key_frame.key_info.install);
 	DBG_WIFI(dbg_buffer);
