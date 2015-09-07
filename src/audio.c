@@ -1,4 +1,11 @@
-#include "ML674061.h"
+/**
+ * @file audio.c
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Manage the audio chip, record and replay
+ */
+#include "ml674061.h"
 #include "common.h"
 #include "audio.h"
 #include "spi.h"
