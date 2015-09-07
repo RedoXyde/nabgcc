@@ -9,18 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
-#include "usbctrl.h"
 #include "mem.h"
 #include "hcdmem.h"
 #include "hcd.h"
-#include "usbh.h"
-#include "delay.h"
 #include "debug.h"
 #include "led.h"
 
-#include "rt2501usb_hw.h"
-#include "rt2501usb_io.h"
-#include "rt2501usb_internal.h"
+
 #include "rt2501usb.h"
 #include "eapol.h"
 #include "hash.h"
