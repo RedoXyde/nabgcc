@@ -79,9 +79,9 @@ uint8_t UART_BUFFER[UART_BUFFER_SIZE];
 volatile uint8_t uart_buffer_pointer;
 uint8_t motor_state=0;
 
-volatile int32_t counter_timer;
-volatile int32_t counter_timer_s;
-volatile int32_t counter_timer_sbuf;
+volatile uint32_t counter_timer;
+volatile uint32_t counter_timer_s;
+volatile uint32_t counter_timer_sbuf;
 
 
 //USB variables

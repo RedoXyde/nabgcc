@@ -1,20 +1,21 @@
+/**
+ * @file delay.c
+ * @author Oki Electric Industry Co., LTD. - 2005 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Delay utils
+ */
 #include "ml674061.h"
 #include "common.h"
 #include "delay.h"
 
-
-
-/****************************************************************************/
-/*  Delay routine in ms which uses hardware timer                           */
-/*  Function : DelayMs                                                      */
-/*      Parameters                                                          */
-/*          Input   :   number of ms in 16bits => 65,535sec max             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
-void DelayMs(int16_t cmpt_ms)
+/**
+ * @brief Delay routine in ms which uses hardware timer
+ * @param [in] cmpt_ms Number of ms in 16bits => 65,535sec max
+ */
+void DelayMs(uint16_t cmpt_ms)
 {
-  int t=counter_timer;
-  CLR_WDT;
-
-  while(cmpt_ms>(counter_timer-t))CLR_WDT;
+  uint32_t t=counter_timer;
+  while(cmpt_ms>(counter_timer-t))
+    CLR_WDT;
 }

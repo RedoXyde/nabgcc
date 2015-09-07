@@ -1,9 +1,6 @@
 #ifndef _DELAY_H_
 #define _DELAY_H_
 
-#include "ml674061.h"
-#include "common.h"
-
 /* Overflow in ms = ( 16 x (65536-value of TMRLR) ) / (SystemClock x 1000) */
 //    put_wvalue(TMRLR, 0xFFFE);  // set TMRLR for 0.9765625us @ 32.768MHz
 //    put_wvalue(TMRLR, 0xFFEC);  // set TMRLR for 9.765625us @ 32.768MHz
@@ -12,13 +9,9 @@
     //Routine de delay x 1ms => boucle soft
     //routine de delay en us => modification directe de TMRLR
 
-/*************/
-/* Functions */
-/*************/
-void DelayMs(int16_t cmpt_ms);
-void DelayBigMs(int32_t cmpt_ms);
 
-extern volatile int32_t counter_timer;
-extern volatile int32_t counter_timer_s;
+void DelayMs(uint16_t cmpt_ms);
+extern volatile uint32_t counter_timer;
+extern volatile uint32_t counter_timer_s;
 
 #endif
