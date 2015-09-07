@@ -1,7 +1,10 @@
-/*
-	Ralink RT2501 driver for Violet embedded platforms
-	(c) 2006 Sebastien Bourdeauducq
-*/
+/**
+ * @file hash.c
+ * @author Sebastien Bourdeauducq - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief MD5/SHA1 hash utils
+ */
 
 #include <string.h>
 #include <stdint.h>
@@ -23,9 +26,11 @@ struct MD5_CTX {
 	uint8_t in[64];
 };
 
-/*
- * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
- * initialization constants.
+/**
+ * @brief Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
+ *        initialization constants.
+ *
+ * @param [in] ctx  Context pointer
  */
 static void MD5Init(struct MD5_CTX *ctx)
 {
@@ -40,11 +45,15 @@ static void MD5Init(struct MD5_CTX *ctx)
 
 static void MD5Transform(uint32_t buf[4], uint32_t in[16]);
 
-/*
- * Update context to reflect the concatenation of another buffer full
+/**
+ * @brief Update context to reflect the concatenation of another buffer full
  * of bytes.
+ *
+ * @param [in]  ctx  Context
+ * @param [in]  buf  Input buffer
+ * @param [in]  len  Length
  */
-static void MD5Update(struct MD5_CTX *ctx, const uint8_t *buf, unsigned len)
+static void MD5Update(struct MD5_CTX *ctx, const uint8_t *buf, uint32_t len)
 {
 	uint32_t t;
 
@@ -86,9 +95,12 @@ static void MD5Update(struct MD5_CTX *ctx, const uint8_t *buf, unsigned len)
 	memcpy(ctx->in, buf, len);
 }
 
-/*
- * Final wrapup - pad to 64-byte boundary with the bit pattern
- * 1 0* (64-bit count of bits processed, MSB-first)
+/**
+ * @brief Final wrapup - pad to 64-byte boundary with the bit pattern
+ *        1 0* (64-bit count of bits processed, MSB-first)
+ *
+ * @param [out] digest  Output
+ * @param [in]  ctx     Context
  */
 static void MD5Final(uint8_t digest[16], struct MD5_CTX *ctx)
 {
@@ -138,10 +150,15 @@ static void MD5Final(uint8_t digest[16], struct MD5_CTX *ctx)
 #define MD5STEP(f, w, x, y, z, data, s) \
     ( w += f(x, y, z) + data,  w =( w<<s | w>>(32-s))&0xffffffff,  w += x )
 
-/*
- * The core of the MD5 algorithm, this alters an existing MD5 hash to
+/**
+ * @brief The core of the MD5 algorithm.
+ *
+ * This alters an existing MD5 hash to
  * reflect the addition of 16 longwords of new data.  MD5Update blocks
  * the data and converts bytes into longwords for this routine.
+ *
+ * @param [out] buf   Work buffer
+ * @param [in]  in    Input buffer
  */
 static void MD5Transform(uint32_t buf[4], uint32_t in[16])
 {
@@ -228,14 +245,24 @@ static void MD5Transform(uint32_t buf[4], uint32_t in[16])
 
 /* ===== end - public domain MD5 implementation ===== */
 
-
-void hmac_md5(const uint8_t *key, uint32_t key_len, const uint8_t *data, uint32_t data_len, uint8_t *mac)
+/**
+ * @brief FIXME
+ *
+ * @param [in]  key       FIXME
+ * @param [in]  key_len   Key length
+ * @param [in]  data      Data buffer
+ * @param [in]  data_len  Data Length
+ * @param [out] max       FIXME
+ */
+void hmac_md5(const uint8_t *key, uint32_t key_len,
+              const uint8_t *data, uint32_t data_len,
+              uint8_t *mac)
 {
 	struct MD5_CTX context;
 	uint8_t k_ipad[64]; /* inner padding - key XORd with ipad */
 	uint8_t k_opad[64]; /* outer padding - key XORd with opad */
 	uint8_t tk[16];
-	int i;
+	uint16_t i;
 
 	/* if key is longer than 64 bytes, set it to key = MD5(key) */
 	if(key_len > 64) {
@@ -276,13 +303,18 @@ void hmac_md5(const uint8_t *key, uint32_t key_len, const uint8_t *data, uint32_
 struct SHA_CTX {
 	uint32_t H[5];
 	uint32_t W[80];
-	int lenW;
+	uint16_t lenW;
 	uint32_t sizeHi, sizeLo;
 };
 
+/**
+ * @brief Initialize the SHA1 context
+ *
+ * @param [in]  ctx   Context pointer
+ */
 static void SHAInit(struct SHA_CTX *ctx)
 {
-	int i;
+	uint16_t i;
 
 	ctx->lenW = 0;
 	ctx->sizeHi = ctx->sizeLo = 0;
@@ -300,13 +332,18 @@ static void SHAInit(struct SHA_CTX *ctx)
 
 #define SHA_ROTL(X,n) ((((X) << (n)) | ((X) >> (32-(n)))) & 0xffffffffL)
 
+/**
+ * @brief FIXME
+ *
+ * @param [in]  ctx Context pointer
+ */
 static void SHAHashBlock(struct SHA_CTX *ctx)
 {
-	int t;
+	uint16_t t;
 	uint32_t A,B,C,D,E,TEMP;
 
 	for (t = 16; t <= 79; t++)
-		ctx->W[t] = SHA_ROTL(ctx->W[t-3] ^ ctx->W[t-8] ^ ctx->W[t-14] ^ ctx->W[t-16], 1);
+		ctx->W[t] = SHA_ROTL(ctx->W[t-3]^ctx->W[t-8]^ctx->W[t-14]^ctx->W[t-16],1);
 
 	A = ctx->H[0];
 	B = ctx->H[1];
@@ -315,19 +352,19 @@ static void SHAHashBlock(struct SHA_CTX *ctx)
 	E = ctx->H[4];
 
 	for (t = 0; t <= 19; t++) {
-		TEMP = (SHA_ROTL(A,5) + (((C^D)&B)^D)     + E + ctx->W[t] + 0x5a827999L) & 0xffffffffL;
+		TEMP = (SHA_ROTL(A,5) + (((C^D)&B)^D)     + E + ctx->W[t] + 0x5a827999L);
 		E = D; D = C; C = SHA_ROTL(B, 30); B = A; A = TEMP;
 	}
 	for (t = 20; t <= 39; t++) {
-		TEMP = (SHA_ROTL(A,5) + (B^C^D)           + E + ctx->W[t] + 0x6ed9eba1L) & 0xffffffffL;
+		TEMP = (SHA_ROTL(A,5) + (B^C^D)           + E + ctx->W[t] + 0x6ed9eba1L);
 		E = D; D = C; C = SHA_ROTL(B, 30); B = A; A = TEMP;
 	}
 	for (t = 40; t <= 59; t++) {
-		TEMP = (SHA_ROTL(A,5) + ((B&C)|(D&(B|C))) + E + ctx->W[t] + 0x8f1bbcdcL) & 0xffffffffL;
+		TEMP = (SHA_ROTL(A,5) + ((B&C)|(D&(B|C))) + E + ctx->W[t] + 0x8f1bbcdcL);
 		E = D; D = C; C = SHA_ROTL(B, 30); B = A; A = TEMP;
 	}
 	for (t = 60; t <= 79; t++) {
-		TEMP = (SHA_ROTL(A,5) + (B^C^D)           + E + ctx->W[t] + 0xca62c1d6L) & 0xffffffffL;
+		TEMP = (SHA_ROTL(A,5) + (B^C^D)           + E + ctx->W[t] + 0xca62c1d6L);
 		E = D; D = C; C = SHA_ROTL(B, 30); B = A; A = TEMP;
 	}
 
@@ -338,9 +375,16 @@ static void SHAHashBlock(struct SHA_CTX *ctx)
 	ctx->H[4] += E;
 }
 
-static void SHAUpdate(struct SHA_CTX *ctx, const uint8_t *dataIn, int len)
+/**
+ * @brief Update the Context with new data
+ *
+ * @param [in]  ctx     Context pointer
+ * @param [in]  dataIn  Data buffer
+ * @param [in]  len     Data length
+ */
+static void SHAUpdate(struct SHA_CTX *ctx, const uint8_t *dataIn, uint16_t len)
 {
-	int i;
+	uint16_t i;
 
 	/* Read the data into W and process blocks as they get full */
 	for(i = 0; i < len; i++) {
@@ -355,13 +399,18 @@ static void SHAUpdate(struct SHA_CTX *ctx, const uint8_t *dataIn, int len)
 	}
 }
 
-
+/**
+ * @brief Compute the SHA1 sum
+ *
+ * @param [in]  ctx     Context
+ * @param [out] hashout SHA1 hash buffer
+ */
 static void SHAFinal(struct SHA_CTX *ctx, uint8_t hashout[20])
 {
 	uint8_t pad0x80 = 0x80;
 	uint8_t pad0x00 = 0x00;
 	uint8_t padlen[8];
-	int i;
+	uint16_t i;
 
 	/* Pad with a binary 1 (e.g. 0x80), then zeroes, then length */
 	padlen[0] = (uint8_t)((ctx->sizeHi >> 24) & 255);
@@ -386,7 +435,18 @@ static void SHAFinal(struct SHA_CTX *ctx, uint8_t hashout[20])
 
 /* ===== end - public domain SHA1 implementation ===== */
 
-void hmac_sha1(const uint8_t *key, uint32_t key_len, const uint8_t *data, uint32_t data_len, uint8_t *mac)
+/**
+ * @brief FIXME
+ *
+ * @param [in]  key       FIXME
+ * @param [in]  key_len   Key length
+ * @param [in]  data      Data buffer
+ * @param [in]  data_len  Data Length
+ * @param [out] max       FIXME
+ */
+void hmac_sha1(const uint8_t *key, uint32_t key_len,
+               const uint8_t *data, uint32_t data_len,
+               uint8_t *mac)
 {
 	struct SHA_CTX context;
 	uint8_t k_ipad[64]; /* inner padding - key XORd with ipad */
