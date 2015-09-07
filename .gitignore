@@ -1,6 +1,7 @@
 bin/
 mtl_c/
 obj/
+doc/
 **/.svn
 *.hex
 *.elf
