@@ -1,14 +1,17 @@
+/**
+ * @file spi.c
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief SPI bus low level access
+ */
 #include "ml674061.h"
 #include "common.h"
 #include "spi.h"
 
-/****************************************************************************/
-/*  Initialization of the SPI peripheral                                    */
-/*  Function : init_spi                                                     */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Initialization of the SPI peripheral
+ */
 void init_spi(void)
 {
   //Set secondary function for SPI0
@@ -71,13 +74,11 @@ void init_spi(void)
 #endif
 }
 
-/****************************************************************************/
-/*  Write a byte to the SPI bus                                             */
-/*  Function : WriteSPI                                                     */
-/*      Parameters                                                          */
-/*          Input   :   Byte to send                                        */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Write a byte to the SPI0 bus
+ *
+ * @param [in] data_out Byte to send
+ */
 void WriteSPI(uint8_t data_out)
 {
   //write data
@@ -88,13 +89,11 @@ void WriteSPI(uint8_t data_out)
   return ;
 }
 
-/****************************************************************************/
-/*  Read a byte from the SPI bus                                            */
-/*  Function : ReadSPI                                                      */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Return of the byte received                         */
-/****************************************************************************/
+/**
+ * @brief Read a byte from the SPI0 bus
+ *
+ * @return Received byte
+ */
 uint8_t ReadSPI(void)
 {
   uint8_t read_char;
@@ -110,13 +109,11 @@ uint8_t ReadSPI(void)
   return read_char;
 }
 
-/****************************************************************************/
-/*  Write a byte to the SPI1 bus                                            */
-/*  Function : WriteSPI_1                                                   */
-/*      Parameters                                                          */
-/*          Input   :   Byte to send                                        */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Write a byte to the SPI1 bus
+ *
+ * @param [in] data_out  Byte to send
+ */
 void WriteSPI_1(uint8_t data_out)
 {
   //write data
@@ -127,13 +124,11 @@ void WriteSPI_1(uint8_t data_out)
   return ;
 }
 
-/****************************************************************************/
-/*  Read a byte from the SPI1 bus                                           */
-/*  Function : ReadSPI_1                                                    */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Return of the byte received                         */
-/****************************************************************************/
+/**
+ * @brief Read a byte from the SPI1 bus
+ *
+ * @return Received byte
+ */
 uint8_t ReadSPI_1(void)
 {
   uint8_t read_char;

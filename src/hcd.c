@@ -99,6 +99,11 @@ int8_t hcd_init(void)
 	return 0;
 }
 
+/**
+ * @brief Process the HCD events
+ *
+ * @return Status
+ */
 uint8_t hcd_rh_events(void)
 {
 	if(hcd_info.rh_status & HcdRH_DISCONNECT){
@@ -125,6 +130,12 @@ uint8_t hcd_rh_events(void)
 }
 
 #ifdef DEBUG_USB
+
+/**
+ * @brief Get a string corresponding to the "cc" param
+ * @param [in]  cc  FIXME
+ * @return  pointer to the string
+ */
 static char *hcd_cc_string(uint32_t cc)
 {
 	char *cc_s;
@@ -150,7 +161,14 @@ static char *hcd_cc_string(uint32_t cc)
 }
 #endif
 
-/* Must be called with OHCI IRQ masked */
+
+/**
+ * @brief Delete the Transfer descriptors
+ *
+ * @note Must be called with OHCI IRQ masked
+ *
+ * @param [in]  ed Endpoint descriptor struct
+ */
 static void hcd_delete_td(PHCD_ED ed)
 {
 	PURB urb;
@@ -176,9 +194,26 @@ static void hcd_delete_td(PHCD_ED ed)
 	ed->HcED.HeadP = (HeadP & 0xF) | TailP;
 }
 
-/* Must be called with OHCI IRQ masked */
-static int8_t hcd_add_td(PHCD_ED ed, uint32_t control, void *buffer, int32_t length,
-	 PURB urb, int32_t index)
+/*  */
+/**
+ * @brief
+ *
+ * @note Must be called with OHCI IRQ masked
+ *
+ * @param ed      Endpoint descriptor struct
+ * @param control FIXME
+ * @param buffer  FIXME
+ * @param length  FIXME
+ * @param urb     FIXME
+ * @param index   FIXME
+ *
+ * @retval  -1  on error
+ * @retval  0   on success
+ */
+
+static int8_t hcd_add_td(PHCD_ED ed, uint32_t control,
+                         void *buffer, int32_t length,
+                         PURB urb, int32_t index)
 {
 	PHCD_TD td_tail;
 	PHCD_TD td_next;
@@ -214,6 +249,11 @@ static int8_t hcd_add_td(PHCD_ED ed, uint32_t control, void *buffer, int32_t len
 	return 0;
 }
 
+/**
+ * @brief Remove an endpoint from the "active list"
+ *
+ * @param ed  Endpoint struct pointer
+ */
 static void hcd_unlink_ed(PHCD_ED ed)
 {
 	PHCD_ED ed_pre;
@@ -259,6 +299,11 @@ static void hcd_unlink_ed(PHCD_ED ed)
 	ed->flag = ED_UNLINK;
 }
 
+
+/**
+ * @brief "Pause" and endpoint
+ * @param ed  Endpoint struct pointer
+ */
 static void hcd_pause_ed(PHCD_ED ed)
 {
 	uint32_t TailP;
@@ -287,7 +332,14 @@ static void hcd_pause_ed(PHCD_ED ed)
 	}
 }
 
-/* Must be called with OHCI IRQ masked */
+
+/**
+ * @brief Delete an endpoint
+ *
+ * @note Must be called with OHCI IRQ masked
+ *
+ * @param ed Endpoint struct pointer
+ */
 void hcd_delete_ed(PHCD_ED ed)
 {
 	int32_t timeout = 0;
@@ -311,6 +363,13 @@ void hcd_delete_ed(PHCD_ED ed)
 	hcd_free(ed);
 }
 
+/**
+ * @brief Update an endpoint
+ *
+ * @note Must be called with OHCI IRQ masked
+ *
+ * @param ed Endpoint struct pointer
+ */
 int8_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
 {
 	uint32_t control;
@@ -328,7 +387,20 @@ int8_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
 	return -1;
 }
 
-/* Must be called with OHCI IRQ masked */
+/**
+ * @brief Create an endpoint
+ *
+ * @note Must be called with OHCI IRQ masked
+ *
+ * @param speed     USB speed
+ * @param dev_addr  Device address
+ * @param type      Device Type
+ * @param ep_num    Endpoint number
+ * @param maxpacket Max packet length
+ * @param interval  Interval
+ *
+ * @return Endpoint struct pointer
+ */
 PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr, uint8_t type, uint8_t ep_num,
 	ushort maxpacket, uint8_t interval)
 {
@@ -717,12 +789,15 @@ static PHCD_TD hcd_control_transfer_done(PHCD_TD td)
 	if(cc){
 
 #ifdef DEBUG_USB
-                sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02X(%s): %08lX\r\n", cc, hcd_cc_string(cc), (uint32_t)td);
-                DBG_USB(dbg_buffer);
+  sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02lX(%s): %08lX\r\n",
+          cc, hcd_cc_string(cc), (uint32_t)td);
+  DBG_USB(dbg_buffer);
 #endif
 		urb->result = cc;
 		urb->status = URB_XFERERR;
-		if( ((ed->HcED.HeadP & HcED_HeadP_HALT) != 0) && ((ed->HcED.HeadP & 0xFFFFFFF0) != 0) ){
+		if( ((ed->HcED.HeadP & HcED_HeadP_HALT) != 0) &&
+        ((ed->HcED.HeadP & 0xFFFFFFF0) != 0) )
+    {
 			hcd_delete_td((PHCD_ED)ed);
 			hcd_pause_ed(ed);
 		}
@@ -750,13 +825,16 @@ static PHCD_TD hcd_bulk_transfer_done(PHCD_TD td)
 	if((cc != 0) && (cc != CC_DATAOVERRUN) && (cc != CC_DATAUNDERRUN)) {
 
 #ifdef DEBUG_USB
-                sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02lX: %08lX\r\n", cc, (uint32_t)HostCtl_addr);
-                DBG_USB(dbg_buffer);
+    sprintf(dbg_buffer,"\r\nHCD: USB-error/status: %02lX: %08lX\r\n",
+            cc, (uint32_t)HostCtl_addr);
+    DBG_USB(dbg_buffer);
 #endif
 
                 urb->result = cc;
 		urb->status = URB_XFERERR;
-		if( ((ed->HcED.HeadP & HcED_HeadP_HALT) != 0) && ((ed->HcED.HeadP & 0xFFFFFFF0) != 0) ){
+		if( ((ed->HcED.HeadP & HcED_HeadP_HALT) != 0) &&
+        ((ed->HcED.HeadP & 0xFFFFFFF0) != 0) )
+    {
 			hcd_delete_td((PHCD_ED)ed);
 			hcd_pause_ed(ed);
 		}
@@ -808,8 +886,8 @@ static void hcd_writeback_done(void)
 
 static void hcd_rh_irq(void)
 {
-	unsigned long hub_status;
-	unsigned long port_status;
+	uint64_t hub_status;
+	uint64_t port_status;
 
 	hub_status = get_wvalue(HcRhStatus);
 
@@ -832,16 +910,17 @@ static void hcd_rh_irq(void)
 	if(port_status & RH_PS_PRSC) {
 	 	DBG_USB(" root hub: Port Reset Status Changed.\r\n");
 		put_wvalue(HcRhPortStatus, RH_PS_PRSC);
-		if( ((port_status & RH_PS_PES) != 0) && ((port_status & RH_PS_CCS) != 0) ){
+		if( ((port_status & RH_PS_PES) != 0) && ((port_status & RH_PS_CCS) != 0) )
+    {
 			DBG_USB(" root hub: Port Connect Status = 1\r\n");
 
 #ifdef DEBUG_USB
-              sprintf(dbg_buffer," %s speed device connected.\r\n",((port_status & RH_PS_LSDA) ? "low" : "full"));
-              DBG_USB(dbg_buffer);
+      sprintf(dbg_buffer," %s speed device connected.\r\n",
+              ((port_status & RH_PS_LSDA) ? "low" : "full"));
+      DBG_USB(dbg_buffer);
 #endif
 
-
-                        hcd_info.rh_status |= HcdRH_CONNECT;
+      hcd_info.rh_status |= HcdRH_CONNECT;
 			if(port_status & RH_PS_LSDA)
 				hcd_info.rh_status |= HcdRH_SPEED;
 			else
@@ -904,15 +983,19 @@ void usbhost_interrupt(void)
 		/* DMA not used */
 		put_wvalue(SttTrnsCnt, B_DMAIRQ);
 	} else if(status & B_OHCIIRQ) {
-		if ((hcd_info.hcca->donehead != 0) && ((hcd_info.hcca->donehead & 0x01) == 0) ) {
+		if ((hcd_info.hcca->donehead != 0) &&
+        ((hcd_info.hcca->donehead & 0x01) == 0) )
+    {
 			status = OHCI_INTR_WDH;
-		} else {
+		} else
+    {
 			b = get_wvalue(HcInterruptEnable);
 			if((status = (get_wvalue(HcInterruptStatus) & b)) == 0) return;
 		}
 
 #ifdef DEBUG_USB
-		sprintf(dbg_buffer, "HCD: Interrupt %lX frame: %lX\r\n", status, (ushort)hcd_info.hcca->framenumber);
+		sprintf(dbg_buffer, "HCD: Interrupt %lX frame: %X\r\n",
+            status, (uint16_t)hcd_info.hcca->framenumber);
 		DBG_USB(dbg_buffer);
 #endif
 

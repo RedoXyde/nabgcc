@@ -1,23 +1,36 @@
-// VLISP Virtual Machine - 2006 - by Sylvain Huet
-// Lowcost IS Powerfull
+/**
+ * @file vnet.c
+ * @author Sylvain Huet - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief VLISP Virtual Machine - Network function
+ */
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 
 #include"vmem.h"
 #ifdef VSIMU
-#include<windows.h>
-#include<stdio.h>
-#include<time.h>
-int32_t netstatesimu=1;
+  #include<windows.h>
+  #include<stdio.h>
+  #include<time.h>
+  int32_t netstatesimu=1;
 #endif
 #ifdef VREAL
-#include "rt2501usb.h"
+  #include "rt2501usb.h"
 #endif
+
 #include"vloader.h"
 #include"vnet.h"
 #include"vlog.h"
 #include"vinterp.h"
+
+
+/**
+ * @brief Get network's current state
+ *
+ * @return Network state
+ */
 int32_t netState()
 {
 #ifdef VSIMU

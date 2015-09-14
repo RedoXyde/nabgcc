@@ -461,13 +461,14 @@ int32_t sysMotorget(int32_t motor)
 #endif
 }
 
+extern uint8_t push_button_value(void);
 int32_t sysButton2()
 {
 #ifdef VSIMU
 	return getButton();
 #endif
 #ifdef VREAL
-        return push_button_value();
+  return push_button_value();
 #endif
 }
 

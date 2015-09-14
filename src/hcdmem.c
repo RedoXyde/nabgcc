@@ -14,10 +14,19 @@
 #include "debug.h"
 #include "delay.h"
 
-#define max(a,b)	( ( (a) > (b) ) ? (a) : (b) )
+/**
+ * @brief Get the max value
+ *
+ * @param a
+ * @param b
+ *
+ * @return max(a,b)
+ */
+#define max(a,b)	(((a)>(b))? (a):(b))
 
 /*--------------------------------------------------------------------------*/
-typedef struct _memory {
+typedef struct _memory
+{
 	struct _memory *Next;
 	uint32_t Address;
 	uint32_t Area;

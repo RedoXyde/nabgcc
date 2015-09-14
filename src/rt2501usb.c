@@ -1263,21 +1263,24 @@ int32_t rt2501_driver_install(void)
 
 int32_t rt2501_state(void)
 {
-	if(!rt2501_connected) return RT2501_S_BROKEN;
-	if(ieee80211_mode == IEEE80211_M_MASTER) return RT2501_S_MASTER;
-	switch(ieee80211_state) {
-	case IEEE80211_S_IDLE:
-		return RT2501_S_IDLE;
-	case IEEE80211_S_SCAN:
-		return RT2501_S_SCAN;
-	case IEEE80211_S_AUTH:
-	case IEEE80211_S_ASSOC:
-	case IEEE80211_S_EAPOL:
-		return RT2501_S_CONNECTING;
-	case IEEE80211_S_RUN:
-		return RT2501_S_CONNECTED;
-	default:
-		return RT2501_S_BROKEN;
+	if(!rt2501_connected)
+    return RT2501_S_BROKEN;
+	if(ieee80211_mode == IEEE80211_M_MASTER)
+    return RT2501_S_MASTER;
+	switch(ieee80211_state)
+  {
+    case IEEE80211_S_IDLE:
+      return RT2501_S_IDLE;
+    case IEEE80211_S_SCAN:
+      return RT2501_S_SCAN;
+    case IEEE80211_S_AUTH:
+    case IEEE80211_S_ASSOC:
+    case IEEE80211_S_EAPOL:
+      return RT2501_S_CONNECTING;
+    case IEEE80211_S_RUN:
+      return RT2501_S_CONNECTED;
+    default:
+      return RT2501_S_BROKEN;
 	}
 }
 
