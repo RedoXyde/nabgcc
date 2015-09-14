@@ -1,1 +1,1 @@
-../mtl_c/bc.0.0.0.12.no.c
+../dumpbc.c

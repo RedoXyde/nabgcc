@@ -40,10 +40,10 @@ void    write_uart(uint8_t *);
 void    putch_uart(uint8_t c);
 void    putst_uart(uint8_t *str);
 void    putint_uart(int32_t v);
-void    puthx_uart(int32_t v);
-void    putbin_uart(uint8_t *str,int32_t len);
+void    puthx_uart(uint32_t v);
+void    putbin_uart(uint8_t *str,uint32_t len);
 
 
-uint32_t xmodem_recv(uint8_t *addr_mem);
+uint64_t xmodem_recv(uint8_t *addr_mem);
 void xmodem_send(uint8_t *addr_mem, uint32_t nb_bytes_to_send);
-int16_t calcrc(uint8_t *ptr, int16_t count);
+int16_t calcrc(uint8_t *ptr, uint16_t count);

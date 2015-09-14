@@ -1,40 +1,28 @@
-/**************************************************************************/
-/*                                                                        */
-/*     Copyright (C) 2005 Oki Electric Industry Co., LTD.                 */
-/*                                                                        */
-/*     System Name  :  ML67Q4051/ML67Q4061 CPU BOARD                      */
-/*     Module Name  :  ML67Q4051/ML67Q4061 uart transmit routines         */
-/*     File   Name  :  uart_api.c                                         */
-/*     Revision     :  01.00                                              */
-/*     Date         :  2005/02/08                                         */
-/*                     Initial version                                    */
-/*                                                                        */
-/**************************************************************************/
-/*     UART operation set for 115,200 Baud, no parity, 8 data,            */
-/*                            1 stop and no flow control                  */
-/**************************************************************************/
-
-#include   "ml674061.h"
-#include   "common.h"
-#include   "irq.h"
-#include   "uart.h"
+/**
+ * @file uart.c
+ * @author Oki Electric Industry Co.,Ltd. - 2005 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/14
+ * @brief Low level UART functions
+ *
+ * UART operation set for 115,200 Baud, no parity, 8 data,
+ * 1 stop and no flow control
+ */
+#include "ml674061.h"
+#include "common.h"
+#include "irq.h"
+#include "uart.h"
 #include "delay.h"
-#include "delay.h"
-#include<stdio.h>
 
-/********************/
-/* Global variables */
-/********************/
-extern volatile uint8_t uart_buffer_pointer;
-extern uint8_t UART_BUFFER[UART_BUFFER_SIZE];
+#include <stdio.h>  // sprintf
 
-/****************************************************************************/
-/*  Write a 8bits character to the serial port                              */
-/*  Function : putch_uart                                                   */
-/*      Parameters                                                          */
-/*          Input   :   Character to send                                   */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+uint8_t UART_BUFFER[UART_BUFFER_SIZE];  /**< @brief RX buffer */
+volatile uint8_t uart_buffer_pointer;   /**< @brief RX write index */
+
+/**
+ * @brief Write a 8bits character to the serial port
+ * @param [in]  c Character to send
+ */
 void putch_uart(uint8_t c)
 {
   /* loop till transmit FIFO becomes empty */
@@ -43,81 +31,88 @@ void putch_uart(uint8_t c)
   put_value(UARTTHR0,c);
 }
 
-/****************************************************************************/
-/* writes a string to the serial port                                       */
-/*  Function : putst_uart                                                   */
-/*      Parameters                                                          */
-/*          Input   :   String to send terminated by Null character (0x00)  */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Write a string to the serial port
+ *
+ * @param [in]  str String to send terminated by Null character (0x00)
+ */
 void putst_uart(uint8_t *str)
 {
-  while((*str)!=0)
+  while(*str)
   {
-    putch_uart(*str);
-    str++;
+    putch_uart(*str++);
   }
 }
 
-void putbin_uart(uint8_t *str,int32_t len)
+/**
+ * @brief Send a binary buffer to the serial port
+ *
+ * @param [in]  str Buffer
+ * @param [in]  len Length
+ */
+void putbin_uart(uint8_t *str,uint32_t len)
 {
-  while(len>0)
+  while(len--)
   {
-    putch_uart(*str);
-    str++;
-    len--;
+    putch_uart(*str++);
   }
 }
 
+/**
+ * @brief Write an Integer to the serial port, in decimal form
+ *
+ * @param [in]  v   Value
+ */
 void putint_uart(int32_t v)
 {
-  char buf[32];
-  sprintf(buf,"%ld",v);
-  putst_uart((uint8_t*)buf);
+  uint8_t buf[32];
+  sprintf((char*)buf,"%ld",v);
+  putst_uart(buf);
 }
 
-void puthx_uart(int32_t v)
+/**
+ * @brief Write an Integer to the serial port, in hex
+ *
+ * @param [in]  v   Value
+ */
+void puthx_uart(uint32_t v)
 {
-  char buf[32];
-  sprintf(buf,"%lx",v);
-  putst_uart((uint8_t*)buf);
+  uint8_t buf[12];
+  sprintf((char*)buf,"0x%lx",v);
+  putst_uart(buf);
 }
-/******************************************************************/
-/*  Initialize UART                                               */
-/*  Function : init_uart                                          */
-/*      Parameters                                                */
-/*          Input  :  Nothing                                     */
-/*          Output :  Nothing                                     */
-/******************************************************************/
+
+/**
+ * @brief Initialize UART
+ */
 void init_uart(void)
 {
-    /* setting of PORT */
-    set_wbit(PORTSEL1,0x50000);    /* select secondary function (PB0-1)*/
+    set_wbit(PORTSEL1,0x50000);           /* select secondary function (PB0-1)*/
 
     put_value(UARTLCR0, UARTLCR_DLAB);
-    put_value(UARTDLL0, DLL_BAUD);       /* baud rate */
+    put_value(UARTDLL0, DLL_BAUD);        /* baud rate */
     put_value(UARTDLM0, DLM_BAUD);
-    put_value(UARTLCR0, UARTLCR_LEN8|UARTLCR_STB1|UARTLCR_PDIS); /* data length:8bit, stop bit:1, parity:none */
+                                 /* data length:8bit, stop bit:1, parity:none */
+    put_value(UARTLCR0, UARTLCR_LEN8|UARTLCR_STB1|UARTLCR_PDIS);
+          /*FIFO:enable, trigger level:1byte, receiver/transmitter FIFO clear */
+    put_value(UARTFCR0, UARTFCR_FE|UARTFCR_RFLV1|UARTFCR_RFCLR|UARTFCR_TFCLR);
+    clr_bit(UARTFCR0, 0xC0);              /* FIFO trigger level:1byte */
 
-    put_value(UARTFCR0, UARTFCR_FE|UARTFCR_RFLV1|UARTFCR_RFCLR|UARTFCR_TFCLR); /*FIFO:enable, trigger level:1byte, receiver/transmitter FIFO clear */
-    clr_bit(UARTFCR0, 0xC0);     /* FIFO trigger level:1byte */
-
-    put_value(UARTIER0,UARTIER_ERBF); //interrupt only when receiving data
+    put_value(UARTIER0,UARTIER_ERBF);   /* Interrupt only when receiving data */
 
     put_value(UARTMCR0, 0);
 }
 
-/******************************************************************/
-/*  Receive a file in Xmodem mode, 128bytes per frame, CRC 8bits  */
-/*  Function : xmodem_recv                                        */
-/*      Parameters                                                */
-/*          Input  :  Address where the file must be written      */
-/*          Output :  Return of the width in bytes of the file    */
-/******************************************************************/
-uint32_t xmodem_recv(uint8_t *addr_mem)
+/**
+ * @brief Receive a file in Xmodem mode, 128bytes per frame, CRC 8bits
+ *
+ * @param [in]  addr_mem Address where the file must be written
+ * @return Number of bytes of the file
+ */
+uint64_t xmodem_recv(uint8_t *addr_mem)
 {
   uint8_t cmpt_char=0;
-  ulong data_width_received=0;
+  uint64_t data_width_received=0;
 
   //wait for a new character to be received
   uart_buffer_pointer=0;
@@ -148,15 +143,13 @@ uint32_t xmodem_recv(uint8_t *addr_mem)
   }
 }
 
-/******************************************************************/
-/*  Send a file in Xmodem mode, 128bytes per frame, CRC 16bits    */
-/*  Function : xmodem_recv                                        */
-/*      Parameters                                                */
-/*          Input  :  Address where the file is saved             */
-/*          Input :  Width in bytes of the file                   */
-/*          Output :  Nothing                                     */
-/******************************************************************/
-void xmodem_send(uint8_t *addr_mem, ulong nb_bytes_to_send)
+/**
+ * @brief Send a file in Xmodem mode, 128bytes per frame, CRC 16bits
+ *
+ * @param [in]  addr_mem Address where the file is saved
+ * @param [in]  nb_bytes_to_send  Length in bytes of the file
+ */
+void xmodem_send(uint8_t *addr_mem, uint32_t nb_bytes_to_send)
 {
   uint8_t cmpt_frame=0;
   uint8_t cmpt_char=0;
@@ -235,26 +228,40 @@ void xmodem_send(uint8_t *addr_mem, ulong nb_bytes_to_send)
   }
 }
 
-/******************************************************************/
-/*  CRC CCITT routine multiply by X^16, divide by X^16+X^12+X^5+1 */
-/*  Function : calcrc                                             */
-/*      Parameters                                                */
-/*          Input  : Pointer to the data string                   */
-/*          Input :  Number of bytes concerned by the CRC         */
-/*          Output :  CRC result in 16bits                        */
-/******************************************************************/
-int16_t calcrc(uint8_t *ptr, int16_t count)
+/**
+ * @brief CRC CCITT routine multiply by X^16, divide by X^16+X^12+X^5+1
+ *
+ * @param [in]  *ptr  Pointer to the data string
+ * @param [in]  count  Number of bytes concerned by the CRC
+ *
+ * @return CRC result in 16bits
+ */
+int16_t calcrc(uint8_t *ptr, uint16_t count)
 {
-   int16_t crc, i;
+  int16_t crc;
+  uint8_t i;
 
-   crc = 0;
-   while(--count >= 0) {
-       crc = crc ^ (int16_t)*ptr++ << 8;
-       for(i = 0; i < 8; ++i)
-           if(crc & 0x8000)
-               crc = crc << 1 ^ 0x1021;
-           else
-               crc = crc << 1;
-       }
-   return (crc & 0xFFFF);
+  crc = 0;
+  while(--count) {
+  crc = crc ^ (int16_t)*ptr++ << 8;
+  for(i = 0; i < 8; ++i)
+    if(crc & 0x8000)
+      crc = crc << 1 ^ 0x1021;
+    else
+      crc = crc << 1;
+  }
+  return (crc & 0xFFFF);
+}
+
+/**
+ * @brief Process of the UART0 interrupt
+ */
+void uart0_interrupt(void)
+{
+    //Save received byte in the UART buffer
+    uint8_t c=get_value(UARTRBR0);
+  if(uart_buffer_pointer < UART_BUFFER_SIZE)
+    UART_BUFFER[uart_buffer_pointer++] = c;
+  else
+    uart_buffer_pointer = 0;
 }

@@ -75,8 +75,6 @@ int32_t okijob_number(void*);
 /* Global variables */
 /********************/
 extern uint8_t dummy_buffer[100];
-uint8_t UART_BUFFER[UART_BUFFER_SIZE];
-volatile uint8_t uart_buffer_pointer;
 uint8_t motor_state=0;
 
 volatile uint32_t counter_timer;
@@ -423,7 +421,6 @@ int main(void)
 		put_value(address, 0x00);
 
   //Init Uart
-  uart_buffer_pointer=0;
   init_uart();
   consolestr((uint8_t*)"\r\n****Reset\r\n");
   ptest=(uint8_t *)&iii;
@@ -576,23 +573,6 @@ void timer_handler(void)
     }
     put_value(TMOVF,0x01);      //clear overflow register (write '1' in TMOVF[0])
     return;
-}
-
-/****************************************************************************/
-/*  Process of the UART0 interrupt                                          */
-/*  Function : uart0_interrupt                                              */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
-void uart0_interrupt(void)
-{
-    //Save received byte in the UART buffer
-    uint8_t c=get_value(UARTRBR0);
-  if(uart_buffer_pointer < UART_BUFFER_SIZE)
-    UART_BUFFER[uart_buffer_pointer++] = c;
-  else
-    uart_buffer_pointer = 0;
 }
 
 /****************************************************************************/
