@@ -1,20 +1,22 @@
+/**
+ * @file led.c
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief LEDs low level access
+ */
 #include "ml674061.h"
 #include "common.h"
+
 #include "led.h"
 #include "spi.h"
 
-/********************/
-/* Global variables */
-/********************/
+
 uint8_t led_intensity[14];
 
-/****************************************************************************/
-/*  Init of the Led RGB driver, clear all leds                              */
-/*  Function : init_led_rgb_driver                                          */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Init of the Led RGB driver, clear all leds
+ */
 void init_led_rgb_driver(void)
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
 {
@@ -76,26 +78,27 @@ void init_led_rgb_driver(void)
 }
 #endif
 
-/****************************************************************************/
-/*  Set a color Led RGB, 8bits MSB for the number                           */
-/*  Function : set_led_rgb                                                  */
-/*      Parameters                                                          */
-/*          Input   :   Reference and color in 32bits                       */
-/*                      bits 31->24 RGB led number                          */
-/*                      bits 23->16 RED intensity in 7bits (Max=>0x7F)      */
-/*                      bits 15->8 GREEN intensity in 7bits (Max=>0x7F)     */
-/*                      bits 7->0  BLUE intensity in 7bits (Max=>0x7F)      */
-/*          Output  :   Nothing                                             */
-/*          Remarks  :  Sometimes the BLUE and GREEN colors are inverted    */
-/*                      due to different Part Number of the Waitrony leds...*/
-/****************************************************************************/
+/**
+ * @brief Set a RGB LED color
+ *
+ * @note Sometimes the BLUE and GREEN colors are inverted due to different
+ *       Part Number of the Waitrony leds...
+ *
+ * @param [in]  color Reference and color in 32bits
+ *                      bits 31->24 RGB led number
+ *                      bits 23->16 RED intensity in 7bits (Max=>0x7F)
+ *                      bits 15->8 GREEN intensity in 7bits (Max=>0x7F)
+ *                      bits 7->0  BLUE intensity in 7bits (Max=>0x7F)
+ */
 void set_led_rgb(uint32_t color)
 {
 	uint8_t cmpt_led;
-	uint8_t led_rgb = 0x000F & (color>>24);
+	uint8_t led_rgb = (color>>24) & 0x0F;
 
-//Set current
-//Attention aux effets de bord entre 2 courants de 2 leds, pas dépasser 127 en intensité pour une couleur
+// Set current
+// Attention aux effets de bord entre 2 courants de 2 leds,
+// ne pas dépasser 127 en intensité pour une couleur
+
 //RGB_1
 	if( led_rgb == 1 )
 	{
@@ -166,7 +169,9 @@ void set_led_rgb(uint32_t color)
         return ;
 }
 
+/** @brief Mapping array for the LEDs */
 uint32_t convled[8]={4,2,0,3,1,0,0,0};
+/** @brief Intensity conversion table */
 const uint8_t convintensity[256]=
 {
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -181,11 +186,25 @@ const uint8_t convintensity[256]=
 117,119,120,122,123,125,126
 };
 
-void set_led(uint32_t led,uint32_t color)
+/**
+ * @brief Set a RGB LED color, using intensity conversion table
+ *
+ * @note Sometimes the BLUE and GREEN colors are inverted due to different
+ *       Part Number of the Waitrony leds...
+ *
+ * @param [in]  led   Index of the LED
+ * @param [in]  color Reference and color in 32bits
+ *                      bits 23->16 RED intensity in 7bits (Max=>0x7F)
+ *                      bits 15->8 GREEN intensity in 7bits (Max=>0x7F)
+ *                      bits 7->0  BLUE intensity in 7bits (Max=>0x7F)
+ */
+void set_led(uint8_t led,uint32_t color)
 {
   led=convled[led&7];
 
-  color=(convintensity[(color>>16)&255]<<16)+(convintensity[(color>>8)&255]<<8)+convintensity[color&255];
+  color=(convintensity[(color>>16)&255]<<16)+
+        (convintensity[(color>>8)&255]<<8)+
+        convintensity[color&255];
 //  color=(color&0xff0000)+((color>>8)&0xff)+((color<<8)&0xff00);
   set_led_rgb(((led+1)<<24)+color);
 }

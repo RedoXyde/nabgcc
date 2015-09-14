@@ -1,8 +1,12 @@
+/**
+ * @file led.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief LEDs low level access
+ */
 #ifndef _LED_H_
 #define _LED_H_
-
-#include "ml674061.h"
-#include "common.h"
 
 //Led Driver
 #define MODE_LED_DOT_CORRECTION   MODE_LED_SET
@@ -34,6 +38,6 @@
 /*************/
 void init_led_rgb_driver(void);
 void set_led_rgb(uint32_t color);
-void set_led(uint32_t led,uint32_t color);
+void set_led(uint8_t led,uint32_t color);
 
 #endif
