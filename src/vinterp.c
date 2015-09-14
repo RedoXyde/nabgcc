@@ -3,21 +3,24 @@
 #include <stdint.h>
 #include <string.h>
 
-#include"vmem.h"
-#include"vloader.h"
-#include"vinterp.h"
-#include"vlog.h"
-#include"vaudio.h"
-#ifdef VSIMU
-#include<stdio.h>
-#include<string.h>
-#include"simunet.h"
+#ifndef VSIMU
+  #include "ml674061.h"
 #else
-#include "common.h"
+  #include<stdio.h>
+  #include"simunet.h"
 #endif
-#include"vnet.h"
 
-#include"vbc_str.h"
+#include "common.h"
+
+#include "vaudio.h"
+#include "vinterp.h"
+#include "vloader.h"
+#include "vlog.h"
+#include "vmem.h"
+#include "vnet.h"
+
+#include "vbc_str.h"
+
 /*
 void displaybc(int32_t off,int32_t base)
 {
@@ -84,8 +87,8 @@ int32_t tron=0;
 
 // execute une fonction
 // la pile doit contenir la liste d'argument, puis la fonction
-// la fonction est soit un numéro, soit un tuple [numéro liste]
-// on distingue le cas selon le fait que la valeur empilée est un pointeur ou un entier
+// la fonction est soit un numÃ©ro, soit un tuple [numÃ©ro liste]
+// on distingue le cas selon le fait que la valeur empilÃ©e est un pointeur ou un entier
 void interpGo()
 {
 	int32_t pc=-1;
@@ -185,7 +188,7 @@ void interpGo()
 					pcbase=VALTOINT(VSTACKGET(3));
 					ncall=VALTOINT(VSTACKGET(2));
 					callstackres=VALTOINT(VSTACKGET(1));
-					VCALLSTACKSET(callstack,0,VSTACKGET(0));	// recopie le résultat
+					VCALLSTACKSET(callstack,0,VSTACKGET(0));	// recopie le rÃ©sultat
 					vmem_stack=callstack;
 					callstack=ncall;
 				}
@@ -1351,17 +1354,17 @@ void interpGo()
 			  }
 			  break;
 			case OPi2cRead:
-			{ // Lecture à partir d'un périphérique I2C
+			{ // Lecture Ã  partir d'un pÃ©riphÃ©rique I2C
                           int32_t val2 = VALTOINT(VPULL()); // Taille de lecture
                           uint8_t val1 = VALTOINT(VPULL()); // Adresse du lapin
                           sysI2cRead(val1, val2);
 			}
 			break;
 			case OPi2cWrite:
-			{ // Ecriture sur un périphérique I2C
+			{ // Ecriture sur un pÃ©riphÃ©rique I2C
                           int32_t val3=VALTOINT(VPULL());  // Taille du buffer
-                          int32_t val2=VALTOPNT(VPULL());  // Buffer à écrire
-                          uint8_t val1=VALTOINT(VPULL()); // Adresse du périphérique
+                          int32_t val2=VALTOPNT(VPULL());  // Buffer Ã  Ã©crire
+                          uint8_t val1=VALTOINT(VPULL()); // Adresse du pÃ©riphÃ©rique
                           sysI2cWrite(val1, (uint8_t *)VSTARTBIN(val2), val3);
 			}
 			break;
