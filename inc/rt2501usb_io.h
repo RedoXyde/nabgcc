@@ -1,10 +1,10 @@
-/*
- * Ralink RT2501 driver for Violet embedded platforms
- * (c) 2006 Sebastien Bourdeauducq
- *
- * RedoX <dev@redox.ws> - 2015 - GCC port
-*/
-
+/**
+ * @file rt2501usb_io.h
+ * @author Sebastien Bourdeauducq - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief RT2501 Wifi/Network driver
+ */
 #ifndef __RT2501_IO_H
 #define __RT2501_IO_H
 

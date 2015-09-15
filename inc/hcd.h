@@ -1,3 +1,10 @@
+/**
+ * @file hcd.h
+ * @author Oki Electric Industry Co.,Ltd. - 2003 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief USB Host
+ */
 #ifndef _HCD_H_
 #define _HCD_H_
 

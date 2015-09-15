@@ -1,4 +1,11 @@
-#ifndef _DEBUG_H_
+/**
+ * @file debug.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Debug stuff
+ */
+ #ifndef _DEBUG_H_
 #define _DEBUG_H
 
 #include <stdio.h>

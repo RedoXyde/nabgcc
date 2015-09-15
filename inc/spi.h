@@ -1,3 +1,10 @@
+/**
+ * @file spi.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief SPI bus low level access
+ */
 #ifndef _SPI_H_
 #define _SPI_H_
 

@@ -1,8 +1,11 @@
-// VLISP Virtual Machine - 2006 - by Sylvain Huet
-// Lowcost IS Powerfull
-
-
-// cette table ne sert qu'à l'affichage du bytecode dans la console
+/**
+ * @file vbc_str.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief VLISP Virtual Machine - Opcodes litteral matchs
+ */
+// cette table ne sert qu'Ã  l'affichage du bytecode dans la console
 #define MaxOpcode 152
 char* strbytecod[MaxOpcode]=
 {

@@ -1,6 +1,10 @@
-// VLISP Virtual Machine - 2006 - by Sylvain Huet
-// Lowcost IS Powerfull
-
+/**
+ * @file vmem.c
+ * @author Sylvain Huet - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief VLISP Virtual Machine - Memory functions
+ */
 #include <stdint.h>
 #include <string.h>
 
@@ -21,7 +25,7 @@ int32_t vmem_stack;
 int32_t vmem_start;
 int32_t vmem_broken;
 
-// initialisation de la mémoire
+// initialisation de la mÃ©moire
 void vmemInit(int32_t start)
 {
 	vmem_top=&vmem_heap[VMEM_LENGTH];

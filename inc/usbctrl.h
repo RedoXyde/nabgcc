@@ -1,12 +1,10 @@
-/*******************************************************************************
-    usbctrl.h
-
-    Copyright(C) 2003, Oki Electric Industry Co.,Ltd.
-      All rights reserved.
-
-    Mar.31,2003 rev.1.00
-*******************************************************************************/
-
+/**
+ * @file usbctrl.h
+ * @author Oki Electric Industry Co.,Ltd. - 2003 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief USB Stack - Control
+ */
 #ifndef _USBCTRL_H_
 #define _USBCTRL_H_
 

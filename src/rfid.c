@@ -1,36 +1,53 @@
+/**
+ * @file rfid.c
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief RFID low level access
+ */
 #include "ml674061.h"
 #include "common.h"
 #include "rfid.h"
 #include "i2c.h"
+
 #include "delay.h"
-#include "uart.h"
+
 #include "vlog.h"
 
-int32_t i2cerror;
+uint8_t i2cerror;
 
-int32_t writecheck(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
+uint16_t writecheck(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
 {
-  int32_t nmax=1000;
-  while((nmax>0)&&(write_i2c(addr_i2c,data,nb_byte)==FALSE)){ nmax--;__no_operation();}
-  if (!nmax) i2cerror=1;
+  uint16_t nmax=1000;
+  while( (nmax>0) && (!write_i2c(addr_i2c,data,nb_byte)))
+  {
+    nmax--;
+    __no_operation();
+  }
+  if (!nmax)
+    i2cerror=1;
   return nmax;
 }
 
-int32_t readcheck(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
+uint16_t readcheck(uint8_t addr_i2c, uint8_t *data, uint8_t nb_byte)
 {
-  int32_t nmax=1000;
-  while((nmax>0)&&(read_i2c(addr_i2c,data,nb_byte)==FALSE)){ nmax--;__no_operation();}
-  if (!nmax) i2cerror=1;
+  uint16_t nmax=1000;
+  while( (nmax>0) && (!read_i2c(addr_i2c,data,nb_byte)))
+  {
+    nmax--;
+    __no_operation();
+  }
+  if (!nmax)
+    i2cerror=1;
   return nmax;
 }
 
-/****************************************************************************/
-/*  Turn ON electromagnetic field and initialize CRX14                      */
-/*  Function : init_rfid                                                    */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Return the completion of turning ON                 */
-/****************************************************************************/
+/**
+ * @brief Turn ON electromagnetic field and initialize CRX14
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t init_rfid(void)
 {
   uint8_t dummy_tab[2];
@@ -39,23 +56,19 @@ uint8_t init_rfid(void)
   //Turn ON RF
   dummy_tab[0]=CRX14_PARAMETER_REGISTER;
   dummy_tab[1]=0x10;
-  if(!writecheck(CRX14_ADDR,dummy_tab,2)) return FALSE;
-  //Read answer tab
-  if(!readcheck(CRX14_ADDR,dummy_tab,1)) return FALSE;
+  if(!writecheck(CRX14_ADDR,dummy_tab,2) || !readcheck(CRX14_ADDR,dummy_tab,1))
+    return 0;
+
   //Check if module is ON
-  if(dummy_tab[0]==0x10)
-    return TRUE;
-  else
-    return FALSE;
+  return dummy_tab[0]==0x10;
 }
 
-/****************************************************************************/
-/*  Turn OFF electromagnetic field                                          */
-/*  Function : close_rfid                                                   */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Return the completion of turning OFF                */
-/****************************************************************************/
+/**
+ * @brief Turn OFF electromagnetic field
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t close_rfid(void)
 {
   uint8_t dummy_tab[2];
@@ -64,23 +77,18 @@ uint8_t close_rfid(void)
   //Turn OFF RF
   dummy_tab[0]=CRX14_PARAMETER_REGISTER;
   dummy_tab[1]=0x00;
-  if(!writecheck(CRX14_ADDR,dummy_tab,2)) return FALSE;
-  //Read answer tab
-  if(!readcheck(CRX14_ADDR,dummy_tab,1)) return FALSE;
+  if(!writecheck(CRX14_ADDR,dummy_tab,2) || !readcheck(CRX14_ADDR,dummy_tab,1))
+    return 0;
   //Check if module is OFF
-  if(dummy_tab[0]==0x00)
-    return TRUE;
-  else
-    return FALSE;
+  return (dummy_tab[0]==0x00);
 }
 
-/****************************************************************************/
-/*  RFID command to initiate all TAGs present in the electromagnetic field  */
-/*  Function : initiate_rfid                                                */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief RFID command to initiate all TAGs present in the electromagnetic field
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t initiate_rfid(void)
 {
   uint8_t dummy_tab[4];
@@ -88,32 +96,30 @@ uint8_t initiate_rfid(void)
   dummy_tab[1]=0x02;
   dummy_tab[2]=0x06;
   dummy_tab[3]=0x00;
-  if(!writecheck(CRX14_ADDR,dummy_tab,4)) return FALSE;
-  return TRUE;
+  return writecheck(CRX14_ADDR,dummy_tab,4);
 }
 
-/****************************************************************************/
-/*  RFID command to check all TAGs present in the electromagnetic field     */
-/*  Function : slot_marker_rfid                                             */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief RFID command to check all TAGs present in the electromagnetic field
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t slot_marker_rfid(void)
 {
   uint8_t dummy_tab[4];
   dummy_tab[0]=CRX14_SLOT_MARKER_REGISTER;
-  if(!writecheck(CRX14_ADDR,dummy_tab,1)) return FALSE;
-  return TRUE;
+  return writecheck(CRX14_ADDR,dummy_tab,1);
 }
 
-/****************************************************************************/
-/*  RFID command to select a TAG                                            */
-/*  Function : completion_rfid                                              */
-/*      Parameters                                                          */
-/*          Input   :   CHIP_ID of the TAG to select                        */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief RFID command to select a TAG
+ *
+ * @param [in]  chip_id CHIP_ID of the TAG to select
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t select_tag_rfid(uint8_t chip_id)
 {
   uint8_t dummy_tab[4];
@@ -121,19 +127,19 @@ uint8_t select_tag_rfid(uint8_t chip_id)
   dummy_tab[1]=0x02;
   dummy_tab[2]=0x0E;
   dummy_tab[3]=chip_id;
-  if(!writecheck(CRX14_ADDR,dummy_tab,4)) return FALSE;
-  return TRUE;
+  return writecheck(CRX14_ADDR,dummy_tab,4);
 
 }
 
-/****************************************************************************/
-/*  RFID command to read frame buffer of CRX14                              */
-/*  Function : read_frame_rfid                                              */
-/*      Parameters                                                          */
-/*          Input   :   pointer to the data to returned                     */
-/*          Input   :   number of bytes to read                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief RFID command to read frame buffer of CRX14
+ *
+ * @param [in]  data      pointer to the data to return
+ * @param [in]  nb_bytes  number of bytes to read
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t read_frame_rfid(uint8_t *data, uint8_t nb_bytes)
 {
   uint8_t dummy_tab[1];
@@ -144,54 +150,49 @@ uint8_t read_frame_rfid(uint8_t *data, uint8_t nb_bytes)
     *(data+dummy_cmpt)=0x00;
  //Select frame register
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
-  if(!writecheck(CRX14_ADDR,dummy_tab,1)) return FALSE;
+  if(!writecheck(CRX14_ADDR,dummy_tab,1))
+      return 0;
   //Read answer tab
-  if(!readcheck(CRX14_ADDR,data,nb_bytes)) return FALSE;
-  return TRUE;
+  return readcheck(CRX14_ADDR,data,nb_bytes);
 }
 
-/****************************************************************************/
-/*  RFID command to deactived TAGs                                          */
-/*  Function : completion_rfid                                              */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief RFID command to deactivate TAGs
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t completion_rfid(void)
 {
   uint8_t dummy_tab[3];
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
   dummy_tab[1]=0x01;
   dummy_tab[2]=0x0F;
-  if(!writecheck(CRX14_ADDR,dummy_tab,3)) return FALSE;
-  return TRUE;
+  return writecheck(CRX14_ADDR,dummy_tab,3);
 }
 
-/****************************************************************************/
-/*  RFID command to get unique UID of selected TAG                          */
-/*  Function : get_uid_rfid                                           */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief RFID command to get unique UID of selected TAG
+ *
+ * @retval 1 on success
+ * @retval 0 on error
+ */
 uint8_t get_uid_rfid(void)
 {
   uint8_t dummy_tab[3];
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
   dummy_tab[1]=0x01;
   dummy_tab[2]=0x0B;
-  if(!writecheck(CRX14_ADDR,dummy_tab,3)) return FALSE;
-  return TRUE;
+  return writecheck(CRX14_ADDR,dummy_tab,3);
 }
 
-/****************************************************************************/
-/*  Check if RFID tags are present                                          */
-/*  Function : check_rfid_devices                                           */
-/*      Parameters                                                          */
-/*          Input   :   Pointer to the structure containing for each tag    */
-/*                     the CHIP_ID (1 byte, random) and UID (8 bytes, fixed)*/
-/*          Output  :   Return the number of tags detected (maximum 16)     */
-/****************************************************************************/
+/**
+ * @brief Check if RFID tags are present
+ *
+ * @param [in] Pointer to the structure with, for each tag:
+ *               the CHIP_ID (1 byte, random) and UID (8 bytes, fixed)
+ * @return Number of tags detected (maximum 16)
+ */
 uint8_t check_rfid_devices(struct _tag_rfid *p_tag_rfid)
 {
   uint8_t dummy_tab[20];
@@ -216,7 +217,7 @@ uint8_t check_rfid_devices(struct _tag_rfid *p_tag_rfid)
   {
     //Turn OFF RFID
     close_rfid();
-    return FALSE;
+    return 0;
   }
 
   //Turn on detected sequence of tags
@@ -267,17 +268,17 @@ uint8_t check_rfid_devices(struct _tag_rfid *p_tag_rfid)
   return cmpt_tags;
 }
 
-/****************************************************************************/
-/*  Write data in EEPROM of selected TAG                                    */
-/*  Function : write_eeprom_rfid                                            */
-/*      Parameters                                                          */
-/*          Input   :   CHIP_ID of the TAG                                  */
-/*          Input   :   Reference of the block where writing.               */
-/*                      SRIX4K => 121 blocks from 0 to 120                  */
-/*          Input   :   pointer to the data to write                        */
-/*          Input   :   Number of bytes to write from 0 to 4                */
-/****************************************************************************/
-void write_eeprom_rfid(uint8_t chip_id, uint8_t num_block, uint8_t *data, uint8_t num_bytes)
+/**
+ * @brief Write data in EEPROM of selected TAG
+ *
+ * @param [in] chip_id   CHIP_ID of the TAG
+ * @param [in] num_block Reference of the block where to write
+ *                       SRIX4K => 121 blocks from 0 to 120
+ * @param [in] data      pointer to the data to write
+ * @param [in] num_bytes Number of bytes to write from 0 to 4
+ */
+void write_eeprom_rfid(uint8_t chip_id, uint8_t num_block,
+                       uint8_t *data, uint8_t num_bytes)
 {
   uint8_t dummy_tab[10];
   uint8_t dummy_cmpt;
@@ -289,7 +290,7 @@ void write_eeprom_rfid(uint8_t chip_id, uint8_t num_block, uint8_t *data, uint8_
 
   //Prepare command
   dummy_tab[0]=CRX14_IO_FRAME_REGISTER;
-  dummy_tab[1]=(uint8_t)(2+num_bytes);
+  dummy_tab[1]=2+num_bytes;
   dummy_tab[2]=0x09;
   dummy_tab[3]=num_block+7;
   for(dummy_cmpt=0; dummy_cmpt<num_bytes; dummy_cmpt++)
@@ -299,17 +300,17 @@ void write_eeprom_rfid(uint8_t chip_id, uint8_t num_block, uint8_t *data, uint8_
     __no_operation();
 }
 
-/****************************************************************************/
-/*  Read data in EEPROM of selected TAG                                     */
-/*  Function : read_eeprom_rfid                                             */
-/*      Parameters                                                          */
-/*          Input   :   CHIP_ID of the TAG                                  */
-/*          Input   :   Reference of the block where reading.               */
-/*                      SRIX4K => 121 blocks from 0 to 120                  */
-/*          Input   :   pointer to the returned data                        */
-/*          Input   :   Number of bytes to read from 0 to 4                 */
-/****************************************************************************/
-void read_eeprom_rfid(uint8_t chip_id, uint8_t num_block, uint8_t *data, uint8_t num_bytes)
+/**
+ * @brief Read data in EEPROM of selected TAG
+ *
+ * @param [in] chip_id   CHIP_ID of the TAG
+ * @param [in] num_block Reference of the block where to read
+ *                       SRIX4K => 121 blocks from 0 to 120
+ * @param [in] data      pointer to the returned data
+ * @param [in] num_bytes Number of bytes to read from 0 to 4
+ */
+void read_eeprom_rfid(uint8_t chip_id, uint8_t num_block,
+                      uint8_t *data, uint8_t num_bytes)
 {
   uint8_t dummy_tab[10];
   uint8_t dummy_cmpt;
@@ -348,17 +349,20 @@ uint8_t* get_rfid_first_device()
   i2cerror=0;
   nb_tag_detected=check_rfid_devices(tag_rfid);
   close_rfid();
-  if (i2cerror) return (uint8_t*)"Error";
-  if(nb_tag_detected) return (uint8_t*)&(tag_rfid[0].UID[0]);
+  if (i2cerror)
+    return (uint8_t*)"Error";
+  if(nb_tag_detected)
+    return (uint8_t*)&(tag_rfid[0].UID[0]);
   return NULL;
 }
 
-int32_t check_rfid_n()
+int8_t check_rfid_n()
 {
   i2cerror=0;
   nb_tag_detected=check_rfid_devices(tag_rfid);
   close_rfid();
-  if (i2cerror) return -1;
+  if (i2cerror)
+    return -1;
   return nb_tag_detected;
 }
 
@@ -370,7 +374,9 @@ uint8_t* get_nth_rfid(int32_t i)
 int32_t checkid(uint8_t* p, uint8_t* q,int32_t n)
 {
   int32_t i;
-  for(i=0;i<n;i++) if (p[i]!=q[i]) return 1;
+  for(i=0;i<n;i++)
+    if (p[i]!=q[i])
+      return 1;
   return 0;
 }
 
@@ -389,7 +395,7 @@ int32_t get_byuid(uint8_t* id)
   return -1;
 }
 
-int32_t rfid_read(uint8_t* id,int32_t bloc,uint8_t* data)
+int8_t rfid_read(uint8_t* id,int32_t bloc,uint8_t* data)
 {
   consolestr("rfid_read\n");
 //  dump(id,8);
@@ -415,7 +421,8 @@ int32_t rfid_read(uint8_t* id,int32_t bloc,uint8_t* data)
   close_rfid();
   return 0;
 }
-int32_t rfid_write(uint8_t* id,int32_t bloc,uint8_t* data)
+
+int8_t rfid_write(uint8_t* id,int32_t bloc,uint8_t* data)
 {
   i2cerror=0;
   nb_tag_detected=check_rfid_devices(tag_rfid);
@@ -434,40 +441,3 @@ int32_t rfid_write(uint8_t* id,int32_t bloc,uint8_t* data)
   close_rfid();
   return 0;
 }
-/*
-  while(1)
-  {
-    uint8_t nb_tag_detected;
-    uint8_t tab_rfid[4];
-
-    //Check if tag are present
-    //if yes get CHIP_ID (1byte) and UID (8bytes) in structure
-    nb_tag_detected=check_rfid_devices(tag_rfid);
-    if(nb_tag_detected)
-    {
-      //Prepare tab
-      tab_rfid[0]=0x12;
-      tab_rfid[1]=0x34;
-      tab_rfid[2]=0x56;
-      tab_rfid[3]=0x78;
-
-      //Write data in a specified block, 121 blocks of 4bytes
-      write_eeprom_rfid(tag_rfid[0].CHIP_ID, 0,tab_rfid, 4);
-
-      //Delay for EEPROM technology write
-      DelayMs(5);
-
-      //Clear tab
-      tab_rfid[0]=tab_rfid[1]=tab_rfid[2]=tab_rfid[3]=0;
-
-      //Read data from a specified block, 121 blocks of 4bytes
-      read_eeprom_rfid(tag_rfid[0].CHIP_ID, 0, tab_rfid, 4);
-
-      //Turn OFF RFID
-      close_rfid();
-    }
-    DelayMs(100);
-  }
-
-
-*/

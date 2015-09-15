@@ -1,3 +1,10 @@
+/**
+ * @file i2c.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Manage the I2C low-level access
+ */
 #ifndef _I2C_H_
 #define _I2C_H_
 

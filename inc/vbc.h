@@ -1,7 +1,10 @@
-// VLISP Virtual Machine - 2006 - by Sylvain Huet
-// Lowcost IS Powerfull
-
-
+/**
+ * @file vbc.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief VLISP Virtual Machine - Opcodes
+ */
 #define OPexec 0
 #define OPret 1
 #define OPintb 2

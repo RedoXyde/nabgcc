@@ -1,4 +1,11 @@
-#ifndef _AUDIO_H_
+/**
+ * @file audio.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Manage the audio chip, record and replay
+ */
+ #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
 #include "ml674061.h"

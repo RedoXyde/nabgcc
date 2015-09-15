@@ -1,11 +1,10 @@
-/*******************************************************************************
-    list.h
-    Copyright(C) 2003, Oki Electric Industry Co.,Ltd.
-      All rights reserved.
-
-    Mar.31,2003 rev1.00
-*******************************************************************************/
-
+/**
+ * @file list.h
+ * @author Oki Electric Industry Co.,Ltd. - 2003 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Linked list utils
+ */
 #ifndef _LIST_H_
 #define _LIST_H_
 
@@ -14,8 +13,7 @@ typedef struct _LIST_ENTRY {
 	struct _LIST_ENTRY *Flink;
 } LIST_ENTRY, *pLIST_ENTRY;
 
-#define DEFINE_LIST_ENTRY(entry) \
-LIST_ENTRY entry = {&(entry), &(entry)}
+#define DEFINE_LIST_ENTRY(entry) LIST_ENTRY entry = {&(entry), &(entry)}
 
 #define INIT_LIST_ENTRY(ptr) do { \
 	(ptr)->Flink = (ptr); (ptr)->Blink = (ptr); \

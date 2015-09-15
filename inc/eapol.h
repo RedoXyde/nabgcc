@@ -1,3 +1,10 @@
+/**
+ * @file eapol.h
+ * @author Sebastien Bourdeauducq - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Ralink RT2501 driver for Violet embedded platforms - EAPOL
+ */
 #ifndef _EAPOL_H_
 #define _EAPOL_H_
 

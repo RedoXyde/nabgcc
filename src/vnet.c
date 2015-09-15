@@ -3,7 +3,7 @@
  * @author Sylvain Huet - 2006 - Initial version
  * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
  * @date 2015/09/07
- * @brief VLISP Virtual Machine - Network function
+ * @brief VLISP Virtual Machine - Network functions
  */
 #include <stdint.h>
 #include <string.h>

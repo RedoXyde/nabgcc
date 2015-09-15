@@ -1,5 +1,10 @@
-// VLISP Virtual Machine - 2006 - by Sylvain Huet
-// Lowcost IS Powerfull
+/**
+ * @file vaudio.c
+ * @author Sylvain Huet - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief VLISP Virtual Machine - Audio functions
+ */
 #include <stdint.h>
 #include <string.h>
 #include"vmem.h"
@@ -565,7 +570,7 @@ void AudioWav2adp(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t is
 		l-=505*2;
 		n++;
 	}
-	if (l) return;// que des blocs de 505 échantillons 16 bits
+	if (l) return;// que des blocs de 505 Ã©chantillons 16 bits
 
 	if ((len>lsrc-isrc)||((n<<8)>ldst-idst)) return;
 //	printf("w2a%d\n",len);

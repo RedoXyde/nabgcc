@@ -1,14 +1,18 @@
+/**
+ * @file motor.c
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Motors low level access
+ */
 #include "ml674061.h"
 #include "common.h"
+
 #include "motor.h"
 
-/****************************************************************************/
-/*  Init the PWM module for driving the 2 DC brush motor and count position */
-/*  Function : init_pwm                                                     */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Init the PWM module to drive the 2 DC brush motor and count position
+ */
 void init_pwm(void)
 {
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
@@ -93,15 +97,13 @@ void init_pwm(void)
 #endif
 }
 
-/****************************************************************************/
-/*  Run a specified motor with speed and direction                          */
-/*  Function : run_motor                                                    */
-/*      Parameters                                                          */
-/*          Input   :   number of the motor                                 */
-/*          Input   :   Speed in 8bits, max is 0xFF                         */
-/*          Input   :   Direction of Rotation                               */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Run a specified motor with speed and direction
+ *
+ * @param [in] number   ID/Number of the motor
+ * @param [in] speed    Speed in 8bits, max is 0xFF
+ * @param [in] rotation Direction of Rotation
+ */
 void run_motor(uint8_t number, uint8_t speed, uint8_t rotation)
 {
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
@@ -197,13 +199,11 @@ void run_motor(uint8_t number, uint8_t speed, uint8_t rotation)
 #endif
 }
 
-/****************************************************************************/
-/*  Stop a specified motor                                                  */
-/*  Function : stop_motor                                                   */
-/*      Parameters                                                          */
-/*          Input   :   number of the motor                                 */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Stop a specified motor
+ *
+ * @param [in] number ID/Number of the motor
+ */
 void stop_motor(uint8_t number)
 {
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
@@ -245,13 +245,13 @@ if(number==1){
 #endif
 }
 
-/****************************************************************************/
-/*  Get the position of a specified motor (pulse counter timer on 16bits)   */
-/*  Function : get_motor_position                                           */
-/*      Parameters                                                          */
-/*          Input   :   number of the motor                                 */
-/*          Output  :   Return of the position in 16bits                    */
-/****************************************************************************/
+/**
+ * @brief Get the position of a specified motor (pulse counter timer on 16bits)
+ *
+ * @param [in] number ID/Number of the motor
+ *
+ * @return Position on 16bits
+ */
 uint16_t get_motor_position(uint8_t number)
 {
   if(number==1){

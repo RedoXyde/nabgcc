@@ -1,5 +1,12 @@
+/**
+ * @file sys.c
+ * @author RedoX <dev@redox.ws> - 2015
+ * @date 2015/09/07
+ * @brief Misc stuff for GCC port
+ */
 #include <stdio.h>
 #include <stdint.h>
+
 extern int32_t __heap_start__;
 extern int32_t __heap_end__;
 

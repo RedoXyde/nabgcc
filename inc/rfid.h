@@ -1,9 +1,12 @@
+/**
+ * @file rfid.h
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief RFID low level access
+ */
 #ifndef _RFID_H_
 #define _RFID_H_
-
-#include "ml674061.h"
-#include "common.h"
-#include "rfid.h"
 
 /********************/
 /* SPECIFIC DEFINES */
@@ -36,8 +39,10 @@ uint8_t  read_frame_rfid(uint8_t  *data, uint8_t  nb_bytes);
 uint8_t  completion_rfid(void);
 uint8_t  get_uid_rfid(void);
 uint8_t  check_rfid_devices(struct _tag_rfid *p_tag_rfid);
-void write_eeprom_rfid(uint8_t  chip_id, uint8_t  num_block, uint8_t  *data, uint8_t  num_bytes);
-void read_eeprom_rfid(uint8_t  chip_id, uint8_t  num_block, uint8_t  *data, uint8_t  num_bytes);
+void write_eeprom_rfid(uint8_t  chip_id, uint8_t  num_block,
+                       uint8_t  *data, uint8_t  num_bytes);
+void read_eeprom_rfid(uint8_t  chip_id, uint8_t  num_block,
+                      uint8_t  *data, uint8_t  num_bytes);
 
 uint8_t* get_rfid_first_device();
 

@@ -5,7 +5,6 @@
  * @date 2015/09/07
  * @brief MD5/SHA1 hash utils
  */
-
 #include <string.h>
 #include <stdint.h>
 

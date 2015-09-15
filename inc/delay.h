@@ -1,4 +1,11 @@
-#ifndef _DELAY_H_
+/**
+ * @file delay.h
+ * @author Oki Electric Industry Co., LTD. - 2005 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Delay utils
+ */
+ #ifndef _DELAY_H_
 #define _DELAY_H_
 
 /* Overflow in ms = ( 16 x (65536-value of TMRLR) ) / (SystemClock x 1000) */

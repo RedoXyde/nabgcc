@@ -1,6 +1,10 @@
-// VLISP Virtual Machine - 2006 - by Sylvain Huet
-// Lowcost IS Powerfull
-
+/**
+ * @file vmem.h
+ * @author Sylvain Huet - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief VLISP Virtual Machine - Memory functions
+ */
 #ifndef _MEMORY_
 #define _MEMORY_
 
@@ -47,7 +51,7 @@ void vmemGC();
 
 #define HEADER_LENGTH 3
 #define HEADER_SIZETYPE 0	// la taille contient le header
-#define HEADER_GC 1	// bit 0 : marquage, autres bits : adresse après GC
+#define HEADER_GC 1	// bit 0 : marquage, autres bits : adresse aprÃ¨s GC
 #define HEADER_LIST 2	// pile GC
 
 #define HEADER_TYPE(p) (vmem_heap[p]&1)
