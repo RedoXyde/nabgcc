@@ -8,9 +8,6 @@
  #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
-#include "ml674061.h"
-#include "common.h"
-
 /*******************/
 /* VS1003 commands */
 /*******************/

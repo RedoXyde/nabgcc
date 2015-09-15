@@ -10,7 +10,6 @@
 #ifndef _USBH_H_
 #define _USBH_H_
 
-#include "common.h"
 #include "list.h"
 
 #ifndef max

@@ -8,8 +8,6 @@
  #ifndef _DEBUG_H_
 #define _DEBUG_H
 
-#include <stdio.h>
-#include "uart.h"
 #include "vlog.h"
 
 extern char dbg_buffer[];
