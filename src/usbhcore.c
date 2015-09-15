@@ -8,8 +8,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "ml674061.h"
-#include "mem.h"
 #include "common.h"
+#include "mem.h"
 #include "usbh.h"
 #include "hcd.h"
 #include "debug.h"

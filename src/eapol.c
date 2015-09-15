@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "ml674061.h"
 #include "common.h"
 #include "mem.h"
 #include "hcdmem.h"

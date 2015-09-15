@@ -1,11 +1,10 @@
-/*******************************************************************************
-	ml60842.h
-
-	Copyright(C) 2003, Oki Electric Industry Co.,Ltd.
-	  All rights reserved.
-
-	Mar.31,2003 rev1.00
-*******************************************************************************/
+/**
+ * @file ml60842.h
+ * @author Oki Electric Industry Co., LTD. - 2003 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief ML60842 Chip definitions
+ */
 #ifndef _ML60842_H_
 #define	_ML60842_H_
 
@@ -136,35 +135,35 @@
   #define OHCI_INTR_OC      (1ul << 30)         /* ownership change */
   #define OHCI_INTR_MIE     (1ul << 31)         /* master interrupt enable */
 
-#define HcHCCA_addr			0x118		/* 僐儈儏僯働乕僔儑儞僄儕傾傾僪儗僗儗僕僗僞 */
+#define HcHCCA_addr			0x118		/* 聝R聝~聝聟聝j聝P聛[聝V聝聡聝聯聝G聝聤聝A聝A聝h聝聦聝X聝聦聝W聝X聝^ */
 
-#define HcPeriodCurrentED_addr		0x11C		/* 廃婜揮憲僇儗儞僩ED儗僕僗僞 */
+#define HcPeriodCurrentED_addr		0x11C		/* 聨眉聤煤聯]聭聴聝J聝聦聝聯聝gED聝聦聝W聝X聝^ */
 
-#define HcControlHeadED_addr		0x120		/* 僐儞僩儘乕儖揮憲僿僢僪ED儗僕僗僞 */
+#define HcControlHeadED_addr		0x120		/* 聝R聝聯聝g聝聧聛[聝聥聯]聭聴聝w聝b聝hED聝聦聝W聝X聝^ */
 
-#define HcControlCurrentED_addr		0x124		/* 僐儞僩儘乕儖揮憲僇儗儞僩ED儗僕僗僞 */
+#define HcControlCurrentED_addr		0x124		/* 聝R聝聯聝g聝聧聛[聝聥聯]聭聴聝J聝聦聝聯聝gED聝聦聝W聝X聝^ */
 
-#define HcBulkHeadED_addr		0x128		/* 僶儖僋揮憲僿僢僪ED儗僕僗僞 */
+#define HcBulkHeadED_addr		0x128		/* 聝o聝聥聝N聯]聭聴聝w聝b聝hED聝聦聝W聝X聝^ */
 
-#define HcBulkCurrentED_addr		0x12C		/* 僶儖僋揮憲僇儗儞僩ED儗僕僗僞 */
+#define HcBulkCurrentED_addr		0x12C		/* 聝o聝聥聝N聯]聭聴聝J聝聦聝聯聝gED聝聦聝W聝X聝^ */
 
-#define HcDoneHead_addr			0x130		/* 揮憲姰椆僿僢僪儗僕僗僞 */
-
-
-
-#define HcFmInterval_addr		0x134		/* 僼儗乕儉僀儞僞乕僶儖儗僕僗僞 */
-
-#define HcFmRemaining_addr		0x138		/* 僼儗乕儉儕儊僀儞儗僕僗僞 */
-
-#define HcFmNumber_addr			0x13C		/* 僼儗乕儉僫儞僶儗僕僗僞 */
-
-#define HcPeriodicStart_addr		0x140		/* 廃婜揮憲僗僞乕僩巜掕儗僕僗僞 */
-
-#define HcLSThreshold_addr		0x144		/* 儘乕僗僺乕僪僗儗僢僔儏儂乕儖僪儗僕僗僞 */
+#define HcDoneHead_addr			0x130		/* 聯]聭聴聤庐聴鹿聝w聝b聝h聝聦聝W聝X聝^ */
 
 
 
-#define HcRhDescriptorA_addr		0x148		/* 儖乕僩僴僽僨傿僗僋儕僾僞A儗僕僗僞 */
+#define HcFmInterval_addr		0x134		/* 聝t聝聦聛[聝聙聝C聝聯聝^聛[聝o聝聥聝聦聝W聝X聝^ */
+
+#define HcFmRemaining_addr		0x138		/* 聝t聝聦聛[聝聙聝聤聝聛聝C聝聯聝聦聝W聝X聝^ */
+
+#define HcFmNumber_addr			0x13C		/* 聝t聝聦聛[聝聙聝i聝聯聝o聝聦聝W聝X聝^ */
+
+#define HcPeriodicStart_addr		0x140		/* 聨眉聤煤聯]聭聴聝X聝^聛[聝g聨w聮猫聝聦聝W聝X聝^ */
+
+#define HcLSThreshold_addr		0x144		/* 聝聧聛[聝X聝s聛[聝h聝X聝聦聝b聝V聝聟聝z聛[聝聥聝h聝聦聝W聝X聝^ */
+
+
+
+#define HcRhDescriptorA_addr		0x148		/* 聝聥聛[聝g聝n聝u聝f聝B聝X聝N聝聤聝v聝^A聝聦聝W聝X聝^ */
   #define RH_A_NDP          0x000000fful          /* number of downstream ports */
   #define RH_A_PSM          0x00000100ul          /* power switching mode */
   #define RH_A_NPS          0x00000100ul          /* no power switching */
@@ -173,11 +172,11 @@
   #define RH_A_NOCP         0x00000800ul          /* no over current protection */
   #define RH_A_POTPGT       0xff000000ul          /* power on to power good time */
 
-#define HcRhDescriptorB_addr		0x14C		/* 儖乕僩僴僽僨傿僗僋儕僾僞B儗僕僗僞 */
+#define HcRhDescriptorB_addr		0x14C		/* 聝聥聛[聝g聝n聝u聝f聝B聝X聝N聝聤聝v聝^B聝聦聝W聝X聝^ */
   #define RH_B_DR           0x0000fffful          /* device removable flags */
   #define RH_B_PPCM         0xffff0000ul          /* port power control mask */
 
-#define HcRhStatus_addr			0x150		/* 儖乕僩僴僽僗僥乕僞僗儗僕僗僞 */
+#define HcRhStatus_addr			0x150		/* 聝聥聛[聝g聝n聝u聝X聝e聛[聝^聝X聝聦聝W聝X聝^ */
   #define RH_HS_LPS         0x00000001ul          /* local power status */
   #define RH_HS_OCI         0x00000002ul          /* over current indicator */
   #define RH_HS_DRWE        0x00008000ul          /* device remote wakeup enable */
@@ -185,7 +184,7 @@
   #define RH_HS_OCIC        0x00020000ul          /* over current indicator change */
   #define RH_HS_CRWE        0x80000000ul          /* clear remote wakeup enable */
 
-#define HcRhPortStatus_addr		0x154		/* 儖乕僩僴僽億乕僩1僗僥乕僞僗儗僕僗僞 */
+#define HcRhPortStatus_addr		0x154		/* 聝聥聛[聝g聝n聝u聝|聛[聝g1聝X聝e聛[聝^聝X聝聦聝W聝X聝^ */
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
   #define RH_PS_CCS         0x00000001ul          /* current connect status */
   #define RH_PS_PES         0x00000002ul          /* port enable status */
@@ -205,60 +204,60 @@
 #define ComRAMSize      	(0x1000)
 
 
-#define HostCtl_addr			0x200	/* Host Control 儗僕僗僞 */
+#define HostCtl_addr			0x200	/* Host Control 聝聦聝W聝X聝^ */
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
-#define	B_DMAIRQ_MASK		0x00000001ul  /* 儂僗僩僨乕僞揮憲儅僗僋 */
-#define	B_OHCIIRQ_MASK		0x00000002ul  /* 儂僗僩僐傾妱傝崬傒儅僗僋 */
-#define	B_DREQMSK   		0x00000008ul  /* PIO揮憲 */
-#define	B_TRNSTERM   		0x00000080ul  /* 揮憲廔寢 */
+#define	B_DMAIRQ_MASK		0x00000001ul  /* 聝z聝X聝g聝f聛[聝^聯]聭聴聝}聝X聝N */
+#define	B_OHCIIRQ_MASK		0x00000002ul  /* 聝z聝X聝g聝R聝A聤聞聜猫聧聻聜脻聝}聝X聝N */
+#define	B_DREQMSK   		0x00000008ul  /* PIO聯]聭聴 */
+#define	B_TRNSTERM   		0x00000080ul  /* 聯]聭聴聫I聦聥 */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
-#define SttTrnsCnt_addr			0x204		/* Status, RD/WR FIFO 揮憲挿儗僕僗僞 */
+#define SttTrnsCnt_addr			0x204		/* Status, RD/WR FIFO 聯]聭聴聮路聝聦聝W聝X聝^ */
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
-#define	B_DMAIRQ    		0x00000001ul  /* 儂僗僩僨乕僞揮憲妱傝崬傒偁傝 */
-#define	B_OHCIIRQ   		0x00000002ul  /* 儂僗僩僐傾妱傝崬傒偁傝 */
+#define	B_DMAIRQ    		0x00000001ul  /* 聝z聝X聝g聝f聛[聝^聯]聭聴聤聞聜猫聧聻聜脻聜聽聜猫 */
+#define	B_OHCIIRQ   		0x00000002ul  /* 聝z聝X聝g聝R聝A聤聞聜猫聧聻聜脻聜聽聜猫 */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
-#define HostDataTrnsReq_addr		0x208		/* 儂僗僩僨乕僞揮憲儕僋僄僗僩儗僕僗僞 */
+#define HostDataTrnsReq_addr		0x208		/* 聝z聝X聝g聝f聛[聝^聯]聭聴聝聤聝N聝G聝X聝g聝聦聝W聝X聝^ */
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 #define	B_DMADIR    		0x00000001ul  /* CPU->LSI */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
-#define RamAdr_addr			0x20C		/* 撪晹RAM傾僪儗僗愝掕梡儗僕僗僞 */
+#define RamAdr_addr			0x20C		/* 聯脿聲聰RAM聝A聝h聝聦聝X聬脻聮猫聴p聝聦聝W聝X聝^ */
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
-#define	B_IRAMBASEACT  		0x00000001ul  /* 傾僋僙僗偁傝 */
+#define	B_IRAMBASEACT  		0x00000001ul  /* 聝A聝N聝Z聝X聜聽聜猫 */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
-#define FifoAcc_addr		0x240		/* FIFO傾僋僙僗儗僕僗僞 */
+#define FifoAcc_addr		0x240		/* FIFO聝A聝N聝Z聝X聝聦聝W聝X聝^ */
 
 /* 2.1	fifos */
-#define	EP0TXFIFO_addr		0x400		/* EP0 憲怣FIFO僨乕僞 LSB */
-#define	EP0RXFIFO_addr		0x404		/* EP0 庴怣FIFO僨乕僞 LSB */
-#define	EP1FIFO_addr		0x410		/* EP1 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP2FIFO_addr		0x420		/* EP2 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP3FIFO_addr		0x430		/* EP3 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP4FIFO_addr		0x440		/* EP4 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP5FIFO_addr		0x450		/* EP5 憲怣/庴怣FIFO僨乕僞 LSB */
+#define	EP0TXFIFO_addr		0x400		/* EP0 聭聴聬MFIFO聝f聛[聝^ LSB */
+#define	EP0RXFIFO_addr		0x404		/* EP0 聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP1FIFO_addr		0x410		/* EP1 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP2FIFO_addr		0x420		/* EP2 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP3FIFO_addr		0x430		/* EP3 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP4FIFO_addr		0x440		/* EP4 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP5FIFO_addr		0x450		/* EP5 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
 
-#define	EP0TXFIFOLSB_addr	0x400		/* EP0 憲怣FIFO僨乕僞 LSB */
-#define	EP0TXFIFOMSB_addr	0x402		/* EP0 庴怣FIFO僨乕僞 MSB */
-#define	EP0RXFIFOLSB_addr	0x404		/* EP0 庴怣FIFO僨乕僞 LSB */
-#define	EP0RXFIFOMSB_addr	0x408		/* EP0 庴怣FIFO僨乕僞 MSB */
-#define	EP1FIFOLSB_addr		0x410		/* EP1 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP1FIFOMSB_addr		0x41C		/* EP1 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP2FIFOLSB_addr		0x420		/* EP2 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP2FIFOMSB_addr		0x42C		/* EP2 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP3FIFOLSB_addr		0x430		/* EP3 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP3FIFOMSB_addr		0x43C		/* EP3 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP4FIFOLSB_addr		0x440		/* EP4 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP4FIFOMSB_addr		0x44C		/* EP4 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP5FIFOLSB_addr		0x450		/* EP5 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP5FIFOMSB_addr		0x45C		/* EP5 憲怣/庴怣FIFO僨乕僞 MSB */
+#define	EP0TXFIFOLSB_addr	0x400		/* EP0 聭聴聬MFIFO聝f聛[聝^ LSB */
+#define	EP0TXFIFOMSB_addr	0x402		/* EP0 聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP0RXFIFOLSB_addr	0x404		/* EP0 聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP0RXFIFOMSB_addr	0x408		/* EP0 聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP1FIFOLSB_addr		0x410		/* EP1 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP1FIFOMSB_addr		0x41C		/* EP1 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP2FIFOLSB_addr		0x420		/* EP2 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP2FIFOMSB_addr		0x42C		/* EP2 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP3FIFOLSB_addr		0x430		/* EP3 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP3FIFOMSB_addr		0x43C		/* EP3 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP4FIFOLSB_addr		0x440		/* EP4 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP4FIFOMSB_addr		0x44C		/* EP4 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP5FIFOLSB_addr		0x450		/* EP5 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP5FIFOMSB_addr		0x45C		/* EP5 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
 
 
 /* 2.2	Common control and status registers */
-#define	DVCADR_addr			0x308		/* 僨僶僀僗傾僪儗僗 */
-#define	FRAME_addr			0x30C		/* 僼儗乕儉斣崋 */
+#define	DVCADR_addr			0x308		/* 聝f聝o聝C聝X聝A聝h聝聦聝X */
+#define	FRAME_addr			0x30C		/* 聝t聝聦聛[聝聙聰脭聧聠 */
 
 /* 2.3	8-byes setup registers */
 #define	SETUP0W_addr			0x300
@@ -272,52 +271,52 @@
 #define	INTSTAT_addr			0x310
 #define	INTENBL_addr			0x314
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
-#define	B_SETUP_RDY_INT			0x0100ul		/* 僙僢僩傾僢僾儗僨傿妱傝崬傒 */
-#define	B_EP1PKTRDY_INT			0x0200ul		/* EP1僷働僢僩儗僨傿妱傝崬傒 */
-#define	B_EP2PKTRDY_INT			0x0400ul	/* EP2僷働僢僩儗僨傿妱傝崬傒 */
-#define	B_EP3PKTRDY_INT			0x0800ul		/* EP3僷働僢僩儗僨傿妱傝崬傒 */
-#define	B_EP4PKTRDY_INT			0x1000ul		/* EP4僷働僢僩儗僨傿妱傝崬傒 */
-#define	B_EP5PKTRDY_INT			0x2000ul		/* EP5僷働僢僩儗僨傿妱傝崬傒 */
-#define	B_EP0RXPKTRDY_INT		0x4000ul		/* EP0庴怣僷働僢僩儗僨傿妱傝崬傒 */
-#define	B_EP0TXPKTRDY_INT		0x8000ul		/* EP0憲怣僷働僢僩儗僨傿妱傝崬傒 */
-#define	B_SOF_INT				0x0001ul		/* SOF妱崬傒 */
-#define	B_BUS_RESET_INT			0x0002ul		/* USB僶僗儕僙僢僩A僒乕僩妱崬傒 */
-#define	B_BUS_RESET_DES_INT		0x0004ul		/* USB僶僗儕僙僢僩f傾僒乕僩妱崬傒 */
-#define	B_SUSPENDED_STATE_INT	0x0008ul		/* 僒僗儁儞僨僢僪僗僥乕僩妱傝崬傒 */
-#define	B_AWAKE_INT				0x0010ul		/* 僨僶僀僗傾僂僃僀僋僗僥乕僩妱崬傒 */
+#define	B_SETUP_RDY_INT			0x0100ul		/* 聝Z聝b聝g聝A聝b聝v聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_EP1PKTRDY_INT			0x0200ul		/* EP1聝p聝P聝b聝g聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_EP2PKTRDY_INT			0x0400ul	/* EP2聝p聝P聝b聝g聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_EP3PKTRDY_INT			0x0800ul		/* EP3聝p聝P聝b聝g聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_EP4PKTRDY_INT			0x1000ul		/* EP4聝p聝P聝b聝g聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_EP5PKTRDY_INT			0x2000ul		/* EP5聝p聝P聝b聝g聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_EP0RXPKTRDY_INT		0x4000ul		/* EP0聨贸聬M聝p聝P聝b聝g聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_EP0TXPKTRDY_INT		0x8000ul		/* EP0聭聴聬M聝p聝P聝b聝g聝聦聝f聝B聤聞聜猫聧聻聜脻 */
+#define	B_SOF_INT				0x0001ul		/* SOF聤聞聧聻聜脻 */
+#define	B_BUS_RESET_INT			0x0002ul		/* USB聝o聝X聝聤聝Z聝b聝g楼聝A聝T聛[聝g聤聞聧聻聜脻 */
+#define	B_BUS_RESET_DES_INT		0x0004ul		/* USB聝o聝X聝聤聝Z聝b聝g楼聝f聝A聝T聛[聝g聤聞聧聻聜脻 */
+#define	B_SUSPENDED_STATE_INT	0x0008ul		/* 聝T聝X聝y聝聯聝f聝b聝h聝X聝e聛[聝g聤聞聜猫聧聻聜脻 */
+#define	B_AWAKE_INT				0x0010ul		/* 聝f聝o聝C聝X聝A聝E聝F聝C聝N聝X聝e聛[聝g聤聞聧聻聜脻 */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
 #define	SYSCON_addr			0x318
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
-#define	B_SOFT_RESET			0x01ul		/* 僜僼僩儕僙僢僩 */
-#define	B_PWDWN_MODE			0x02ul		/* 僷儚乕僟僂儞儌乕僪 */
-#define	B_EP_MODE				0x04ul		/* EP儌乕僪 0=6EP,1=5EP */
-#define	B_PULLUP_CTRL			0x08ul		/* 僾儖傾僢僾惂屼 */
-#define	B_REMOTE_WAKEUP			0x10ul		/* 儕儌乕僩僂僃僀僋傾僢僾 */
-#define	B_CLK_CTL				0x80ul		/* 僨僶僀僗晹偺僋儘僢僋掆巭 */
+#define	B_SOFT_RESET			0x01ul		/* 聝\聝t聝g聝聤聝Z聝b聝g */
+#define	B_PWDWN_MODE			0x02ul		/* 聝p聝聫聛[聝_聝E聝聯聝聜聛[聝h */
+#define	B_EP_MODE				0x04ul		/* EP聝聜聛[聝h 0=6EP,1=5EP */
+#define	B_PULLUP_CTRL			0x08ul		/* 聝v聝聥聝A聝b聝v聬搂聦盲 */
+#define	B_REMOTE_WAKEUP			0x10ul		/* 聝聤聝聜聛[聝g聝E聝F聝C聝N聝A聝b聝v */
+#define	B_CLK_CTL				0x80ul		/* 聝f聝o聝C聝X聲聰聜脤聝N聝聧聝b聝N聮芒聨~ */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
 /* 2.6 DMA settings */
 #define	DMA0CON_addr			0x320
 #define	DMA1CON_addr			0x324
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
-#define	B_DMA_ENABLE			0x01ul		/* DMA僀僱乕僽儖 */
-#define	B_BYTE_COUNT			0x04ul		/* 僶僀僩僇僂儞僩 */
-#define	F_DMA_EP1				0x00ul		/* EP1傪DMA偺懳徾偲偡傞 */
-#define	F_DMA_EP2				0x20ul		/* EP2傪DMA偺懳徾偲偡傞 */
-#define	F_DMA_EP4				0x40ul		/* EP4傪DMA偺懳徾偲偡傞 */
-#define	F_DMA_EP5				0x60ul		/* EP5傪DMA偺懳徾偲偡傞 */
+#define	B_DMA_ENABLE			0x01ul		/* DMA聝C聝l聛[聝u聝聥 */
+#define	B_BYTE_COUNT			0x04ul		/* 聝o聝C聝g聝J聝E聝聯聝g */
+#define	F_DMA_EP1				0x00ul		/* EP1聜冒DMA聜脤聭脦聫脹聜脝聜路聜茅 */
+#define	F_DMA_EP2				0x20ul		/* EP2聜冒DMA聜脤聭脦聫脹聜脝聜路聜茅 */
+#define	F_DMA_EP4				0x40ul		/* EP4聜冒DMA聜脤聭脦聫脹聜脝聜路聜茅 */
+#define	F_DMA_EP5				0x60ul		/* EP5聜冒DMA聜脤聭脦聫脹聜脝聜路聜茅 */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
 
 /* 2.7 Endpoint controls */
 /*;;;;;;;;;;;;;;;;;;;;;;;Bit Field Definition ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
-#define	B_CONFIG					0x10ul		/* 僐儞僼傿僌儗乕僔儑儞價僢僩 */
-#define B_STALL						0x01ul		/* 僗僩乕儖價僢僩 */
-#define	B_DATA_SEQUENCE				0x02ul		/* 僨乕僞僔乕働儞僗丒僩僌儖價僢僩 */
-#define B_CLR_FIFO					0x04ul		/* FIFO僋儕傾 */
-#define B_RECV_PKTRDY				0x01ul		/* 庴怣僷働僢僩儗僨傿 */
-#define B_TRNS_PKTRDY				0x02ul		/* 憲怣僷働僢僩儗僨傿 */
+#define	B_CONFIG					0x10ul		/* 聝R聝聯聝t聝B聝O聝聦聛[聝V聝聡聝聯聝r聝b聝g */
+#define B_STALL						0x01ul		/* 聝X聝g聛[聝聥聝r聝b聝g */
+#define	B_DATA_SEQUENCE				0x02ul		/* 聝f聛[聝^聝V聛[聝P聝聯聝X聛E聝g聝O聝聥聝r聝b聝g */
+#define B_CLR_FIFO					0x04ul		/* FIFO聝N聝聤聝A */
+#define B_RECV_PKTRDY				0x01ul		/* 聨贸聬M聝p聝P聝b聝g聝聦聝f聝B */
+#define B_TRNS_PKTRDY				0x02ul		/* 聭聴聬M聝p聝P聝b聝g聝聦聝f聝B */
 /*;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;*/
 
 /* 2.7.1 EP0 controls */
@@ -399,69 +398,69 @@
 /********************************************************************************/
 /* Open Host Control Register                                                   */
 /********************************************************************************/
-/*<<<<  OHCI惂屼梡儗僕僗僞=====*/
+/*<<<<  OHCI聬搂聦盲聴p聝聦聝W聝X聝^=====*/
 #define HcRevision	(HcRevision_addr + USB_REG_BASE_ADDR)
-#define HcControl	(HcControl_addr + USB_REG_BASE_ADDR)	/* 僐儞僩儘乕儖儗僕僗僞 */
-#define HcCommandStatus	(HcCommandStatus_addr + USB_REG_BASE_ADDR)	/* 僐儅儞僪僗僥乕僞僗儗僕僗僞 */
-#define HcInterruptStatus	(HcInterruptStatus_addr + USB_REG_BASE_ADDR)	/* 妱傝崬傒僗僥乕僞僗儗僕僗僞 */
+#define HcControl	(HcControl_addr + USB_REG_BASE_ADDR)	/* 聝R聝聯聝g聝聧聛[聝聥聝聦聝W聝X聝^ */
+#define HcCommandStatus	(HcCommandStatus_addr + USB_REG_BASE_ADDR)	/* 聝R聝}聝聯聝h聝X聝e聛[聝^聝X聝聦聝W聝X聝^ */
+#define HcInterruptStatus	(HcInterruptStatus_addr + USB_REG_BASE_ADDR)	/* 聤聞聜猫聧聻聜脻聝X聝e聛[聝^聝X聝聦聝W聝X聝^ */
 
-#define HcInterruptEnable	(HcInterruptEnable_addr + USB_REG_BASE_ADDR)	/* 妱傝崬傒嫋壜儗僕僗僞 */
-#define HcInterruptDisable	(HcInterruptDisable_addr + USB_REG_BASE_ADDR)	/* 妱傝崬傒嬛巭儗僕僗僞 */
-#define HcHCCA	(HcHCCA_addr + USB_REG_BASE_ADDR)	/* 僐儈儏僯働乕僔儑儞僄儕傾傾僪儗僗儗僕僗僞 */
-#define HcPeriodCurrentED	(HcPeriodCurrentED_addr + USB_REG_BASE_ADDR)	/* 廃婜揮憲僇儗儞僩ED儗僕僗僞 */
+#define HcInterruptEnable	(HcInterruptEnable_addr + USB_REG_BASE_ADDR)	/* 聤聞聜猫聧聻聜脻聥聳聣脗聝聦聝W聝X聝^ */
+#define HcInterruptDisable	(HcInterruptDisable_addr + USB_REG_BASE_ADDR)	/* 聤聞聜猫聧聻聜脻聥脰聨~聝聦聝W聝X聝^ */
+#define HcHCCA	(HcHCCA_addr + USB_REG_BASE_ADDR)	/* 聝R聝~聝聟聝j聝P聛[聝V聝聡聝聯聝G聝聤聝A聝A聝h聝聦聝X聝聦聝W聝X聝^ */
+#define HcPeriodCurrentED	(HcPeriodCurrentED_addr + USB_REG_BASE_ADDR)	/* 聨眉聤煤聯]聭聴聝J聝聦聝聯聝gED聝聦聝W聝X聝^ */
 
-#define HcControlHeadED	(HcControlHeadED_addr + USB_REG_BASE_ADDR)	/* 僐儞僩儘乕儖揮憲僿僢僪ED儗僕僗僞 */
-#define HcControlCurrentED	(HcControlCurrentED_addr + USB_REG_BASE_ADDR)	/* 僐儞僩儘乕儖揮憲僇儗儞僩ED儗僕僗僞 */
-#define HcBulkHeadED	(HcBulkHeadED_addr + USB_REG_BASE_ADDR)	/* 僶儖僋揮憲僿僢僪ED儗僕僗僞 */
-#define HcBulkCurrentED	(HcBulkCurrentED_addr + USB_REG_BASE_ADDR)	/* 僶儖僋揮憲僇儗儞僩ED儗僕僗僞 */
+#define HcControlHeadED	(HcControlHeadED_addr + USB_REG_BASE_ADDR)	/* 聝R聝聯聝g聝聧聛[聝聥聯]聭聴聝w聝b聝hED聝聦聝W聝X聝^ */
+#define HcControlCurrentED	(HcControlCurrentED_addr + USB_REG_BASE_ADDR)	/* 聝R聝聯聝g聝聧聛[聝聥聯]聭聴聝J聝聦聝聯聝gED聝聦聝W聝X聝^ */
+#define HcBulkHeadED	(HcBulkHeadED_addr + USB_REG_BASE_ADDR)	/* 聝o聝聥聝N聯]聭聴聝w聝b聝hED聝聦聝W聝X聝^ */
+#define HcBulkCurrentED	(HcBulkCurrentED_addr + USB_REG_BASE_ADDR)	/* 聝o聝聥聝N聯]聭聴聝J聝聦聝聯聝gED聝聦聝W聝X聝^ */
 
-#define HcDoneHead	(HcDoneHead_addr + USB_REG_BASE_ADDR)	/* 揮憲姰椆僿僢僪儗僕僗僞 */
-#define HcFmInterval	(HcFmInterval_addr + USB_REG_BASE_ADDR)	/* 僼儗乕儉僀儞僞乕僶儖儗僕僗僞 */
-#define HcFmRemaining	(HcFmRemaining_addr + USB_REG_BASE_ADDR)	/* 僼儗乕儉儕儊僀儞儗僕僗僞 */
-#define HcFmNumber	(HcFmNumber_addr + USB_REG_BASE_ADDR)	/* 僼儗乕儉僫儞僶儗僕僗僞 */
+#define HcDoneHead	(HcDoneHead_addr + USB_REG_BASE_ADDR)	/* 聯]聭聴聤庐聴鹿聝w聝b聝h聝聦聝W聝X聝^ */
+#define HcFmInterval	(HcFmInterval_addr + USB_REG_BASE_ADDR)	/* 聝t聝聦聛[聝聙聝C聝聯聝^聛[聝o聝聥聝聦聝W聝X聝^ */
+#define HcFmRemaining	(HcFmRemaining_addr + USB_REG_BASE_ADDR)	/* 聝t聝聦聛[聝聙聝聤聝聛聝C聝聯聝聦聝W聝X聝^ */
+#define HcFmNumber	(HcFmNumber_addr + USB_REG_BASE_ADDR)	/* 聝t聝聦聛[聝聙聝i聝聯聝o聝聦聝W聝X聝^ */
 
-#define HcPeriodicStart	(HcPeriodicStart_addr + USB_REG_BASE_ADDR)	/* 廃婜揮憲僗僞乕僩巜掕儗僕僗僞 */
-#define HcLSThreshold	(HcLSThreshold_addr + USB_REG_BASE_ADDR)	/* 儘乕僗僺乕僪僗儗僢僔儏儂乕儖僪儗僕僗僞 */
-#define HcRhDescriptorA	(HcRhDescriptorA_addr + USB_REG_BASE_ADDR)	/* 儖乕僩僴僽僨傿僗僋儕僾僞A儗僕僗僞 */
-#define HcRhDescriptorB	(HcRhDescriptorB_addr + USB_REG_BASE_ADDR)	/* 儖乕僩僴僽僨傿僗僋儕僾僞B儗僕僗僞 */
+#define HcPeriodicStart	(HcPeriodicStart_addr + USB_REG_BASE_ADDR)	/* 聨眉聤煤聯]聭聴聝X聝^聛[聝g聨w聮猫聝聦聝W聝X聝^ */
+#define HcLSThreshold	(HcLSThreshold_addr + USB_REG_BASE_ADDR)	/* 聝聧聛[聝X聝s聛[聝h聝X聝聦聝b聝V聝聟聝z聛[聝聥聝h聝聦聝W聝X聝^ */
+#define HcRhDescriptorA	(HcRhDescriptorA_addr + USB_REG_BASE_ADDR)	/* 聝聥聛[聝g聝n聝u聝f聝B聝X聝N聝聤聝v聝^A聝聦聝W聝X聝^ */
+#define HcRhDescriptorB	(HcRhDescriptorB_addr + USB_REG_BASE_ADDR)	/* 聝聥聛[聝g聝n聝u聝f聝B聝X聝N聝聤聝v聝^B聝聦聝W聝X聝^ */
 
 #define HcRhStatus	(HcRhStatus_addr + USB_REG_BASE_ADDR)
 #define HcRhPortStatus	(HcRhPortStatus_addr + USB_REG_BASE_ADDR)
 
-#define HostCtl	(HostCtl_addr + USB_REG_BASE_ADDR)	/* Host Control 儗僕僗僞 */
-#define SttTrnsCnt	(SttTrnsCnt_addr + USB_REG_BASE_ADDR)	/* Status, RD/WR FIFO 揮憲挿儗僕僗僞 */
-#define HostDataTrnsReq	(HostDataTrnsReq_addr + USB_REG_BASE_ADDR)	/* 儂僗僩僨乕僞揮憲儕僋僄僗僩儗僕僗僞 */
-#define RamAdr	(RamAdr_addr + USB_REG_BASE_ADDR)	/* 撪晹RAM傾僪儗僗愝掕梡儗僕僗僞 */
-#define FifoAcc	(FifoAcc_addr + USB_REG_BASE_ADDR)	/* FIFO傾僋僙僗儗僕僗僞 */
+#define HostCtl	(HostCtl_addr + USB_REG_BASE_ADDR)	/* Host Control 聝聦聝W聝X聝^ */
+#define SttTrnsCnt	(SttTrnsCnt_addr + USB_REG_BASE_ADDR)	/* Status, RD/WR FIFO 聯]聭聴聮路聝聦聝W聝X聝^ */
+#define HostDataTrnsReq	(HostDataTrnsReq_addr + USB_REG_BASE_ADDR)	/* 聝z聝X聝g聝f聛[聝^聯]聭聴聝聤聝N聝G聝X聝g聝聦聝W聝X聝^ */
+#define RamAdr	(RamAdr_addr + USB_REG_BASE_ADDR)	/* 聯脿聲聰RAM聝A聝h聝聦聝X聬脻聮猫聴p聝聦聝W聝X聝^ */
+#define FifoAcc	(FifoAcc_addr + USB_REG_BASE_ADDR)	/* FIFO聝A聝N聝Z聝X聝聦聝W聝X聝^ */
 
 
 /* 2.1	fifos */
-#define	EP0TXFIFO	(EP0TXFIFO_addr + USB_REG_BASE_ADDR)	/* EP0 憲怣FIFO僨乕僞 */
-#define	EP0RXFIFO	(EP0RXFIFO_addr + USB_REG_BASE_ADDR)	/* EP0 庴怣FIFO僨乕僞 */
-#define	EP1FIFO	(EP1FIFO_addr + USB_REG_BASE_ADDR)	/* EP1 憲怣/庴怣FIFO僨乕僞 */
-#define	EP2FIFO	(EP2FIFO_addr + USB_REG_BASE_ADDR)	/* EP2 憲怣/庴怣FIFO僨乕僞 */
-#define	EP3FIFO	(EP3FIFO_addr + USB_REG_BASE_ADDR)	/* EP3 憲怣/庴怣FIFO僨乕僞 */
-#define	EP4FIFO	(EP4FIFO_addr + USB_REG_BASE_ADDR)	/* EP4 憲怣/庴怣FIFO僨乕僞 */
-#define	EP5FIFO	(EP5FIFO_addr + USB_REG_BASE_ADDR)	/* EP5 憲怣/庴怣FIFO僨乕僞 */
+#define	EP0TXFIFO	(EP0TXFIFO_addr + USB_REG_BASE_ADDR)	/* EP0 聭聴聬MFIFO聝f聛[聝^ */
+#define	EP0RXFIFO	(EP0RXFIFO_addr + USB_REG_BASE_ADDR)	/* EP0 聨贸聬MFIFO聝f聛[聝^ */
+#define	EP1FIFO	(EP1FIFO_addr + USB_REG_BASE_ADDR)	/* EP1 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ */
+#define	EP2FIFO	(EP2FIFO_addr + USB_REG_BASE_ADDR)	/* EP2 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ */
+#define	EP3FIFO	(EP3FIFO_addr + USB_REG_BASE_ADDR)	/* EP3 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ */
+#define	EP4FIFO	(EP4FIFO_addr + USB_REG_BASE_ADDR)	/* EP4 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ */
+#define	EP5FIFO	(EP5FIFO_addr + USB_REG_BASE_ADDR)	/* EP5 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ */
 
-#define	EP0TXFIFOLSB	(EP0TXFIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP0 憲怣FIFO僨乕僞 LSB */
-#define	EP0TXFIFOMSB	(EP0TXFIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP0 庴怣FIFO僨乕僞 MSB */
-#define	EP0RXFIFOLSB	(EP0RXFIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP0 庴怣FIFO僨乕僞 LSB */
-#define	EP0RXFIFOMSB	(EP0RXFIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP0 庴怣FIFO僨乕僞 MSB */
-#define	EP1FIFOLSB	(EP1FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP1 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP1FIFOMSB	(EP1FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP1 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP2FIFOLSB	(EP2FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP2 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP2FIFOMSB	(EP2FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP2 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP3FIFOLSB	(EP3FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP3 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP3FIFOMSB	(EP3FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP3 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP4FIFOLSB	(EP4FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP4 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP4FIFOMSB	(EP4FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP4 憲怣/庴怣FIFO僨乕僞 MSB */
-#define	EP5FIFOLSB	(EP5FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP5 憲怣/庴怣FIFO僨乕僞 LSB */
-#define	EP5FIFOMSB	(EP5FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP5 憲怣/庴怣FIFO僨乕僞 MSB */
+#define	EP0TXFIFOLSB	(EP0TXFIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP0 聭聴聬MFIFO聝f聛[聝^ LSB */
+#define	EP0TXFIFOMSB	(EP0TXFIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP0 聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP0RXFIFOLSB	(EP0RXFIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP0 聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP0RXFIFOMSB	(EP0RXFIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP0 聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP1FIFOLSB	(EP1FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP1 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP1FIFOMSB	(EP1FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP1 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP2FIFOLSB	(EP2FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP2 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP2FIFOMSB	(EP2FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP2 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP3FIFOLSB	(EP3FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP3 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP3FIFOMSB	(EP3FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP3 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP4FIFOLSB	(EP4FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP4 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP4FIFOMSB	(EP4FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP4 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
+#define	EP5FIFOLSB	(EP5FIFOLSB_addr + USB_REG_BASE_ADDR)	/* EP5 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ LSB */
+#define	EP5FIFOMSB	(EP5FIFOMSB_addr + USB_REG_BASE_ADDR)	/* EP5 聭聴聬M/聨贸聬MFIFO聝f聛[聝^ MSB */
 
 /* 2.2	Common control and status registers */
-#define	DVCADR	(DVCADR_addr + USB_REG_BASE_ADDR)	/* 僨僶僀僗傾僪儗僗 */
-#define	FRAME	(FRAME_addr + USB_REG_BASE_ADDR)	/* 僼儗乕儉斣崋 */
+#define	DVCADR	(DVCADR_addr + USB_REG_BASE_ADDR)	/* 聝f聝o聝C聝X聝A聝h聝聦聝X */
+#define	FRAME	(FRAME_addr + USB_REG_BASE_ADDR)	/* 聝t聝聦聛[聝聙聰脭聧聠 */
 
 /* 2.3	8-byes setup registers */
 #define	SETUP0W		(SETUP0W_addr + USB_REG_BASE_ADDR)

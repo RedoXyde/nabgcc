@@ -1,15 +1,12 @@
-/**********************************************************************************/
-/*                                                                                */
-/*    Copyright (C) 2004 Oki Electric Industry Co., LTD.                          */
-/*                                                                                */
-/*    System Name    :  uPLAT series                                              */
-/*    Module Name    :  common definition include file                            */
-/*    File   Name    :  common.h                                                  */
-/*    Revision       :  1.00                                                     */
-/*    Date           :  2004/xx/xx initial version                                */
-/*                                                                                */
-/**********************************************************************************/
-#ifndef _COMMON_H_
+/**
+ * @file common.h
+ * @author Oki Electric Industry Co., LTD. - 2004 - Initial version
+ * @author Violet - 2006 - Custom changes
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Common defs
+ */
+ #ifndef _COMMON_H_
 #define _COMMON_H_
 
 #include <stdint.h>

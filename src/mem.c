@@ -1,5 +1,13 @@
+/**
+ * @file mem.c
+ * @author Oki Electric Industry Co., LTD. - 2005 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Memory Flash related functions
+ */
 #include "ml674061.h"
 #include "common.h"
+
 #include "mem.h"
 #include "hcdmem.h"
 #include "vlog.h"
@@ -11,7 +19,8 @@
 /*          Input   :   Nothing                                                */
 /*          Output  :   Nothing                                                */
 /*******************************************************************************/
-__attribute__ ((section(".ramfunc"))) void init_uc_flash(void)
+__attribute__ ((section(".ramfunc")))
+void init_uc_flash(void)
 {
   //Flash ROM programming is prohibited
   clr_bit(FLACON,0x01);
@@ -21,7 +30,9 @@ __attribute__ ((section(".ramfunc"))) void init_uc_flash(void)
   __no_operation();
 }
 
-__attribute__ ((section(".ramfunc"))) void write_uc_flash_sec(uint32_t address, uint8_t *data, uint32_t nb_byte, uint8_t *temp)
+__attribute__ ((section(".ramfunc")))
+void write_uc_flash_sec(uint32_t address, uint8_t *data,
+                        uint32_t nb_byte, uint8_t *temp)
 {
 
   uint16_t cmpt_int=0x42;

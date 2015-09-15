@@ -1,14 +1,10 @@
-/**********************************************************************************/
-/*                                                                                */
-/*    Copyright (C) 2005 Oki Electric Industry Co., LTD.                          */
-/*                                                                                */
-/*    System Name    :  ML67Q4051/ML67Q4061	                                      */
-/*    Module Name    :  ML67Q4061 header file				                      */
-/*    File   Name    :  ML674061.h                                                */
-/*    Revision       :  1.00		                                              */
-/*    Date           :  2005/11/05                                                */
-/*                                                                                */
-/**********************************************************************************/
+/**
+ * @file ml674061.h
+ * @author Oki Electric Industry Co., LTD. - 2005 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief ML674061 Chip definitions
+ */
 #ifndef ML674061_H
 #define ML674061_H
 
@@ -90,33 +86,33 @@
 /* bit field of CILCL register */
 #define CILCL_CLEAR     0x01        /* most significant '1' bit of CIL is cleared */
 
-/* DMA“]‘— */
-#define TRM_DREQ	0x00ul	/* DMA“]‘— DREQ‚ ‚è */
-#define TRM_AUTO	0x01ul	/* DMA“]‘— ƒI[ƒgƒŠƒNƒGƒXƒg */
+/* DMAÂ“]Â‘Â— */
+#define TRM_DREQ	0x00ul	/* DMAÂ“]Â‘Â— DREQÂ‚Â Â‚Ã¨ */
+#define TRM_AUTO	0x01ul	/* DMAÂ“]Â‘Â— ÂƒIÂ[ÂƒgÂƒÂŠÂƒNÂƒGÂƒXÂƒg */
 
-#define TSIZ_8		0x00ul	/* DMA“]‘— ƒf[ƒ^ƒTƒCƒY 8ƒrƒbƒg */
-#define TSIZ_16		0x02ul	/* DMA“]‘— ƒf[ƒ^ƒTƒCƒY 16ƒrƒbƒg */
-#define TSIZ_32		0x04ul	/* DMA“]‘— ƒf[ƒ^ƒTƒCƒY 32ƒrƒbƒg */
+#define TSIZ_8		0x00ul	/* DMAÂ“]Â‘Â— ÂƒfÂ[Âƒ^ÂƒTÂƒCÂƒY 8ÂƒrÂƒbÂƒg */
+#define TSIZ_16		0x02ul	/* DMAÂ“]Â‘Â— ÂƒfÂ[Âƒ^ÂƒTÂƒCÂƒY 16ÂƒrÂƒbÂƒg */
+#define TSIZ_32		0x04ul	/* DMAÂ“]Â‘Â— ÂƒfÂ[Âƒ^ÂƒTÂƒCÂƒY 32ÂƒrÂƒbÂƒg */
 
-#define SDP_CONT	0x00ul	/* DMA“]‘— ƒ\[ƒXƒAƒhƒŒƒX ŒÅ’è */
-#define SDP_INC		0x08ul	/* DMA“]‘— ƒ\[ƒXƒAƒhƒŒƒX ƒCƒ“ƒNƒŠƒƒ“ƒg */
+#define SDP_CONT	0x00ul	/* DMAÂ“]Â‘Â— Âƒ\Â[ÂƒXÂƒAÂƒhÂƒÂŒÂƒX ÂŒÃ…Â’Ã¨ */
+#define SDP_INC		0x08ul	/* DMAÂ“]Â‘Â— Âƒ\Â[ÂƒXÂƒAÂƒhÂƒÂŒÂƒX ÂƒCÂƒÂ“ÂƒNÂƒÂŠÂƒÂÂƒÂ“Âƒg */
 
-#define DDP_CONT	0x00ul	/* DMA“]‘— ƒfƒBƒXƒeƒl[ƒVƒ‡ƒ“ƒAƒhƒŒƒX ŒÅ’è */
-#define DDP_INC		0x10ul	/* DMA“]‘— ƒfƒBƒXƒeƒl[ƒVƒ‡ƒ“ƒAƒhƒŒƒX ƒCƒ“ƒNƒŠƒƒ“ƒg */
+#define DDP_CONT	0x00ul	/* DMAÂ“]Â‘Â— ÂƒfÂƒBÂƒXÂƒeÂƒlÂ[ÂƒVÂƒÂ‡ÂƒÂ“ÂƒAÂƒhÂƒÂŒÂƒX ÂŒÃ…Â’Ã¨ */
+#define DDP_INC		0x10ul	/* DMAÂ“]Â‘Â— ÂƒfÂƒBÂƒXÂƒeÂƒlÂ[ÂƒVÂƒÂ‡ÂƒÂ“ÂƒAÂƒhÂƒÂŒÂƒX ÂƒCÂƒÂ“ÂƒNÂƒÂŠÂƒÂÂƒÂ“Âƒg */
 
-#define BRQ_BURST	0x00ul	/* DMA“]‘— ƒo[ƒXƒgƒ‚[ƒh */
-#define BRQ_CYCLE	0x20ul	/* DMA“]‘— ƒTƒCƒNƒ‹ƒXƒ`[ƒ‹ƒ‚[ƒh */
+#define BRQ_BURST	0x00ul	/* DMAÂ“]Â‘Â— ÂƒoÂ[ÂƒXÂƒgÂƒÂ‚Â[Âƒh */
+#define BRQ_CYCLE	0x20ul	/* DMAÂ“]Â‘Â— ÂƒTÂƒCÂƒNÂƒÂ‹ÂƒXÂƒ`Â[ÂƒÂ‹ÂƒÂ‚Â[Âƒh */
 
-#define IMK_DIS		0x00ul	/* DMA“]‘— Š„‚è‚İƒ}ƒXƒN‰ğœ */
-#define IMK_ENA		0x40ul	/* DMA“]‘— Š„‚è‚İƒ}ƒXƒNİ’è */
+#define IMK_DIS		0x00ul	/* DMAÂ“]Â‘Â— ÂŠÂ„Â‚Ã¨ÂÂÂ‚ÃÂƒ}ÂƒXÂƒNÂ‰Ã°ÂÂœ */
+#define IMK_ENA		0x40ul	/* DMAÂ“]Â‘Â— ÂŠÂ„Â‚Ã¨ÂÂÂ‚ÃÂƒ}ÂƒXÂƒNÂÃÂ’Ã¨ */
 
-#define DMACSIZ_MAX	0x10000ul	/* DMA“]‘— Å‘å‰ñ“]” */
+#define DMACSIZ_MAX	0x10000ul	/* DMAÂ“]Â‘Â— ÂÃ…Â‘Ã¥Â‰Ã±Â“]ÂÂ” */
 
-#define DMASTA_STA0 	0x0000001ul	/* DMA“]‘— ƒXƒe[ƒ^ƒX CH0 */
-#define DMASTA_STA1 	0x0000002ul	/* DMA“]‘— ƒXƒe[ƒ^ƒX CH1 */
+#define DMASTA_STA0 	0x0000001ul	/* DMAÂ“]Â‘Â— ÂƒXÂƒeÂ[Âƒ^ÂƒX CH0 */
+#define DMASTA_STA1 	0x0000002ul	/* DMAÂ“]Â‘Â— ÂƒXÂƒeÂ[Âƒ^ÂƒX CH1 */
 
-#define DMAINT_ISTX0	0x00010100ul	/* DMA“]‘— I—¹ƒXƒe[ƒ^ƒX CH0 */
-#define DMAINT_ISTX1	0x00020200ul	/* DMA“]‘— I—¹ƒXƒe[ƒ^ƒX CH1 */
+#define DMAINT_ISTX0	0x00010100ul	/* DMAÂ“]Â‘Â— ÂIÂ—Â¹ÂƒXÂƒeÂ[Âƒ^ÂƒX CH0 */
+#define DMAINT_ISTX1	0x00020200ul	/* DMAÂ“]Â‘Â— ÂIÂ—Â¹ÂƒXÂƒeÂ[Âƒ^ÂƒX CH1 */
 
 /*****************************************************/
 /*    external memory control register               */

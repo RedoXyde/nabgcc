@@ -1,8 +1,12 @@
+/**
+ * @file mem.h
+ * @author Oki Electric Industry Co., LTD. - 2005 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Memory Flash related functions
+ */
 #ifndef _MEM_H_
 #define _MEM_H_
-
-#include "ml674061.h"
-#include "common.h"
 
 //#define SRAM_BASE   (0xD0000000)    /* base address of external SRAM */
 #define SRAM_BASE   (0xD0010000)    /* base address of external SRAM */
