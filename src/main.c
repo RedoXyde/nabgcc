@@ -62,14 +62,7 @@ static void reg_irq_handler(void);  /* registration of IRQ handler */
 void FIQ_handler(void);
 void init_io(void);
 void push_button_interrupt(void);
-void uart0_interrupt(void);
 void timer_handler(void);
-
-/* JOB */
-void *okijob_open( void );
-int32_t okijob_close( void* );
-int32_t okijob_bulk( void*, unsigned char, void*, unsigned long );
-int32_t okijob_number(void*);
 
 /********************/
 /* Global variables */
@@ -82,17 +75,10 @@ volatile uint32_t counter_timer_s;
 volatile uint32_t counter_timer_sbuf;
 
 
-//USB variables
-int32_t old_state = 0;
-int32_t connect_request = 0;
-int32_t transfer_request = 0;
-
 #ifndef DATABUFFER
   #define DATABUFFER		0
 #endif
 
-/* DATABUFFER==0 ML60841àRAMðobt@É·é */
-/* DATABUFFER==1 ORAMðobt@É·é        */
 #if (DATABUFFER==0)
   #define MALLOC(a)			usbh_malloc(a)
   #define FREE(a)			usbh_free(a)
@@ -105,13 +91,9 @@ extern const uint8_t *dumpbc;
 
 //const uint8_t TAB_32K[100000];
 
-/****************************************************************************/
-/*  Init clock system to have 32MHz with 8MHz external crystal              */
-/*  Function : init_pll                                                     */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   0                                                   */
-/****************************************************************************/
+/**
+ * @brief Init clock system to have 32MHz with 8MHz external crystal
+ */
 void init_pll(void)
 {
   //Configure PLLA and PLLB
@@ -164,14 +146,6 @@ void wdt_start(void)
 }
 
 char dbg_buffer[256];
-static struct rt2501_scan_result sresult;
-
-uint8_t * scanssid;
-void scantest(struct rt2501_scan_result *scan_result, void *userparam)
-{
-    if (!strcmp((char*)scan_result->ssid,(char*)scanssid))
-	memcpy(&sresult, scan_result, sizeof(struct rt2501_scan_result));
-}
 
 void dump(uint8_t *src,int32_t len)
 {
@@ -205,140 +179,9 @@ void dumpbin(uint8_t * p,int32_t n,int32_t ln)
   if (ln) consolestr((uint8_t*)"\r\n");
 }
 
-uint8_t tstarp[]=
-{
-  0xaa,0xaa,0x03,0x00,0x00,0x00,0x08,0x06,
-
-  0x00,0x01,0x08,0x00,
-  0x06,0x04,0x00,0x01,
-  0,0,0,0,0,0,
-  0,0,0,0,
-  0xff,0xff,0xff,0xff,0xff,0xff,
-  0,0,0,0
-
-//  0x00,0x0c,0xf6,0x1b,0xa8,0x06,
-//  192,168,1,100,
-//  0xff,0xff,0xff,0xff,0xff,0xff,
-//  192,168,1,2
-};
-
-uint8_t myip[4]={  192,168,1,100 };
-uint8_t targetip[4]={  192,168,100,1 };
-uint8_t targetmac[6]={255,255,255,255,255,255};
-
-extern uint8_t rt2501_mac[6];
-
-void mkarp(uint8_t* ip)
-{
-DBG("1\r\n");
-  memcpy(tstarp+16,rt2501_mac,6);
-DBG("2\r\n");
-  memcpy(tstarp+22,myip,4);
-DBG("3\r\n");
-  memcpy(tstarp+32,ip,4);
-DBG("4\r\n");
-}
-
-uint8_t checkflag,checklo,checkhi;
-
-void init_checksum()
-{
-    checkflag = checkhi = checklo = 0;
-}
-
-/* Add byte to checksum value */
-void check_byte(uint8_t b)
-{
-    if (checkflag)
-    {
-        checklo += b;
-        if (checklo < b)
-        {
-            if (++checkhi == 0)
-                checklo++;
-        }
-    }
-    else
-    {
-        checkhi += b;
-        if (checkhi < b)
-        {
-            if (++checklo == 0)
-                checkhi++;
-        }
-    }
-    checkflag = !checkflag;
-}
-
-uint8_t tstudp[]=
-{
-  0xaa,0xaa,0x03,0x00,0x00,0x00,0x08,0x00,
-
-  0x45,0,0,20+8+6,
-  0,1,0,0,
-  100,17,0,0,
-  0,0,0,0,
-  0,0,0,0,
-
-  8,0,16,0,
-  0,8+6,0,0,
-  'f','o','o','b','a','r'
-};
-
-uint8_t tstfoo[]=
-{
-  192,168,1,2,
-  192,168,1,6
-};
-
-char idudp;
-
-void mkudp()
-{
-  int32_t i;
-  idudp=0;
-  tstudp[8+5]=idudp++;
-  memcpy(tstudp+8+12,myip,4);
-  memcpy(tstudp+8+16,targetip,4);
-  init_checksum();
-  for(i=0;i<20;i++)check_byte(tstudp[8+i]);
-
-  tstudp[8+10]=~checkhi;
-  tstudp[8+11]=~checklo;
-
-  init_checksum();
-  for(i=0;i<8+6;i++)check_byte(tstudp[8+20+i]);
-
-  for(i=12;i<20;i++)check_byte(tstudp[8+i]);
-//  for(i=0;i<8;i++)check_byte(tstfoo[i]);
-  check_byte(0);
-  check_byte(17);
-  check_byte(0);
-  check_byte(8+6);
-
-  tstudp[8+20+6]=~checkhi;
-  tstudp[8+20+7]=~checklo;
-
-  DBG("checksum :"); dumpbin((uint8_t *)(tstudp+8+10),2,1);
-  DBG("checksum :"); dumpbin((uint8_t *)(tstudp+8+20+6),2,1);
-
-}
-
-void mypassword_to_pmk(const uint8_t *password, uint8_t *ssid, int32_t ssidlength, uint8_t *pmk);
-
-extern uint8_t *buffer_temp;
-
-/****************************************************************************/
-/*  Entry point                                                             */
-/*  Function : main                                                         */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   0                                                   */
-/****************************************************************************/
-
-int32_t stacktest;
-int32_t *foo;//=&stacktest;//(int*)0xD000FFFC;
-
+/**
+ * Usercode Entry point
+ */
 int main(void)
 {
   int32_t iii;
@@ -491,9 +334,9 @@ int main(void)
       {
         CLR_WDT;
 
-      //                              sprintf(buffer,"receive frame size %d\r\n",r->length);
-      //                              DBG(buffer);
-      //                              dump((uuint8_t *)r->data,r->length);
+//        sprintf(buffer,"receive frame size %d\r\n",r->length);
+//        DBG(buffer);
+//        dump((uuint8_t *)r->data,r->length);
         netCb((uint8_t *)r->data,r->length,(uint8_t *)r->source_mac);
         disable_ohci_irq();
         hcd_free(r);
@@ -511,14 +354,11 @@ int main(void)
   }
 }
 
-/****************************************************************************/
-/*  Registration of IRQ Handler                                             */
-/*  Function : reg_irq_handler                                              */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/*  Note : Initialize of IRQ needs to be performed before this process.     */
-/****************************************************************************/
+/**
+ * @brief Registration of IRQ Handler
+ *
+ * @note Initialization of IRQ needs to be performed before this process
+ */
 void reg_irq_handler(void)
 {
     /* register IRQ handlers into handler table */
@@ -555,13 +395,9 @@ void reg_irq_handler(void)
     return;
 }
 
-/****************************************************************************/
-/*  Process of the System Timer interrupt                                   */
-/*  Function : timer_handler                                                */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * @brief Process of the System Timer interrupt
+ */
 void timer_handler(void)
 {
     counter_timer++;            //increment 1ms, 10ms or 100ms cycle counter
@@ -575,21 +411,13 @@ void timer_handler(void)
     return;
 }
 
-/****************************************************************************/
-/*  Process of the Push button interrupt                                    */
-/*  Function : push_button_interrupt                                        */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+ * Process of the Push button interrupt
+ */
 void push_button_interrupt(void)
 {
   //delay to avoid multiple interrupts
     DelayMs(250);
-
-    //Run USB transmit
-    transfer_request=1;
-
     //Update motor state
     if(motor_state++==6)
       motor_state=0;
@@ -598,19 +426,14 @@ void push_button_interrupt(void)
     set_hbit(EXIRQB,IRQB_IRQ38);
 }
 
-int32_t push_button_value()
+uint8_t push_button_value(void)
 {
-  if (INT_SWITCH_READ&INT_SWITCH_BIT) return 0;
-  return 1;
+  return !((INT_SWITCH_READ&INT_SWITCH_BIT)==INT_SWITCH_BIT);
 }
 
-/****************************************************************************/
-/*  Init GPIO initial directions and values ; define the function of pins   */
-/*  Function : init_io                                                      */
-/*      Parameters                                                          */
-/*          Input   :   Nothing                                             */
-/*          Output  :   Nothing                                             */
-/****************************************************************************/
+/**
+* @brief Init GPIO initial directions and values ; define the function of pins
+*/
 void init_io(void)
 {
   //Set primary functions of ports

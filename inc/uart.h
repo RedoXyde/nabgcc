@@ -65,4 +65,5 @@ uint64_t xmodem_recv(uint8_t *addr_mem);
 void xmodem_send(uint8_t *addr_mem, uint32_t nb_bytes_to_send);
 int16_t calcrc(uint8_t *ptr, uint16_t count);
 
+void uart0_interrupt(void);
 #endif
