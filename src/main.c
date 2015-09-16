@@ -59,7 +59,6 @@
 /*************/
 int main(void);                     /* main routine */
 static void reg_irq_handler(void);  /* registration of IRQ handler */
-void FIQ_handler(void);
 void init_io(void);
 void push_button_interrupt(void);
 void timer_handler(void);
@@ -67,9 +66,6 @@ void timer_handler(void);
 /********************/
 /* Global variables */
 /********************/
-extern uint8_t dummy_buffer[100];
-uint8_t motor_state=0;
-
 volatile uint32_t counter_timer;
 volatile uint32_t counter_timer_s;
 volatile uint32_t counter_timer_sbuf;
@@ -265,16 +261,22 @@ int main(void)
 
   //Init Uart
   init_uart();
-  consolestr((uint8_t*)"\r\n****Reset\r\n");
+  consolestr("\r\n****Reset");
   ptest=(uint8_t *)&iii;
   iii=1;
-  if (ptest[0]) consolestr((uint8_t*)"Little Endian.\r\n");
-  if (ptest[3]) consolestr((uint8_t*)"Big Endian.\r\n");
+  if (ptest[0])
+    consolestr("Little Endian");
+  else if (ptest[3])
+    consolestr("Big Endian");
 
   // Configure USB
 	usbctrl_host_driver_set(NULL, usbhost_interrupt);
 	ret = usbctrl_init(USB_HOST);
-	if(ret != OK) return ret;
+	if(ret != OK)
+  {
+    consolestr("USB Controller initialization failed");
+    while(1);
+  };
 
 	reg_irq_handler();
   put_value(FIQEN, 0x00 );
@@ -284,12 +286,20 @@ int main(void)
 //xmodem_recv((uuint8_t *)SRAM_BASE);
 
   ret = usbhost_init();
-	if(ret != OK) return ret;
+	if(ret != OK)
+  {
+    consolestr("USB Host initialization failed");
+    while(1);
+  };
 
 	ret = rt2501_driver_install();
-	if(ret != OK) return ret;
+	if(ret != OK)
+  {
+    consolestr("RT2501 Driver installation failed");
+    while(1);
+  };
 
-  DBG("Nabaztag firmware ready.\r\n");
+  consolestr("Nabaztag firmware ready.\r\n");
   consolestr("vmemInit\r\n");
   vmemInit(0);
 
@@ -306,12 +316,12 @@ int main(void)
   VPUSH(INTTOVAL(0));
   interpGo();
   (void)VPULL();
-  int32_t counttimer=0;
 
+  uint8_t counttimer=0;
   while(1)
 //                for(iii=0;iii<10000;iii++)
   {
-    int32_t t;
+    uint32_t t;
     CLR_WDT;
 
     VPUSH(VCALLSTACKGET(sys_start,SYS_CBLOOP));
@@ -321,14 +331,11 @@ int main(void)
     t=sysTimems();
     do
     {
-//                           uint8_t buffer[64];
       struct rt2501buffer *r;
       play_check(0);
       rec_check();
 
       CLR_WDT;
-
-
       usbhost_events();
       while((sysTimems()-t<1000)&&(r=rt2501_receive()))
       {
@@ -349,7 +356,7 @@ int main(void)
     if (!counttimer)
     {
       rt2501_timer();
-      consolestr((uint8_t*)".");
+      consolestr(".");
     }
   }
 }
@@ -418,10 +425,6 @@ void push_button_interrupt(void)
 {
   //delay to avoid multiple interrupts
     DelayMs(250);
-    //Update motor state
-    if(motor_state++==6)
-      motor_state=0;
-
     //Clear EXINT3 interrupt
     set_hbit(EXIRQB,IRQB_IRQ38);
 }

@@ -8,21 +8,13 @@
 #ifndef _LOGGER_
 #define _LOGGER_
 
-#ifdef VSIMU
-#define consolestr(val) printf("%s",val)
-#define consolebin(val,len) printf("%s",val)
-#define consoleint(val) printf("%d",val)
-#define consolehx(val) printf("%x",val)
-#endif
-#ifdef VREAL
 #include "uart.h"
 #define consolestr(val) putst_uart((uint8_t*)val)
 #define consolebin(val,len) putbin_uart(val,len)
 #define consoleint(val) putint_uart(val)
 #define consolehx(val) puthx_uart(val)
-#endif
 
-#define ENDLINE "\n\r"
+#define EOL "\n\r"
 
 void logSecho(int32_t p,int32_t nl);
 void logIecho(int32_t i,int32_t nl);

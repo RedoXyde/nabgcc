@@ -8,13 +8,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifndef VSIMU
-  #include "ml674061.h"
-#else
-  #include<stdio.h>
-  #include"simunet.h"
-#endif
 
+#include "ml674061.h"
 #include "common.h"
 
 #include "vaudio.h"
@@ -830,7 +825,7 @@ void interpGo()
 				}
 				break;
 			case OPbytecode:
-				consolestr("#################### OPbytecode"ENDLINE);
+				consolestr("#################### OPbytecode"EOL);
 				if (VSTACKGET(0)!=NIL)
 				{
 					uint8_t* q;
@@ -860,7 +855,7 @@ void interpGo()
 					//                                     tron=1;
 					interpGo();
 					//					VPULL();
-					consolestr("#################### OPbytecode done"ENDLINE);
+					consolestr("#################### OPbytecode done"EOL);
 					//                                        tron=0;
 //					tron=1;
 
@@ -870,92 +865,8 @@ void interpGo()
 			case OPloopcb:
 				VCALLSTACKSET(sys_start,SYS_CBLOOP,VSTACKGET(0));
 				break;
-#ifdef VSIMU
-			case OPudpStart:
-				VSTACKSET(0,INTTOVAL(udpcreate(VALTOINT(VSTACKGET(0)))));
-				break;
-			case OPudpCb:
-				VCALLSTACKSET(sys_start,SYS_CBUDP,VSTACKGET(0));
-				break;
-			case OPudpStop:
-				VSTACKSET(0,INTTOVAL(udpclose(VALTOINT(VSTACKGET(0)))));
-				break;
-			case OPudpSend:
-				{
-					int32_t len=VPULL();
-					int32_t start=VALTOINT(VPULL());
-					int32_t q=VALTOPNT(VPULL());
-					int32_t dstport=VALTOINT(VPULL());
-					int32_t p=VALTOPNT(VPULL());
-					int32_t localport=VALTOINT(VSTACKGET(0));
-					if ((p!=NIL)&&(q!=NIL))
-					{
-						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
-						if (start+len>VSIZEBIN(q)) len=VSIZEBIN(q)-start;
-						if ((start>=0)&&(len>=0))
-						{
-							int32_t k=udpsend(localport,VSTARTBIN(p),dstport,VSTARTBIN(q)+start,len);
-							VSTACKSET(0,INTTOVAL(k));
-						}
-						else VSTACKSET(0,NIL);
-					}
-					else VSTACKSET(0,NIL);
-
-				}
-				break;
-			case OPtcpOpen:
-				{
-					int32_t port=VALTOINT(VPULL());
-					int32_t p=VALTOPNT(VSTACKGET(0));
-					if (p!=NIL) VSTACKSET(0,INTTOVAL(tcpopen(VSTARTBIN(p),port)));
-				}
-				break;
-			case OPtcpClose:
-				VSTACKSET(0,INTTOVAL(tcpclose(VALTOINT(VSTACKGET(0)))));
-				break;
-			case OPtcpSend:
-				{
-					int32_t len=VPULL();
-					int32_t start=VPULL();
-					int32_t q=VALTOPNT(VPULL());
-					int32_t tcp=VALTOINT(VSTACKGET(0));
-					if (start==NIL) start=0;
-					else start=VALTOINT(start);
-					if (q!=NIL)
-					{
-						if (len==NIL) len=VSIZEBIN(q)-start; else len=VALTOINT(len);
-						if (start+len>VSIZEBIN(q)) len=VSIZEBIN(q)-start;
-						if ((start>=0)&&(len>=0))
-						{
-							int32_t k;
-							k=tcpsend(tcp,VSTARTBIN(q)+start,len);
-							if (k>=0) start+=k;
-							VSTACKSET(0,INTTOVAL(start));
-						}
-						else VSTACKSET(0,NIL);
-					}
-					else VSTACKSET(0,NIL);
-				}
-				break;
-			case OPtcpCb:
-				VCALLSTACKSET(sys_start,SYS_CBTCP,VSTACKGET(0));
-				break;
-			case OPtcpListen:
-				{
-					int32_t port=VALTOINT(VSTACKGET(0));
-					VSTACKSET(0,INTTOVAL(tcpservercreate(port)));
-				}
-				break;
-			case OPtcpEnable:
-				{
-					int32_t enable=VALTOINT(VPULL());
-					tcpenable(VALTOINT(VSTACKGET(0)),enable);
-				}
-				break;
-#endif
 			case OPSecholn:
 				logSecho(VSTACKGET(0),1);
-				//                          if (tron)dump(&bytecode[0x2440],32);
 				break;
 			case OPIecholn:
 				logIecho(VSTACKGET(0),1);

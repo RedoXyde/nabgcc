@@ -23,7 +23,6 @@ int32_t audioPlayFetch(uint8_t* dst,int32_t ask);
 void audioVol(int32_t vol);
 int32_t audioPlayTime();
 
-
 int32_t audioRecStart(int32_t freq,int32_t gain);
 int32_t audioRecStop();
 int32_t audioRecVol(uint8_t* src,int32_t len,int32_t start);
@@ -37,8 +36,6 @@ void AudioAdp2wav(uint8_t* dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t is
 void AudioWav2adp(uint8_t* dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t isrc,int32_t lsrc,int32_t len);
 void AudioWav2alaw(uint8_t* dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t isrc,int32_t lsrc,int32_t len,int32_t mu);
 void AudioAlaw2wav(uint8_t* dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t isrc,int32_t lsrc,int32_t len,int32_t mu);
-
-
 
 void audioWrite(int32_t reg,int32_t val);
 int32_t audioRead(int32_t reg);

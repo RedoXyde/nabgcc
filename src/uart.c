@@ -8,13 +8,14 @@
  * UART operation set for 115,200 Baud, no parity, 8 data,
  * 1 stop and no flow control
  */
+#include <stdio.h>  // sprintf
+
 #include "ml674061.h"
 #include "common.h"
-#include "irq.h"
-#include "uart.h"
 #include "delay.h"
 
-#include <stdio.h>  // sprintf
+#include "irq.h"
+#include "uart.h"
 
 uint8_t UART_BUFFER[UART_BUFFER_SIZE];  /**< @brief RX buffer */
 volatile uint8_t uart_buffer_pointer;   /**< @brief RX write index */

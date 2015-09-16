@@ -7,24 +7,13 @@
  */
 #include <stdint.h>
 #include <string.h>
-#include"vmem.h"
 
-#ifdef VSIMU
-#include<windows.h>
-#include<stdio.h>
-#include<time.h>
-#endif
+#include "audio.h"
 
-#include"vloader.h"
-#include"vinterp.h"
-#include"vaudio.h"
-
-#ifdef VSIMU
-#include"simuaudio.h"
-#endif
-#ifdef VREAL
-#include"audio.h"
-#endif
+#include "vaudio.h"
+#include "vinterp.h"
+#include "vloader.h"
+#include "vmem.h"
 
 uint8_t audioFifoPlay[AUDIO_FIFOPLAY];
 
@@ -39,27 +28,16 @@ void audioInit()
 void audioPlayStart(int32_t freq,int32_t bps,int32_t stereo,int32_t trytofeed)
 {
 	play_w=play_r=0;
-#ifdef VSIMU
-	PlayStart(freq,stereo,44100,bps,3);
-#endif
-#ifdef VREAL
-	//      set_vlsi_volume(get_adc_value()/2);          //volume on 8bits, 0x00 => maximum
 	play_start(trytofeed);
-#endif
+
 }
 
 int32_t audioPlayFeed(uint8_t *src,int32_t len)
 {
-	//#ifdef VSIMU
 	int32_t i_end;
 	if (!src)
 	{
-#ifdef VSIMU
-		PlayEof();
-#endif
-#ifdef VREAL
-        play_eof();
-#endif
+    play_eof();
 		return 0;
 	}
 	i_end=play_r-1;
@@ -83,24 +61,11 @@ int32_t audioPlayFeed(uint8_t *src,int32_t len)
 	if (i_end) memcpy(audioFifoPlay,src,i_end);
 	play_w=i_end;
 	return len+i_end;
-	//#endif
-	/*
-	#ifdef VREAL
-	set_vlsi_volume(get_adc_value()/2);          //volume on 8bits, 0x00 => maximum
-	//Play file
-	play_audio((UBYTE*)src,len);
-	#endif
-	*/
 }
 
 void audioPlayStop()
 {
-#ifdef VSIMU
-	PlayStop();
-#endif
-#ifdef VREAL
 	play_stop();
-#endif
 }
 
 int32_t audioPlayTryFeed(int32_t ask)
@@ -158,46 +123,23 @@ int32_t audioPlayFetch(uint8_t *dst,int32_t ask)
 
 void audioVol(int32_t vol)
 {
-#ifdef VSIMU
-//	printf("xxxx audioVol %d\n",vol);
-
-	audioSetVolume(255-vol);
-#endif
-#ifdef VREAL
 	set_vlsi_volume((vol&255)/2);
-#endif
 }
 
 int32_t audioPlayTime()
 {
-#ifdef VSIMU
-	printf("xxxx audioPlayTime\n");
-	return 0;
-#endif
-#ifdef VREAL
 	return check_decode_time();
-#endif
 }
 
 int32_t audioRecStart(int32_t freq,int32_t gain)
 {
-#ifdef VSIMU
-	RecStart(freq,505,4);
-#endif
-#ifdef VREAL
 	rec_start(freq,gain);
-#endif
 	return 0;
 }
 
 int32_t audioRecStop()
 {
-#ifdef VSIMU
-	RecStop();
-#endif
-#ifdef VREAL
 	rec_stop();
-#endif
 	return 0;
 }
 
@@ -214,12 +156,6 @@ void audioRecFeed_end()
 	else { (void)VPULL();}
 	(void)VPULL();
 }
-
-
-#define uint16_t unsigned short
-#define int16_t short
-#define uint8_t unsigned char
-#define int8_t char
 
 static const uint16_t IMA_ADPCMStepTable[89] =
 {
@@ -633,50 +569,29 @@ void AudioAlaw2wav(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t i
 
 void audioWrite(int32_t reg,int32_t val)
 {
-#ifdef VSIMU
-	printf("xxxx audioWrite %d %d\n",reg,val);
-#endif
-#ifdef VREAL
 	vlsi_write_sci(reg,val);
-#endif
 }
+
 int32_t audioRead(int32_t reg)
 {
-#ifdef VSIMU
-	printf("xxxx audioRead %d\n",reg);
-	return 0;
-#endif
-#ifdef VREAL
-	if (reg==-1) return vlsi_fifo_ready();
-	return vlsi_read_sci(reg);
-#endif
+	if (reg==-1)
+    return vlsi_fifo_ready();
+	return
+    vlsi_read_sci(reg);
 }
+
 int32_t audioFeed(uint8_t *src,int32_t len)
 {
-#ifdef VSIMU
-	printf("xxxx audioFeed %d\n",len);
-	return 0;
-#endif
-#ifdef VREAL
 	return vlsi_feed_sdi((uint8_t *)src,len);
-#endif
 }
+
 void audioRefresh()
 {
-#ifdef VSIMU
-	printf("xxxx audioRefresh\n");
-#endif
-#ifdef VREAL
 	play_check(0);
 	rec_check();
-#endif
 }
+
 void audioAmpli(int32_t on)
 {
-#ifdef VSIMU
-	printf("xxxx audioAmpli %d\n",on);
-#endif
-#ifdef VREAL
 	vlsi_ampli(on);
-#endif
 }

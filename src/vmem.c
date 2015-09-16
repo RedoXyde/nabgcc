@@ -14,11 +14,6 @@
 
 void play_check(int32_t nocb);
 
-#ifdef VSIMU
-int32_t vmem_heap[VMEM_LENGTH];
-#endif
-
-
 int32_t vmem_heapindex;
 int32_t *vmem_top;
 int32_t vmem_stack;
@@ -31,7 +26,7 @@ void vmemInit(int32_t start)
 	vmem_top=&vmem_heap[VMEM_LENGTH];
 	vmem_stack=0;
 	vmem_start=vmem_heapindex=start;
-        vmem_broken=0;
+  vmem_broken=0;
 }
 
 void vmemSetstart(int32_t start)
@@ -98,6 +93,7 @@ void vmemGCfirst()
 		}
 	}
 }
+
 void dumpheap()
 {
 	int32_t pos,realsize;
@@ -119,6 +115,7 @@ void dumpheap()
 		pos+=realsize;
 	}
 }
+
 void vmemGCsecond()
 {
 	int32_t pos,newpos,realsize;
@@ -231,25 +228,15 @@ void vmemGCfourth()
 void vmemGC()
 {
 //  logGC();
-#ifdef VREAL
 	play_check(1);
-#endif
 	vmemGCfirst();
-#ifdef VREAL
   play_check(1);
-#endif
 	vmemGCsecond();
-#ifdef VREAL
   play_check(1);
-#endif
 	vmemGCthird();
-#ifdef VREAL
   play_check(1);
-#endif
 	vmemGCfourth();
-#ifdef VREAL
   play_check(1);
-#endif
 	logGC();
 //        dump(bytecode,32);
 }
@@ -356,39 +343,13 @@ void vmemStacktotab(int32_t n)
 
 void vmemDumpHeap()
 {
-#ifdef VSIMU
-	int32_t i,pos,realsize,n;
-#endif
 	consolestr("HEAP\n----\n");
-#ifdef VSIMU
-	pos=vmem_start;
-	n=0;
-	while(pos < vmem_heapindex)
-	{
-		realsize=VSIZE(pos)+HEADER_LENGTH;
-		printf("%06X : %s %d\n",pos,HEADER_TYPE(pos)?"Tab":"Bin",VSIZE(pos));
-		for(i=0;i<realsize;i++) printf("%x ",vmem_heap[pos+i]);
-		printf("\n");
-		pos+=realsize;
-		n++;
-	}
-#endif
 	logGC();
 }
 
 void vmemDumpStack()
 {
-#ifdef VSIMU
-	int32_t i,k;
-#endif
 	consolestr("STACK\n-----\n");
-#ifdef VSIMU
-	for(i=-1;i>=vmem_stack;i--)
-	{
-		k=vmem_top[i];
-		printf("%d : %6x -> %6x (%d)\n",i,k,k>>1,k>>1);
-	}
-#endif
 }
 
 void vmemDump()
