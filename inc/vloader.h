@@ -17,17 +17,14 @@
 #define SYS_CBREC 5
 
 #define bytecode ((uint8_t*)vmem_heap)
-//extern char bytecode[65536];
-//extern uint8_t *bytecode;
-
 
 extern uint8_t *bc_tabfun;
 extern int32_t bc_nbfun;
 extern int32_t sys_start;
 extern int32_t global_start;
 
-int32_t loaderGetInt(uint8_t *src);
-int16_t loaderGetShort(uint8_t *src);
+uint32_t loaderGetInt(uint8_t *src);
+uint16_t loaderGetShort(uint8_t *src);
 int32_t loaderFunstart(int32_t funnumber);
 void loaderInit(uint8_t *src);
 

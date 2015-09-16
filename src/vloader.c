@@ -15,23 +15,18 @@ int32_t bc_nbfun;
 int32_t sys_start;
 int32_t global_start;
 
-int8_t loaderGetByte(uint8_t *src)
+uint8_t loaderGetByte(uint8_t *src)
 {
-	int8_t i;
-	i=(src[0]&255);
-	return i;
+	return *(uint8_t*)src;
 }
-int16_t loaderGetShort(uint8_t *src)
+
+uint16_t loaderGetShort(uint8_t *src)
 {
-	int16_t i;
-	i=((src[1]&255)<<8)+(src[0]&255);
-	return i;
+	return *(uint16_t*)src;
 }
-int32_t loaderGetInt(uint8_t *src)
+uint32_t loaderGetInt(uint8_t *src)
 {
-	int32_t i;
-	i=((src[3]&255)<<24)+((src[2]&255)<<16)+((src[1]&255)<<8)+(src[0]&255);
-	return i;
+	return *(uint32_t*)src;//((src[3]&255)<<24)+((src[2]&255)<<16)+((src[1]&255)<<8)+(src[0]&255);
 }
 
 uint8_t *loaderInitRec(uint8_t *src)

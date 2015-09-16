@@ -680,7 +680,7 @@ void rt2501_switch_channel(uint8_t channel)
 #endif
 }
 
-int32_t rt2501_set_bssid(const uint8_t *bssid)
+uint8_t rt2501_set_bssid(const uint8_t *bssid)
 {
 	MAC_CSR4_STRUC csr4;
 	MAC_CSR5_STRUC csr5;
@@ -989,7 +989,7 @@ int32_t rt2501_tx(void *buffer, uint32_t length)
 	return ((ret > 0) || (ret == URB_PENDING));
 }
 
-int32_t rt2501_beacon(void *buffer, uint32_t length)
+uint8_t rt2501_beacon(void *buffer, uint32_t length)
 {
 	TXRX_CSR9_STRUC csr9;
 	uint32_t i;

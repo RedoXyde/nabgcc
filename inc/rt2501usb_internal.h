@@ -52,7 +52,7 @@ extern PDEVINFO rt2501_dev;
 extern const uint8_t eapol_llc[LLC_LENGTH];
 
 void rt2501_switch_channel(uint8_t channel);
-int32_t rt2501_set_bssid(const uint8_t *bssid);
+uint8_t rt2501_set_bssid(const uint8_t *bssid);
 void rt2501_make_tx_descriptor(
 	PTXD_STRUC txd,
 	uint8_t CipherAlg,
@@ -68,7 +68,7 @@ void rt2501_make_tx_descriptor(
 	uint8_t QueIdx,
 	uint8_t PacketId);
 int32_t rt2501_tx(void *buffer, uint32_t length);
-int32_t rt2501_beacon(void *buffer, uint32_t length);
+uint8_t rt2501_beacon(void *buffer, uint32_t length);
 int32_t rt2501_set_key(uint8_t index, uint8_t *key, uint8_t *txmic, uint8_t *rxmic, uint8_t cipher);
 uint16_t rt2501_txtime(uint32_t len, uint8_t rate);
 

@@ -30,15 +30,15 @@
 #include "i2c.h"
 #include "rt2501usb.h"
 #include "rfid.h"
-#include<stdio.h>
-#include<string.h>
+#include <stdio.h>
+#include <string.h>
 
-#include"vmem.h"
-#include"vloader.h"
-#include"vinterp.h"
-#include"vnet.h"
-#include"vaudio.h"
-#include"vlog.h"
+#include "vmem.h"
+#include "vloader.h"
+#include "vinterp.h"
+#include "vnet.h"
+#include "vaudio.h"
+#include "vlog.h"
 
 
 #define MHz      (1000000L)
@@ -175,6 +175,8 @@ void dumpbin(uint8_t * p,int32_t n,int32_t ln)
   if (ln) consolestr((uint8_t*)"\r\n");
 }
 
+char buffer[256];
+
 /**
  * Usercode Entry point
  */
@@ -215,7 +217,7 @@ int main(void)
   init_uc_flash();
   //  set_bit(FLACON,0x01);
 
-  //~ wdt_start();
+  wdt_start();
 
   //Init System timer
   // Overflow in ms = ( 16 x (65536-value of TMRLR) x 1000 ) / (SystemClock)
@@ -308,10 +310,14 @@ int main(void)
 
   consolestr("dumpShort\r\n");
   vmemDumpShort();
-//		vmemDump();
+  vmemDump();
 
-//		for(i=0;i<6;i++) printf("fun %d at %d\n",i,loaderFunstart(i));
-  consolestr("main\r\n");
+  uint8_t i;
+	for(i=0;i<6;i++) {
+    sprintf(buffer,"fun %d at %d\n",i,loaderFunstart(i));
+    consolestr(buffer);
+  }
+  //~ consolestr("main\r\n");
 
   VPUSH(INTTOVAL(0));
   interpGo();
@@ -341,9 +347,9 @@ int main(void)
       {
         CLR_WDT;
 
-//        sprintf(buffer,"receive frame size %d\r\n",r->length);
-//        DBG(buffer);
-//        dump((uuint8_t *)r->data,r->length);
+        sprintf(buffer,"receive frame size %ld"EOL,r->length);
+        DBG(buffer);
+        dump((uint8_t *)r->data,r->length);
         netCb((uint8_t *)r->data,r->length,(uint8_t *)r->source_mac);
         disable_ohci_irq();
         hcd_free(r);
