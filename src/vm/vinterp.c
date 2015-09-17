@@ -19,50 +19,12 @@
 #include "vm/vmem.h"
 #include "vm/vnet.h"
 
+#ifdef DEBUG_VM
 #include "vm/vbc_str.h"
-
-/*
-void displaybc(int32_t off,int32_t base)
-{
-	int32_t v;
-	uint8_t *p=_bytecode+off;
-	uint8_t * spaces="         ";
-	int32_t ind=off;
-	int32_t i=*p;
-	printf("%4d]",base);
-	if ((i<0)||(i>=MaxOpcode)) printf("%4d   ??\n",ind);
-	else if ((i==OPint))
-	{
-		p++;
-		v=(p[0]&255)+((p[1]&255)<<8)+((p[2]&255)<<16)+((p[3]&255)<<24);
-		printf("%4d   %s%s %d\n",ind,strbytecod[i],spaces+strlen(strbytecod[i]),v);
-		ind+=4;
-		p+=3;
-	}
-	else if ((i==OPgoto)||(i==OPelse))
-	{
-		p++;
-		v=(p[0]&255)+((p[1]&255)<<8);
-		printf("%4d   %s%s %d\n",ind,strbytecod[i],spaces+strlen(strbytecod[i]),v);
-		ind+=2;
-		p+=1;
-	}
-	else if ((i==OPgetlocalb)||(i==OPgetglobalb)||(i==OPfetchb)||(i==OPdeftabb)||(i==OPsetlocalb)||
-		(i==OPmktabb)||(i==OPsetstructb)||(i==OPcallrb)||(i==OPintb))
-	{
-		p++;
-		v=p[0]&255;
-		printf("%4d   %s%s %d\n",ind,strbytecod[i],spaces+strlen(strbytecod[i]),v);
-		ind++;
-	}
-	else if (i==OPret)
-	{
-		printf("%4d   %s%s\n",ind,strbytecod[i],spaces+strlen(strbytecod[i]));
-		return;
-	}
-	else printf("%4d   %s%s\n",ind,strbytecod[i],spaces+strlen(strbytecod[i]));
-}
-*/
+#ifdef _NAB_SIM
+#include <stdio.h>
+#endif
+#endif
 
 // test si dernier appel ?
 int32_t TFCtest(int32_t p,int32_t pbase)
@@ -76,14 +38,14 @@ int32_t TFCtest(int32_t p,int32_t pbase)
 			i=(_bytecode[p]&255)+((_bytecode[p+1]&255)<<8);
 			p=pbase+i;
 		}
-		else return 0;
+		else
+      return 0;
 	}
 	return 1;
 }
 
 
 int32_t _currentop=-1;
-int32_t tron=0;
 
 // execute une fonction
 // la pile doit contenir la liste d'argument, puis la fonction
@@ -126,8 +88,6 @@ void interpGo()
         }
 				consolestr(EOL);
 
-				//				if (_bytecode[0x2450]==0) tron=0;
-				//                          dump(&_bytecode[0x2440],32);
 			#endif
       CLR_WDT;
 			switch(op)
@@ -146,7 +106,7 @@ void interpGo()
 							VPUSH(VFETCH(VALTOPNT(VSTACKGET(0)),1));
 							VSTACKSET(1,VFETCH(VALTOPNT(VSTACKGET(1)),0));
 						}
-						//					VPULL();
+						// VPULL();
 					}
 					else fun=VALTOINT(p);
 					(void)VPULL();
@@ -200,7 +160,6 @@ void interpGo()
 				break;
 			case OPintb:
 				VPUSH(INTTOVAL(255&_bytecode[pc++]));
-				//                                if (VSTACKGET(0)==INTTOVAL(0xd5)) tron=1;
 				break;
 			case OPint:
 				VPUSH(INTTOVAL(loaderGetInt(&_bytecode[pc])));
@@ -857,13 +816,9 @@ void interpGo()
 							PNTTOVAL(VMALLOCSTR(audioFifoPlay,env)));
 					}
 					VPUSH(INTTOVAL(0));
-					//                                     tron=1;
 					interpGo();
 					//					VPULL();
 					consolestr("#################### OPbytecode done"EOL);
-					//                                        tron=0;
-//					tron=1;
-
 					return;
 				}
 				break;
@@ -1292,25 +1247,20 @@ void interpGo()
 			default:
 				consolestr("unknown opcode ");consoleint(op);
 				consolestr(" at ");consoleint(pc-1);consolestr("\n");
-				//                                dump(_bytecode,256);
+				dump(_bytecode,256);
 				return;
 			}
-			/*                        if (_bytecode[8]==0x48)
-			{
-			consolestr("bytecode erase ");consoleint(op);
-			consolestr(" at ");consoleint(pc-1);consolestr("\n");
-			dump(_bytecode,256);
-			}
-			*/		}while(cont);
-			_currentop=-1;
-			if (callstack>0)return;
-			if(pc>=0)
-			{
-				//			vmemDumpStack();
-				//			displaybc(pc);
+    } while(cont);
 
-				//			getchar();
-			}
-			op=255&_bytecode[pc++];
+    _currentop=-1;
+    if (callstack>0)
+      return;
+    #ifdef DEBUG_VM
+    if(pc>=0)
+    {
+      vmemDump();
+    }
+    #endif
+    op=255&_bytecode[pc++];
 	}
 }

@@ -7,6 +7,7 @@
  */
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "vm/vmem.h"
 #include "vm/vloader.h"
@@ -339,13 +340,53 @@ void vmemStacktotab(int32_t n)
 
 void vmemDumpHeap()
 {
-	consolestr("HEAP\n----\n");
+  #ifdef DEBUG_VM
+	consolestr("---HEAP"EOL);
+  int32_t i,n,pos,realsize;
+  char buff[50];
+  pos=_vmem_start;
+	n=0;
+  while(pos < _vmem_heapindex)
+	{
+		realsize=VSIZE(pos)+HEADER_LENGTH;
+		sprintf(buff,"0x%08X : %s %d\t",pos,HEADER_TYPE(pos)?"Tab":"Bin",VSIZE(pos));
+    consolestr(buff);
+		for(i=0;i<realsize;i++)
+    {
+      sprintf(buff,"0x%08x ",_vmem_heap[pos+i]);
+      consolestr(buff);
+    }
+		consolestr(EOL);
+		pos+=realsize;
+		n++;
+	}
+  consolestr("---"EOL);
+  #ifdef _NAB_SIM
+  getchar();
+  #endif
+  #endif
 	logGC();
+
 }
 
 void vmemDumpStack()
 {
-	consolestr("STACK\n-----\n");
+  #ifdef DEBUG_VM
+	consolestr("---STACK"EOL);
+  int32_t i,k;
+  char buff[50];
+	for(i=-1;i>=_vmem_stack;i--)
+	{
+		k=_vmem_top[i];
+
+		sprintf(buff, "% 4d: 0x%08X -> 0x%08X (%d)"EOL,i,k,k>>1,k>>1);
+    consolestr(buff);
+	}
+  consolestr("---"EOL);
+  #ifdef _NAB_SIM
+  getchar();
+  #endif
+  #endif
 }
 
 void vmemDump()
