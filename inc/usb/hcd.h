@@ -9,20 +9,22 @@
 #define _HCD_H_
 
 #include "ml60842.h"
-#include "usbh.h"
+#include "usb/usbh.h"
 
-/*
- * Host Controller Endpoint Descriptor,
+/**
+ * @brief Host Controller Endpoint Descriptor
+ *
  * refer to Section 4.2, Endpoint Descriptor
  */
 typedef struct _HC_ED
 {
-  volatile uint32_t  Control;         /* dword 0*/
-  volatile uint32_t  TailP;           /* physical pointer to HC_TD*/
-  volatile uint32_t  HeadP;           /* flags + phys ptr to HC_TD*/
-  volatile uint32_t  NextED;          /* phys ptr to HC_ED*/
+  volatile uint32_t  Control;         /**< @brief dword 0 */
+  volatile uint32_t  TailP;           /**< @brief physical pointer to HC_TD */
+  volatile uint32_t  HeadP;           /**< @brief flags + phys ptr to HC_TD */
+  volatile uint32_t  NextED;          /**< @brief phys ptr to HC_ED */
 } HC_ED, *PHC_ED;
 
+/* Control values */
 #define HcED_FA           0x0000007F  /* */
 #define HcED_EN           0x00000780  /* */
 #define HcED_DIR          0x00001800  /* */
@@ -33,25 +35,22 @@ typedef struct _HC_ED
 #define HcED_FORMAT       0x00008000  /* */
 #define HcED_MPS          0x07FF0000  /* */
 
-#define HcED_HeadP_HALT   0x00000001  /* hardware stopped bit */
-#define HcED_HeadP_CARRY  0x00000002  /* hardware toggle carry bit */
-
-#define ED_IDLE           0
-#define ED_LINK           1
-#define ED_PAUSE          2
-#define ED_UNLINK         3
+#define HcED_HeadP_HALT   0x00000001  /**< @brief hardware stopped bit */
+#define HcED_HeadP_CARRY  0x00000002  /**< @brief hardware toggle carry bit */
 
 #define MAXIMUM_OVERHEAD  500
 
-/*
- * Host Controller Transfer Descriptor, refer to Section 4.3, Transfer Descriptor
+/**
+ * @brief Host Controller Transfer Descriptor
+ *
+ * refer to Section 4.3, Transfer Descriptor
  */
 typedef struct _HC_TD
 {
-  volatile uint32_t  Control;         /* dword 0*/
-  volatile void *CBP;                 /* phys ptr to data buffer*/
-  volatile uint32_t  NextTD;          /* phys ptr to HC_TD*/
-  volatile void *BE;                  /* phys ptr to end of data buffer*/
+  volatile uint32_t  Control;     /**< @brief dword 0 */
+  volatile void *CBP;             /**< @brief phys ptr to data buffer */
+  volatile uint32_t  NextTD;      /**< @brief phys ptr to HC_TD */
+  volatile void *BE;              /**< @brief phys ptr to end of data buffer */
 } HC_TD, *PHC_TD;
 
 #define HcTD_CC           0xF0000000  /* */
@@ -84,56 +83,63 @@ typedef struct _HC_TD
 #define TD_DATA           2
 #define TD_STATUS         3
 
-/*
-* HCD Endpoint Descriptor
-*/
+/* ED flags */
+#define ED_IDLE           0
+#define ED_LINK           1
+#define ED_PAUSE          2
+#define ED_UNLINK         3
+
+/**
+ * @brief HCD Endpoint Descriptor
+ */
 typedef struct _HCD_ED
 {
-  HC_ED    HcED;
-  uint8_t    type;
-  uint8_t    interval;
-  uint8_t    flag;
-  uint8_t    reserved;
-  void    *dev;
+  HC_ED       HcED;
+  uint8_t     type;
+  uint8_t     interval;
+  uint8_t     flag;
+  uint8_t     reserved;
+  void        *dev;
   LIST_ENTRY  ed_list;
 } HCD_ED, *PHCD_ED;
 
-/*
-* HCD Transfer Descriptor
-*/
+/**
+ * @brief HCD Transfer Descriptor
+ */
 typedef struct _HCD_TD {
-  HC_TD   HcTD;
-  PURB    urb;
-  int32_t index;
+  HC_TD       HcTD;
+  PURB        urb;
+  int32_t     index;
   LIST_ENTRY  list;
 } HCD_TD, *PHCD_TD;
 
 
 struct hcca
 {
-  uint32_t int_table[32]; /* These 32 Dwords are pointers to interrupt EDs */
-  uint16_t framenumber;   /* Contains the current frame number.  */
-  uint16_t pad1;          /* When the HC updates HccaFrameNumber,
-                           *      it sets this word to 0. */
-  uint32_t donehead;      /* The Done Queue of completed TD's. */
-  uint8_t  reserved[116];
+  uint32_t int_table[32]; /**< @brief Pointers to interrupt EDs */
+  uint16_t framenumber;   /**< @brief Contains the current frame number.  */
+  uint16_t pad1;          /**< @brief When the HC updates HccaFrameNumber,
+                           *      it sets this word to 0.
+                           */
+  uint32_t donehead;      /**< @brief The Done Queue of completed TD's. */
+  uint8_t  reserved[116]; /**< @brief FIXME: Remove this ? */
 };
 
 struct hcd_info
 {
   struct hcca *hcca;      /* address of HCCA */
 
-  int32_t     disabled;   /* status of host controller */
-  uint32_t    hc_control; /* copy of the hc control reg */
+  uint8_t     disabled;   /**< @brief status of host controller */
+  uint32_t    hc_control; /**< @brief copy of the hc control reg */
 
-  LIST_ENTRY  ed_bulk;    /* bulk endpoint list*/
-  LIST_ENTRY  ed_control; /* control endpoint list*/
+  LIST_ENTRY  ed_bulk;    /**< @brief bulk endpoint list */
+  LIST_ENTRY  ed_control; /**< @brief control endpoint list */
 
-  LIST_ENTRY  ed_pause0;  /* delete endpoint list0*/
-  LIST_ENTRY  ed_pause1;  /* delete endpoint list1*/
+  LIST_ENTRY  ed_pause0;  /**< @brief delete endpoint list0 */
+  LIST_ENTRY  ed_pause1;  /**< @brief delete endpoint list1 */
 
-  int32_t     rh_status;  /* status of root hub */
-  void        *rh_device;
+  uint8_t     rh_status;  /**< @brief status of root hub */
+  void        *rh_device; /**< @brief FIXME ? */
 };
 
 #define HcdRH_CONNECT     0x01
@@ -143,7 +149,7 @@ struct hcd_info
 extern struct hcd_info hcd_info;
 
 #define disable_ohci_irq() put_wvalue(HostCtl, B_OHCIIRQ_MASK)
-#define enable_ohci_irq() put_wvalue(HostCtl, 0)
+#define enable_ohci_irq()  put_wvalue(HostCtl, 0)
 
 int8_t hcd_init(void);
 void hcd_exit(void);
@@ -158,4 +164,4 @@ int8_t hcd_transfer_request(PURB);
 int8_t hcd_transfer_cancel(PURB);
 int8_t hcd_rh_disconnect(void);
 
-#endif  /* _HCD_H_ */
+#endif
