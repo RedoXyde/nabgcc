@@ -57,38 +57,48 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="inc">
-    <File Name="inc/rt2501usb_internal.h"/>
-    <File Name="inc/delay.h"/>
-    <File Name="inc/rc4.h"/>
-    <File Name="inc/vbc.h"/>
-    <File Name="inc/hcd.h"/>
-    <File Name="inc/motor.h"/>
-    <File Name="inc/hash.h"/>
-    <File Name="inc/mem.h"/>
-    <File Name="inc/debug.h"/>
-    <File Name="inc/vlog.h"/>
-    <File Name="inc/usbh.h"/>
-    <File Name="inc/vnet.h"/>
-    <File Name="inc/audio.h"/>
-    <File Name="inc/spi.h"/>
-    <File Name="inc/eapol.h"/>
-    <File Name="inc/vmem.h"/>
-    <File Name="inc/hcdmem.h"/>
-    <File Name="inc/i2c.h"/>
-    <File Name="inc/vbc_str.h"/>
-    <File Name="inc/vloader.h"/>
-    <File Name="inc/rt2501usb_hw.h"/>
-    <File Name="inc/rt2501usb_io.h"/>
-    <File Name="inc/vaudio.h"/>
-    <File Name="inc/usbctrl.h"/>
-    <File Name="inc/uart.h"/>
-    <File Name="inc/list.h"/>
-    <File Name="inc/led.h"/>
-    <File Name="inc/rt2501usb.h"/>
-    <File Name="inc/rfid.h"/>
-    <File Name="inc/rt2501usb_firmware.h"/>
-    <File Name="inc/vinterp.h"/>
-    <File Name="inc/ieee80211.h"/>
+    <VirtualDirectory Name="net">
+      <File Name="inc/net/rc4.h"/>
+      <File Name="inc/net/hash.h"/>
+      <File Name="inc/net/eapol.h"/>
+      <File Name="inc/net/ieee80211.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="vm">
+      <File Name="inc/vm/vbc.h"/>
+      <File Name="inc/vm/vlog.h"/>
+      <File Name="inc/vm/vnet.h"/>
+      <File Name="inc/vm/vmem.h"/>
+      <File Name="inc/vm/vbc_str.h"/>
+      <File Name="inc/vm/vloader.h"/>
+      <File Name="inc/vm/vaudio.h"/>
+      <File Name="inc/vm/vinterp.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="utils">
+      <File Name="inc/utils/delay.h"/>
+      <File Name="inc/utils/mem.h"/>
+      <File Name="inc/utils/debug.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="hal">
+      <File Name="inc/hal/motor.h"/>
+      <File Name="inc/hal/audio.h"/>
+      <File Name="inc/hal/spi.h"/>
+      <File Name="inc/hal/i2c.h"/>
+      <File Name="inc/hal/uart.h"/>
+      <File Name="inc/hal/led.h"/>
+      <File Name="inc/hal/rfid.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="usb">
+      <File Name="inc/usb/rt2501usb_internal.h"/>
+      <File Name="inc/usb/hcd.h"/>
+      <File Name="inc/usb/usbh.h"/>
+      <File Name="inc/usb/hcdmem.h"/>
+      <File Name="inc/usb/rt2501usb_hw.h"/>
+      <File Name="inc/usb/rt2501usb_io.h"/>
+      <File Name="inc/usb/usbctrl.h"/>
+      <File Name="inc/usb/list.h"/>
+      <File Name="inc/usb/rt2501usb.h"/>
+      <File Name="inc/usb/rt2501usb_firmware.h"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="mtl">
     <File Name="mtl/boot.0.0.0.10.mtl"/>
@@ -103,36 +113,46 @@
     <File Name="mtl/boot.0.0.0.9.mtl"/>
   </VirtualDirectory>
   <VirtualDirectory Name="src">
-    <File Name="src/hcd.c"/>
-    <File Name="src/led.c"/>
-    <File Name="src/eapol.c"/>
-    <File Name="src/usbctrl.c"/>
-    <File Name="src/rt2501usb_buffer.c"/>
-    <File Name="src/list.c"/>
-    <File Name="src/uart.c"/>
-    <File Name="src/rt2501usb_io.c"/>
-    <File Name="src/vnet.c"/>
-    <File Name="src/i2c.c"/>
-    <File Name="src/vloader.c"/>
-    <File Name="src/rc4.c"/>
     <File Name="src/bc.c"/>
-    <File Name="src/ieee80211.c"/>
     <File Name="src/main.c"/>
-    <File Name="src/delay.c"/>
-    <File Name="src/vaudio.c"/>
-    <File Name="src/rfid.c"/>
-    <File Name="src/spi.c"/>
-    <File Name="src/hcdmem.c"/>
-    <File Name="src/motor.c"/>
-    <File Name="src/sys.c"/>
-    <File Name="src/hash.c"/>
-    <File Name="src/audio.c"/>
-    <File Name="src/mem.c"/>
-    <File Name="src/vlog.c"/>
-    <File Name="src/rt2501usb.c"/>
-    <File Name="src/vmem.c"/>
-    <File Name="src/vinterp.c"/>
-    <File Name="src/usbhcore.c"/>
+    <VirtualDirectory Name="vm">
+      <File Name="src/vm/vaudio.c"/>
+      <File Name="src/vm/vinterp.c"/>
+      <File Name="src/vm/vloader.c"/>
+      <File Name="src/vm/vlog.c"/>
+      <File Name="src/vm/vmem.c"/>
+      <File Name="src/vm/vnet.c"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="net">
+      <File Name="src/net/eapol.c"/>
+      <File Name="src/net/hash.c"/>
+      <File Name="src/net/ieee80211.c"/>
+      <File Name="src/net/rc4.c"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="usb">
+      <File Name="src/usb/hcd.c"/>
+      <File Name="src/usb/hcdmem.c"/>
+      <File Name="src/usb/list.c"/>
+      <File Name="src/usb/rt2501usb.c"/>
+      <File Name="src/usb/rt2501usb_buffer.c"/>
+      <File Name="src/usb/rt2501usb_io.c"/>
+      <File Name="src/usb/usbctrl.c"/>
+      <File Name="src/usb/usbhcore.c"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="hal">
+      <File Name="src/hal/audio.c"/>
+      <File Name="src/hal/i2c.c"/>
+      <File Name="src/hal/led.c"/>
+      <File Name="src/hal/motor.c"/>
+      <File Name="src/hal/rfid.c"/>
+      <File Name="src/hal/spi.c"/>
+      <File Name="src/hal/uart.c"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="utils">
+      <File Name="src/utils/delay.c"/>
+      <File Name="src/utils/mem.c"/>
+      <File Name="src/utils/sys.c"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

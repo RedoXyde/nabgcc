@@ -8,11 +8,12 @@ OPTIONS += -DDEBUG_USB
 
 # C Files to compile (take all)
 C_FILES = $(wildcard src/*.c)
+C_FILES += $(wildcard src/**/*.c)
 C_FILES += $(wildcard sys/src/*.c)
 AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
-CFLAGS += -O1
+CFLAGS += -Os
 CFLAGS += -g
 CFLAGS += -mthumb -mthumb-interwork
 CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wpointer-arith
@@ -20,7 +21,9 @@ CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -fno-exceptions -fno-delete-null-pointer-checks
 CFLAGS += -mcpu=arm7tdmi -MMD
 CFLAGS += $(OPTIONS)
-CFLAGS += -Iinc/ -Isys/inc
+CFLAGS += -Iinc/
+CFLAGS += -Iinc/hal -Iinc/net -Iinc/usb -Iinc/utils -Iinc/vm
+CFLAGS += -Isys/inc
 
 LDSCRIPT = sys/ml67q4051.ld
 
@@ -50,16 +53,16 @@ OBJS += $(AS_FILES:%.s=obj/%.o)
 
 all: elf hex bin dis
 
-elf: $(TARGET).elf
+elf: bin/$(TARGET).elf
 	$(SIZE) $<
 
-hex: $(TARGET).elf
-	$(OBJCOPY) -O ihex $< $(TARGET).hex
+hex: bin/$(TARGET).elf
+	$(OBJCOPY) -O ihex $< bin/$(TARGET).hex
 
-bin: $(TARGET).elf
-	$(OBJCOPY) -O binary $< $(TARGET).bin
+bin: bin/$(TARGET).elf
+	$(OBJCOPY) -O binary $< bin/$(TARGET).bin
 
-dis: $(TARGET).elf
+dis: bin/$(TARGET).elf
 	$(NM) -lS $< > obj/$(TARGET).sym
 	$(DUMP) -d $< > obj/$(TARGET).dis
 
@@ -77,13 +80,14 @@ obj/%.o : %.s
 -include $(OBJS:.o=.d)
 
 %.elf : $(OBJS)
+	@test -d $(@D) || mkdir -pm 775 $(@D)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean:
-	@rm -f $(TARGET).elf $(TARGET).hex $(TARGET).bin
+	@rm -Rf bin/
 	@rm -Rf obj/
 
-program: $(TARGET).elf
+program: bin/$(TARGET).elf
 	$(PROGRAM) $< < gdb_load
 
 .PHONY: clean program elf hex bin
