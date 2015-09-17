@@ -89,7 +89,7 @@ uint32_t loaderSizeBC(uint8_t *src)
  */
 void loaderInit(uint8_t *src)
 {
-	uint32_t n,nw,i;
+	uint32_t n,i;
 	uint8_t* src0;
 	uint8_t* dst;
 
@@ -99,8 +99,7 @@ void loaderInit(uint8_t *src)
 	for(i=0;i<n;i++)
     dst[i]=src[i];
   /* FIXME: Find what this thing does */
-	nw=(n+3)>>2;
-	vmemInit(nw);
+	vmemInit((n+3)>>2);
 
 	/* FIXME: Find what this thing does */
 	_sys_start=_vmem_stack-1;
@@ -108,23 +107,22 @@ void loaderInit(uint8_t *src)
     VPUSH(NIL);
 
   /* Load the global variables */
-  src=_bytecode;
+  src=_bytecode; // src is now at Global size (in RAM)
 	src0=_bytecode;
     /* Get the global variables array size */
 	n=loaderGetInt(src);
     /* Drop this offset */
-	src+=4;
+	src+=4; // src is now at Global start (in RAM)
     /* Load the global variables in the Stack */
 	_global_start=_vmem_stack-1;
 	while(((uint32_t)(src-src0))<n)
     src=loaderInitRec(src);
-
-  /* "Load" (actually, skip) the code */
+          // src is now at Code size (in RAM)
+  /* Get the code size */
 	n=loaderGetInt(src);
     /* Skip code size */
-	src+=4;
+	src+=4; // src is now at Code start (in RAM)
 
-  /* Load the Functions table */
     /* */
 	_bc_tabfun=&_bytecode[n+2];
     /* */

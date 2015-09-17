@@ -32,19 +32,19 @@ extern int32_t _global_start;
  *
  * @param [in]  *src  Source address
  */
-#define loaderGetByte(src)  (*(int8_t *)src)
+#define loaderGetByte(src)  ((int32_t)(*(int8_t *)src)&0xFF)
 /**
  * @brief Macro to get a Short from src array
  *
  * @param [in]  *src  Source address
  */
-#define loaderGetShort(src) (*(int16_t*)src)
+#define loaderGetShort(src) ((int32_t)(*(int16_t*)src)&0xFFFF)
 /**
  * @brief Macro to get an Integer from src array
  *
  * @param [in]  *src  Source address
  */
-#define loaderGetInt(src)   (*(int32_t*)src)
+#define loaderGetInt(src)   ((int32_t)(*(int32_t*)src)&0xFFFFFFFF)
 
 int32_t loaderFunstart(int32_t funnumber);
 
