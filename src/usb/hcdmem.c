@@ -6,11 +6,14 @@
  * @brief HCD dynamic memory management
  */
 #include <stdio.h>
+
 #include "ml674061.h"
 #include "common.h"
-#include "hcdmem.h"
-#include "debug.h"
-#include "delay.h"
+
+#include "utils/debug.h"
+#include "utils/delay.h"
+
+#include "usb/hcdmem.h"
 
 /**
  * @brief Get the max value
@@ -27,10 +30,10 @@ typedef struct _memory
 {
 	struct _memory *Next;
 	uint32_t Address;
-	uint32_t Area;
+	uint8_t Area;
 	uint32_t Size;
 	uint32_t tag;
-	unsigned int time;
+	uint32_t time;
 } MMDL, *PMMDL;
 
 typedef struct _buffer{
@@ -56,10 +59,10 @@ static MBDL BufferTable[BufferBanks] = {
 int8_t hcd_malloc_init(int32_t Address, uint32_t Size,
                     uint32_t Boundary, uint8_t Bank)
 {
-#ifdef DEBUG
-        sprintf(dbg_buffer, "Set up memory bank %d, addr 0x%08lx, size %ld\r\n",
-		Bank, Address, Size);
-        DBG(dbg_buffer);
+#ifdef DEBUG_USB
+  sprintf(dbg_buffer, "Set up memory bank %d, addr 0x%08lx, size %ld\r\n",
+          Bank, Address, Size);
+  DBG_USB(dbg_buffer);
 #endif
 
 	if(Bank<BufferBanks){
@@ -116,8 +119,8 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 	if(Size==0) return NULL;
 
     if( Size > (Buffer->Size - sizeof(MMDL)) ){
-	DBG("hcd_malloc: Size > (Buffer->Size - sizeof(MMDL)\r\n");
-        return NULL;
+      DBG("hcd_malloc: Size > (Buffer->Size - sizeof(MMDL)\r\n");
+      return NULL;
     }
 
 	Area = Size + sizeof(MMDL);
@@ -148,22 +151,21 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 			pLastMMDL = pNextMMDL;
 			pNextMMDL = pLastMMDL->Next;
 		}
-
 	}
 
 	if(NextBufferAddress + Area > Buffer->Address + Buffer->Size)
-        {
-          	DBG("hcd_malloc: NextBufferAddress + Area > Buffer->Address + Buffer->Size\r\n");
-                pNextMMDL = Buffer->MMDLs;
-		while(pNextMMDL != NULL)
-                {
-                    sprintf(dbg_buffer,"addr=%lx area=%lx size=%lx tag=%ld time=%d\n",pNextMMDL->Address,pNextMMDL->Area,pNextMMDL->Size,pNextMMDL->tag,pNextMMDL->time);
-                    DBG(dbg_buffer);
-                    pNextMMDL = pNextMMDL->Next;
-                }
-                 sprintf(dbg_buffer,"time=%ld\n",counter_timer);
-                  DBG(dbg_buffer);
-		return NULL;
+  {
+    DBG("hcd_malloc: NextBufferAddress + Area > Buffer->Address + Buffer->Size\r\n");
+    pNextMMDL = Buffer->MMDLs;
+    while(pNextMMDL != NULL)
+    {
+      sprintf(dbg_buffer,"addr=%lx area=%lx size=%lx tag=%ld time=%d\n",pNextMMDL->Address,pNextMMDL->Area,pNextMMDL->Size,pNextMMDL->tag,pNextMMDL->time);
+      DBG(dbg_buffer);
+      pNextMMDL = pNextMMDL->Next;
+    }
+    sprintf(dbg_buffer,"time=%ld\n",counter_timer);
+    DBG(dbg_buffer);
+    return NULL;
 	}
 
 	pNewMMDL = (PMMDL)(NextBufferAddress + Area - sizeof(MMDL));
@@ -182,15 +184,8 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 
 	pNewMMDL->Next = pNextMMDL;
 
-/*
-        if (tag==19)
-        {
-          sprintf(dbg_buffer,"malloc addr=%x area=%x size=%x tag=%d time=%d\n",pNewMMDL->Address,pNewMMDL->Area,pNewMMDL->Size,pNewMMDL->tag,pNewMMDL->time);
-          DBG(dbg_buffer);
-        }
-*/
-/*        sprintf(dbg_buffer, "hcd_malloc: %08lX (%d,%d)\r\n", NextBufferAddress, Size, Area);
-        DBG(dbg_buffer);*/
+//  sprintf(dbg_buffer, "hcd_malloc: %08lX (%d,%d)\r\n", NextBufferAddress, Size, Area);
+//  DBG(dbg_buffer);
 
 	return (uint8_t *)NextBufferAddress;
 }

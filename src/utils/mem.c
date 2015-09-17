@@ -8,9 +8,11 @@
 #include "ml674061.h"
 #include "common.h"
 
-#include "mem.h"
-#include "hcdmem.h"
-#include "vlog.h"
+#include "utils/mem.h"
+
+#include "usb/hcdmem.h"
+
+#include "vm/vlog.h"
 
 /*******************************************************************************/
 /*  Init the internal flash memory                                             */

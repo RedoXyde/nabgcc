@@ -12,10 +12,11 @@
 
 #include "ml674061.h"
 #include "common.h"
-#include "delay.h"
-
 #include "irq.h"
-#include "uart.h"
+
+#include "utils/delay.h"
+
+#include "hal/uart.h"
 
 uint8_t UART_BUFFER[UART_BUFFER_SIZE];  /**< @brief RX buffer */
 volatile uint8_t uart_buffer_pointer;   /**< @brief RX write index */

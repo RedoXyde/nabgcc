@@ -23,7 +23,6 @@ CFLAGS += -fno-exceptions -fno-delete-null-pointer-checks
 CFLAGS += -mcpu=arm7tdmi -MMD
 CFLAGS += $(OPTIONS)
 CFLAGS += -Iinc/
-CFLAGS += -Iinc/hal -Iinc/net -Iinc/usb -Iinc/utils -Iinc/vm
 CFLAGS += -Isys/inc
 
 LDSCRIPT = sys/ml67q4051.ld

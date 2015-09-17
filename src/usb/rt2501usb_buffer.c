@@ -9,15 +9,15 @@
 #include <string.h>
 
 #include "common.h"
-#include "mem.h"
-#include "hcdmem.h"
-#include "hcd.h"
-#include "debug.h"
-#include "delay.h"
+#include "utils/mem.h"
+#include "utils/debug.h"
+#include "utils/delay.h"
 
-#include "rt2501usb.h"
-#include "rt2501usb_internal.h"
-#include "ieee80211.h"
+#include "usb/hcdmem.h"
+#include "usb/hcd.h"
+#include "usb/rt2501usb.h"
+#include "usb/rt2501usb_internal.h"
+#include "net/ieee80211.h"
 
 static struct rt2501buffer *head, *queue;
 

@@ -9,11 +9,13 @@
 #include <stdio.h>
 #include "ml674061.h"
 #include "common.h"
-#include "hcd.h"
-#include "mem.h"
-#include "hcdmem.h"
-#include "debug.h"
-#include "delay.h"
+
+#include "utils/debug.h"
+#include "utils/delay.h"
+#include "utils/mem.h"
+
+#include "usb/hcd.h"
+#include "usb/hcdmem.h"
 
 #define RevisonNumber	0x00000010
 #define TD_BUFFER_MAX	4096
@@ -408,9 +410,8 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr, uint8_t type, uint8_t ep_
 	PHCD_TD td;
 	uint32_t dir;
 
-#ifdef DEBUG_USB
-	DBG_USB(" hcd_create_ed:\r\n");
-#endif
+	DBG_USB(" hcd_create_ed"EOL);
+
 
 	ed = (PHCD_ED)hcd_malloc(sizeof(HCD_ED), COMRAM,4);
 	if (!ed){
@@ -422,10 +423,10 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr, uint8_t type, uint8_t ep_
 		hcd_free(ed);
 		return NULL;
 	}
-	memset((long *)td, 0, sizeof(HCD_TD));
+	memset((int64_t *)td, 0, sizeof(HCD_TD));
 
-	dir = (type == USB_CTRL) ? (uint32_t)0:
-		((ep_num & USB_DIR_IN) ? (uint32_t)HcED_DIR_IN : (uint32_t)HcED_DIR_OUT);
+	dir = (uint32_t)((type == USB_CTRL) ? 0:
+		((ep_num & USB_DIR_IN) ? HcED_DIR_IN : HcED_DIR_OUT));
 	ed->HcED.Control = ((uint32_t)maxpacket << 16) | ((uint32_t)speed << 13 ) | ((uint32_t)ep_num << 7)
 					 | dir | ((uint32_t)dev_addr & 0x7Fl) | HcED_SKIP;
 	ed->HcED.TailP = (uint32_t)td;
@@ -948,7 +949,8 @@ static void hcd_rh_irq(void)
 	 	DBG(" root hub: please debug this code.\r\n");
 		put_wvalue(HcRhPortStatus, RH_PS_PRS);
 		/*writel_reg(HcRhPortStatus, RH_PS_OCIC);*/
-	}
+	} else
+    DBG_USB("hcd_rh_irq: nope");
 }
 
 void hcd_ed_delete_list(void)

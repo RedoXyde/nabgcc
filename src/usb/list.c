@@ -6,7 +6,8 @@
  * @brief Linked list util
  */
 #include "common.h"
-#include "list.h"
+
+#include "usb/list.h"
 
 void __list_add(pLIST_ENTRY entry, pLIST_ENTRY Blink, pLIST_ENTRY Flink)
 {

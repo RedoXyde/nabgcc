@@ -8,7 +8,7 @@
 #include "ml674061.h"
 #include "common.h"
 
-#include "motor.h"
+#include "hal/motor.h"
 
 /**
  * @brief Init the PWM module to drive the 2 DC brush motor and count position

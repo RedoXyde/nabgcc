@@ -6,10 +6,13 @@
  * @brief USB Stack - Control
  */
 #include "ml674061.h"
-#include "common.h"
-#include "usbctrl.h"
 #include "ml60842.h"
-#include "debug.h"
+#include "common.h"
+
+#include "utils/debug.h"
+
+#include "usb/usbctrl.h"
+
 
 uint32_t usbctrl_state = 0;
 

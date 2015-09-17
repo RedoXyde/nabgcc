@@ -6,10 +6,10 @@
  * @brief RT2501 Wifi/Network driver
  */
 #include "common.h"
-#include "usbh.h"
 
-#include "rt2501usb_hw.h"
-#include "rt2501usb_io.h"
+#include "usb/usbh.h"
+#include "usb/rt2501usb_hw.h"
+#include "usb/rt2501usb_io.h"
 
 uint32_t rt2501_read(PDEVINFO dev, uint16_t reg)
 {

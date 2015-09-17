@@ -7,7 +7,8 @@
  */
 #include "ml674061.h"
 #include "common.h"
-#include "i2c.h"
+
+#include "hal/i2c.h"
 
 /**
  * @brief Wait for CMBB bit to be set, or timeout

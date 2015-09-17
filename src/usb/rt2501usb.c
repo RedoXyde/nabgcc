@@ -7,24 +7,28 @@
  */
 #include <stdio.h>
 #include <string.h>
-#include "ml674061.h"
-#include "common.h"
-#include "usbctrl.h"
-#include "mem.h"
-#include "hcdmem.h"
-#include "hcd.h"
-#include "usbh.h"
-#include "ml60842.h"
-#include "delay.h"
-#include "debug.h"
 
-#include "ieee80211.h"
-#include "eapol.h"
-#include "rt2501usb_hw.h"
-#include "rt2501usb_firmware.h"
-#include "rt2501usb_io.h"
-#include "rt2501usb_internal.h"
-#include "rt2501usb.h"
+#include "ml674061.h"
+#include "ml60842.h"
+#include "common.h"
+
+#include "utils/debug.h"
+#include "utils/delay.h"
+#include "utils/mem.h"
+
+
+#include "net/ieee80211.h"
+#include "net/eapol.h"
+
+#include "usb/hcdmem.h"
+#include "usb/hcd.h"
+#include "usb/usbctrl.h"
+#include "usb/usbh.h"
+#include "usb/rt2501usb_hw.h"
+#include "usb/rt2501usb_firmware.h"
+#include "usb/rt2501usb_io.h"
+#include "usb/rt2501usb_internal.h"
+#include "usb/rt2501usb.h"
 
 typedef struct _CHANNEL_TX_POWER {
 	uint8_t Channel;
