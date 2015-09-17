@@ -14,6 +14,7 @@ C_FILES += $(wildcard sys/src/*.c)
 AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
+CFLAGS =
 CFLAGS += -Os
 CFLAGS += -g
 CFLAGS += -mthumb -mthumb-interwork
@@ -22,8 +23,7 @@ CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -fno-exceptions -fno-delete-null-pointer-checks
 CFLAGS += -mcpu=arm7tdmi -MMD
 CFLAGS += $(OPTIONS)
-CFLAGS += -Iinc/
-CFLAGS += -Isys/inc
+CFLAGS += -Iinc/ -Isys/inc
 
 LDSCRIPT = sys/ml67q4051.ld
 
