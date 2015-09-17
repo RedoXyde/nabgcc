@@ -9,13 +9,13 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "rt2501usb.h"
+#include "usb/rt2501usb.h"
 
-#include "vinterp.h"
-#include "vlog.h"
-#include "vloader.h"
-#include "vmem.h"
-#include "vnet.h"
+#include "vm/vinterp.h"
+#include "vm/vlog.h"
+#include "vm/vloader.h"
+#include "vm/vmem.h"
+#include "vm/vnet.h"
 
 /**
  * @brief Get network's current state
@@ -42,7 +42,7 @@ int32_t netCb(uint8_t *src,int32_t lensrc,uint8_t *macsrc)
 {
   VPUSH(PNTTOVAL(VMALLOCSTR(src,lensrc)));
   VPUSH(PNTTOVAL(VMALLOCSTR(macsrc,6)));
-  VPUSH(VCALLSTACKGET(sys_start,SYS_CBTCP));
+  VPUSH(VCALLSTACKGET(_sys_start,SYS_CBTCP));
   if (VSTACKGET(0)!=NIL) interpGo();
   else { (void)VPULL();(void)VPULL();}
   (void)VPULL();

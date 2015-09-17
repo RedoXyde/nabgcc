@@ -5,30 +5,22 @@
  * @date 2015/09/07
  * @brief VLISP Virtual Machine - Loader functions
  */
-#include <stdint.h>
+#include "common.h"
+#include "vm/vmem.h"
+#include "vm/vloader.h"
 
-#include"vmem.h"
-#include"vloader.h"
+uint8_t *_bc_tabfun;
+uint16_t _bc_nbfun;
+int32_t _sys_start;
+int32_t _global_start;
 
-uint8_t *bc_tabfun;
-int32_t bc_nbfun;
-int32_t sys_start;
-int32_t global_start;
+/**
+ * @brief FIXME
 
-uint8_t loaderGetByte(uint8_t *src)
-{
-	return *(uint8_t*)src;
-}
-
-uint16_t loaderGetShort(uint8_t *src)
-{
-	return *(uint16_t*)src;
-}
-uint32_t loaderGetInt(uint8_t *src)
-{
-	return *(uint32_t*)src;//((src[3]&255)<<24)+((src[2]&255)<<16)+((src[1]&255)<<8)+(src[0]&255);
-}
-
+ * @param [in/out]  *src  Address where to start reading
+ *
+ * @return Address when done reading
+ */
 uint8_t *loaderInitRec(uint8_t *src)
 {
 	int32_t l,i;
@@ -47,7 +39,8 @@ uint8_t *loaderInitRec(uint8_t *src)
 		{
 			l>>=1;
 			//			printf("tuple %d\n",l);
-			for(i=0;i<l;i++) src=loaderInitRec(src);
+			for(i=0;i<l;i++)
+        src=loaderInitRec(src);
 			VMKTAB(l);
 		}
 		else
@@ -66,53 +59,91 @@ uint8_t *loaderInitRec(uint8_t *src)
 	return src;
 }
 
+/**
+ * @brief Get the Bytecode Size
+ *
+ * @param [in]  *src  Adress where the bytecode is stored
+ *
+ * @return  Size of the bytecode
+ */
 uint32_t loaderSizeBC(uint8_t *src)
 {
 	uint32_t n,b;
+  /* Step 1: Global variables length*/
 	n=loaderGetInt(src);
 	src+=n;
+  /* Step 2: Code length */
 	b=loaderGetInt(src);
 	src+=4+b;
 	n+=4+b;
+  /* Step 3: Functions table length */
 	n+=2+(loaderGetShort(src)<<2);
+  /* Done ! */
 	return n;
 }
 
+/**
+ * @brief Initialize the VM: load bytecode
+ *
+ * @param [in]  *src  Adress where the bytecode is stored
+ */
 void loaderInit(uint8_t *src)
 {
-	int32_t n,nw,i;
+	uint32_t n,nw,i;
 	uint8_t* src0;
 	uint8_t* dst;
 
-	n=loaderSizeBC(src);
-	dst=(uint8_t*)vmem_heap;
-	for(i=0;i<n;i++) dst[i]=src[i];
+	n=loaderSizeBC(src);               /* Read the Size of the Bytecode at *src */
+  /* Copy the ROM Bytecode to RAM */
+	dst=_bytecode;
+	for(i=0;i<n;i++)
+    dst[i]=src[i];
+  /* FIXME: Find what this thing does */
 	nw=(n+3)>>2;
 	vmemInit(nw);
 
-	src=(uint8_t*)vmem_heap;
+	/* FIXME: Find what this thing does */
+	_sys_start=_vmem_stack-1;
+	for(i=0;i<SYS_NB;i++)
+    VPUSH(NIL);
 
-	sys_start=vmem_stack-1;
-	for(i=0;i<SYS_NB;i++) VPUSH(NIL);
-
-	src0=src;
+  /* Load the global variables */
+  src=_bytecode;
+	src0=_bytecode;
+    /* Get the global variables array size */
 	n=loaderGetInt(src);
+    /* Drop this offset */
 	src+=4;
-	global_start=vmem_stack-1;
-	while(((int32_t)(src-src0))<n) src=loaderInitRec(src);
+    /* Load the global variables in the Stack */
+	_global_start=_vmem_stack-1;
+	while(((uint32_t)(src-src0))<n)
+    src=loaderInitRec(src);
 
+  /* "Load" (actually, skip) the code */
 	n=loaderGetInt(src);
+    /* Skip code size */
 	src+=4;
 
-	bc_tabfun=&bytecode[n+2];
-	bc_nbfun=loaderGetShort(src+n);
-	n+=2+(bc_nbfun<<2);
-	for(i=0;i<n;i++) bytecode[i]=src[i];
+  /* Load the Functions table */
+    /* */
+	_bc_tabfun=&_bytecode[n+2];
+    /* */
+	_bc_nbfun=loaderGetShort(src+n);
+	n+=2+(_bc_nbfun<<2);
+	for(i=0;i<n;i++)
+    _bytecode[i]=src[i];
 	vmemSetstart((n+3)>>2);
 }
 
+/**
+ * @brief Get the entrypoint for a function
+ *
+ * @param [in]  funnumber   ID/Number of the function
+ *
+ * @return  Start address of the function
+ */
 int32_t loaderFunstart(int32_t funnumber)
 {
-	return loaderGetInt(bc_tabfun+(funnumber<<2));
+	return loaderGetInt(_bc_tabfun+(funnumber<<2));
 }
 

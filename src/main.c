@@ -1,44 +1,43 @@
-/*************************************************************************************/
-/*                                                                                   */
-/*      Copyright (C) 2005 Oki Electric Industry Co., LTD.                           */
-/*                                                                                   */
-/*      System Name     :  ML674051/ML67Q4061                                        */
-/*      Module Name     :  Demo code for AME-51 Board                                */
-/*      File   Name     :  demo.c                                                    */
-/*      Revision        :  1.00                                                      */
-/*      Date            :  2005/05/18                                                */
-/*                          Initial version                                          */
-/*                                                                                   */
-/*************************************************************************************/
-#include "ml674061.h"
-#include "common.h"
-#include "irq.h"
-#include "spi.h"
-#include "led.h"
-#include "mem.h"
-#include "uart.h"
-#include "debug.h"
-#include "usbh.h"
-
-#include "delay.h"
-#include "audio.h"
-#include "motor.h"
-#include "usbctrl.h"
-#include "ml60842.h"
-#include "hcdmem.h"
-#include "hcd.h"
-#include "i2c.h"
-#include "rt2501usb.h"
-#include "rfid.h"
+/**
+ * @file main.c
+ * @author Violet - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief Nabaztag firmware, main
+ */
 #include <stdio.h>
 #include <string.h>
 
-#include "vmem.h"
-#include "vloader.h"
-#include "vinterp.h"
-#include "vnet.h"
-#include "vaudio.h"
-#include "vlog.h"
+#include "ml674061.h"
+#include "ml60842.h"
+#include "common.h"
+
+#include "irq.h"
+
+#include "utils/mem.h"
+#include "utils/debug.h"
+
+#include "utils/delay.h"
+#include "hal/audio.h"
+#include "hal/i2c.h"
+#include "hal/led.h"
+#include "hal/motor.h"
+#include "hal/rfid.h"
+#include "hal/spi.h"
+#include "hal/uart.h"
+
+#include "usb/hcdmem.h"
+#include "usb/hcd.h"
+#include "usb/usbh.h"
+#include "usb/usbctrl.h"
+#include "usb/rt2501usb.h"
+
+#include "vm/vmem.h"
+#include "vm/vloader.h"
+#include "vm/vinterp.h"
+#include "vm/vnet.h"
+#include "vm/vaudio.h"
+#include "vm/vlog.h"
 
 
 #define MHz      (1000000L)
@@ -330,7 +329,7 @@ int main(void)
     uint32_t t;
     CLR_WDT;
 
-    VPUSH(VCALLSTACKGET(sys_start,SYS_CBLOOP));
+    VPUSH(VCALLSTACKGET(_sys_start,SYS_CBLOOP));
     if (VSTACKGET(0)!=NIL)
       interpGo();
     (void)VPULL();

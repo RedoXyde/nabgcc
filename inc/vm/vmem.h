@@ -12,13 +12,17 @@
 #define VMEM_LENGTH	            (1024*200)
 #define VMEM_GCTHRESHOLD        16
 
-#define vmem_heap               ((int32_t*)(0xD0010000))
+#ifndef _NAB_SIM
+#define _vmem_heap               ((int32_t*)(0xD0010000))
+#else
+  extern int32_t _vmem_heap[VMEM_LENGTH];
+#endif
 
-extern int32_t vmem_heapindex;
-extern int32_t *vmem_top;
-extern int32_t vmem_stack;
-extern int32_t vmem_start;
-extern int32_t vmem_broken;
+extern int32_t _vmem_heapindex;
+extern int32_t *_vmem_top;
+extern int32_t _vmem_stack;
+extern int32_t _vmem_start;
+extern int32_t _vmem_broken;
 
 int32_t vmemAllocBin(int32_t size,int32_t ext);
 int32_t vmemAllocTab(int32_t size,int32_t ext);
@@ -54,20 +58,20 @@ void    vmemDumpShort();
 #define HEADER_GC               1	// bit 0 : marquage, autres bits : adresse après GC
 #define HEADER_LIST             2	// pile GC
 
-#define HEADER_TYPE(p)          (vmem_heap[p]&1)
-#define HEADER_EXT(p)           ((vmem_heap[p]>>1)&127)
-#define HEADER_SIZE(p)          (vmem_heap[p]>>8)
-#define HEADER_USED(p)          (vmem_heap[(p)+HEADER_GC]&1)
-#define HEADER_MARK(p)          vmem_heap[(p)+HEADER_GC]|=1
+#define HEADER_TYPE(p)          (_vmem_heap[p]&1)
+#define HEADER_EXT(p)           ((_vmem_heap[p]>>1)&127)
+#define HEADER_SIZE(p)          (_vmem_heap[p]>>8)
+#define HEADER_USED(p)          (_vmem_heap[(p)+HEADER_GC]&1)
+#define HEADER_MARK(p)          _vmem_heap[(p)+HEADER_GC]|=1
 
 // Stack management
 #define VPUSH(v)                vmemPush(v)
-#define VPULL()                 (vmem_top[vmem_stack++])
-#define VSTACKGET(n)            (vmem_top[vmem_stack+(n)])
-#define VSTACKSET(n,v)          vmem_top[vmem_stack+(n)]=(v)
-#define VDROPN(n)               vmem_stack+=(n)
-#define VCALLSTACKGET(off,n)    (vmem_top[(off)-(n)])
-#define VCALLSTACKSET(off,n,v)  vmem_top[(off)-(n)]=(v)
+#define VPULL()                 (_vmem_top[_vmem_stack++])
+#define VSTACKGET(n)            (_vmem_top[_vmem_stack+(n)])
+#define VSTACKSET(n,v)          _vmem_top[_vmem_stack+(n)]=(v)
+#define VDROPN(n)               _vmem_stack+=(n)
+#define VCALLSTACKGET(off,n)    (_vmem_top[(off)-(n)])
+#define VCALLSTACKSET(off,n,v)  _vmem_top[(off)-(n)]=(v)
 
 // Heap management
 #define VMALLOC(n)              vmemAllocTab(n,0)
@@ -75,12 +79,12 @@ void    vmemDumpShort();
 #define VMALLOCBIN(n)           vmemAllocBin(n,0)
 #define VMALLOCSTR(p,n)         vmemAllocString(p,n)
 #define VMKTAB(n)               vmemStacktotab(n)
-#define VSIZE(p)                (((vmem_heap[p]>>8)+4)>>2)
-#define VSIZEBIN(p)             (vmem_heap[p]>>8)
-#define VSTART(p)               (&vmem_heap[(p)+HEADER_LENGTH])
-#define VSTARTBIN(p)            ((uint8_t*)&vmem_heap[(p)+HEADER_LENGTH])
-#define VFETCH(p,i)             (vmem_heap[(p)+HEADER_LENGTH+(i)])
-#define VSTORE(p,i,v)           vmem_heap[(p)+HEADER_LENGTH+(i)]=(v)
+#define VSIZE(p)                (((_vmem_heap[p]>>8)+4)>>2)
+#define VSIZEBIN(p)             (_vmem_heap[p]>>8)
+#define VSTART(p)               (&_vmem_heap[(p)+HEADER_LENGTH])
+#define VSTARTBIN(p)            ((uint8_t*)&_vmem_heap[(p)+HEADER_LENGTH])
+#define VFETCH(p,i)             (_vmem_heap[(p)+HEADER_LENGTH+(i)])
+#define VSTORE(p,i,v)           _vmem_heap[(p)+HEADER_LENGTH+(i)]=(v)
 
 #endif
 

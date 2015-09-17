@@ -10,7 +10,7 @@
 
 #pragma pack(1)
 
-#include "rt2501usb_internal.h"
+#include "usb/rt2501usb_internal.h"
 
 #define EAPOL_DTYPE_WPAKEY        0xFE
 

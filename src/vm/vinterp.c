@@ -12,20 +12,20 @@
 #include "ml674061.h"
 #include "common.h"
 
-#include "vaudio.h"
-#include "vinterp.h"
-#include "vloader.h"
-#include "vlog.h"
-#include "vmem.h"
-#include "vnet.h"
+#include "vm/vaudio.h"
+#include "vm/vinterp.h"
+#include "vm/vloader.h"
+#include "vm/vlog.h"
+#include "vm/vmem.h"
+#include "vm/vnet.h"
 
-#include "vbc_str.h"
+#include "vm/vbc_str.h"
 
 /*
 void displaybc(int32_t off,int32_t base)
 {
 	int32_t v;
-	uint8_t *p=bytecode+off;
+	uint8_t *p=_bytecode+off;
 	uint8_t * spaces="         ";
 	int32_t ind=off;
 	int32_t i=*p;
@@ -68,12 +68,12 @@ void displaybc(int32_t off,int32_t base)
 int32_t TFCtest(int32_t p,int32_t pbase)
 {
 	int32_t i;
-	while(bytecode[p]!=OPret)
+	while(_bytecode[p]!=OPret)
 	{
-		if (bytecode[p]==OPgoto)
+		if (_bytecode[p]==OPgoto)
 		{
 			p++;
-			i=(bytecode[p]&255)+((bytecode[p+1]&255)<<8);
+			i=(_bytecode[p]&255)+((_bytecode[p+1]&255)<<8);
 			p=pbase+i;
 		}
 		else return 0;
@@ -82,7 +82,7 @@ int32_t TFCtest(int32_t p,int32_t pbase)
 }
 
 
-int32_t currentop=-1;
+int32_t _currentop=-1;
 int32_t tron=0;
 
 // execute une fonction
@@ -97,34 +97,39 @@ void interpGo()
 	int32_t callstackres=1;
 	int32_t op=OPexec;
 	int32_t cont;
-	if (tron)
-	{
-		consolestr("go:");
-		consoleint(VSTACKGET(0));consolestr(".");
-		consoleint(vmem_stack);consolestr("/");
-	}
-	if (vmem_broken) return;
+
+	if (_vmem_broken)
+    return;
 	while(1)
 	{
 
 		do
 		{
 			cont=0;
-			currentop=op;
-     //~ consolestr("\r\n"); consoleint(currentop);consolestr("\r\n");
-			if (tron)
-			{
+			_currentop=op;
+			#ifdef DEBUG_VM
 //				displaybc(pc-1,pcbase);
-/*
-				consoleint(pc);consolestr(":");
+        consolestr("pc: ");
+				consolehx(pc);
+        consolestr("\t op: ");
 				consoleint(op);
-				if (op) {consolestr(":");consoleint(255&bytecode[pc]);}
-				consolestr("\n");
-*/
-				//				if (bytecode[0x2450]==0) tron=0;
-				//                          dump(&bytecode[0x2440],32);
-			}
-                        CLR_WDT;
+        consolestr(" - ");
+        if(op < MaxOpcode)
+        {
+
+          consolestr(strbytecod[op]);
+        } else
+          consolestr("unknown");
+				if (op) {
+          consolestr("\t: ");
+          consoleint(_bytecode[pc]);
+        }
+				consolestr(EOL);
+
+				//				if (_bytecode[0x2450]==0) tron=0;
+				//                          dump(&_bytecode[0x2440],32);
+			#endif
+      CLR_WDT;
 			switch(op)
 			{
 			case OPexec:
@@ -152,8 +157,8 @@ void interpGo()
 						break;
 					}
 					npc=loaderFunstart(fun);
-					narg=bytecode[npc];
-					nloc=loaderGetShort(bytecode+npc+1);
+					narg=_bytecode[npc];
+					nloc=loaderGetShort(_bytecode+npc+1);
 					npc+=3;
 
 					if (callstack<=0)
@@ -166,7 +171,7 @@ void interpGo()
 							ncall=VALTOINT(VCALLSTACKGET(callstackres,-1));
 							callstackres=VALTOINT(VCALLSTACKGET(callstackres,0));
 							for(i=0;i<narg;i++)	VCALLSTACKSET(callstack,i,VSTACKGET(narg-i-1));
-							vmem_stack=callstack-narg+1;
+							_vmem_stack=callstack-narg+1;
 							callstack=ncall;
 						}
 					}
@@ -176,8 +181,8 @@ void interpGo()
 					VPUSH(INTTOVAL(pcbase));
 					VPUSH(INTTOVAL(callstack));
 					VPUSH(INTTOVAL(callstackres));
-					callstack=vmem_stack+3+nloc+narg;
-					callstackres=vmem_stack;
+					callstack=_vmem_stack+3+nloc+narg;
+					callstackres=_vmem_stack;
 					pcbase=pc=npc;
 				}
 				break;
@@ -189,16 +194,16 @@ void interpGo()
 					ncall=VALTOINT(VSTACKGET(2));
 					callstackres=VALTOINT(VSTACKGET(1));
 					VCALLSTACKSET(callstack,0,VSTACKGET(0));	// recopie le résultat
-					vmem_stack=callstack;
+					_vmem_stack=callstack;
 					callstack=ncall;
 				}
 				break;
 			case OPintb:
-				VPUSH(INTTOVAL(255&bytecode[pc++]));
+				VPUSH(INTTOVAL(255&_bytecode[pc++]));
 				//                                if (VSTACKGET(0)==INTTOVAL(0xd5)) tron=1;
 				break;
 			case OPint:
-				VPUSH(INTTOVAL(loaderGetInt(&bytecode[pc])));
+				VPUSH(INTTOVAL(loaderGetInt(&_bytecode[pc])));
 				pc+=4;
 				break;
 			case OPnil:
@@ -211,7 +216,7 @@ void interpGo()
 				VPUSH(VSTACKGET(0));
 				break;
 			case OPgetlocalb:
-				VPUSH(VCALLSTACKGET(callstack,255&bytecode[pc++]));
+				VPUSH(VCALLSTACKGET(callstack,255&_bytecode[pc++]));
 				break;
 			case OPgetlocal:
 				VSTACKSET(0,VCALLSTACKGET(callstack,VALTOINT(VSTACKGET(0))));
@@ -290,27 +295,27 @@ void interpGo()
 				VDROPN(1);
 				break;
 			case OPgoto:
-				pc=pcbase+loaderGetShort(&bytecode[pc]);
+				pc=pcbase+loaderGetShort(&_bytecode[pc]);
 				break;
 			case OPelse:
-				if (!VPULL()) pc=pcbase+loaderGetShort(&bytecode[pc]);
+				if (!VPULL()) pc=pcbase+loaderGetShort(&_bytecode[pc]);
 				else pc+=2;
 				break;
 			case OPmktabb:
-				VPUSH(PNTTOVAL(VMALLOCCLEAR(255&bytecode[pc++])));
+				VPUSH(PNTTOVAL(VMALLOCCLEAR(255&_bytecode[pc++])));
 				break;
 			case OPmktab:
 				VPUSH(PNTTOVAL(VMALLOCCLEAR(VALTOINT(VPULL()))));
 				break;
 			case OPdeftabb:
-				VMKTAB(255&bytecode[pc++]);
+				VMKTAB(255&_bytecode[pc++]);
 				break;
 			case OPdeftab:
 				VMKTAB(VALTOINT(VPULL()));
 				break;
 			case OPfetchb:
 				{
-					int32_t i=255&bytecode[pc++];
+					int32_t i=255&_bytecode[pc++];
 					int32_t p=VSTACKGET(0);
 					if (p!=NIL) VSTACKSET(0,VFETCH(VALTOPNT(p),i));
 				}
@@ -330,10 +335,10 @@ void interpGo()
 				}
 				break;
 			case OPgetglobalb:
-				VPUSH(VCALLSTACKGET(global_start,255&bytecode[pc++]));
+				VPUSH(VCALLSTACKGET(_global_start,255&_bytecode[pc++]));
 				break;
 			case OPgetglobal:
-				VSTACKSET(0,VCALLSTACKGET(global_start,VALTOINT(VSTACKGET(0))));
+				VSTACKSET(0,VCALLSTACKGET(_global_start,VALTOINT(VSTACKGET(0))));
 				break;
 			case OPSecho:
 				logSecho(VSTACKGET(0),0);
@@ -342,7 +347,7 @@ void interpGo()
 				logIecho(VSTACKGET(0),0);
 				break;
 			case OPsetlocalb:
-				VCALLSTACKSET(callstack,255&bytecode[pc++],VPULL());
+				VCALLSTACKSET(callstack,255&_bytecode[pc++],VPULL());
 				break;
 			case OPsetlocal:
 				{
@@ -351,13 +356,13 @@ void interpGo()
 				}
 				break;
 			case OPsetglobal:
-				VCALLSTACKSET(global_start,VALTOINT(VSTACKGET(1)),VSTACKGET(0));
+				VCALLSTACKSET(_global_start,VALTOINT(VSTACKGET(1)),VSTACKGET(0));
 				VSTACKSET(1,VSTACKGET(0));
 				(void)VPULL();
 				break;
 			case OPsetstructb:
 				{
-					int32_t i=255&bytecode[pc++];
+					int32_t i=255&_bytecode[pc++];
 					int32_t v=VPULL();
 					int32_t p=VSTACKGET(0);
 					if ((p!=NIL)&&(i!=NIL))
@@ -439,7 +444,7 @@ void interpGo()
 				break;
 			case OPcallrb:
 				{
-					int32_t n=255&bytecode[pc++];
+					int32_t n=255&_bytecode[pc++];
 					int32_t valn=VSTACKGET(n);
 					if (valn==NIL) VDROPN(n);
 					else
@@ -731,8 +736,8 @@ void interpGo()
 			case OPplayStart:
 				{
 					int32_t k;
-                                        VCALLSTACKSET(sys_start,SYS_CBPLAY,VPULL());
-                                        k=VALTOINT(VPULL());
+          VCALLSTACKSET(_sys_start,SYS_CBPLAY,VPULL());
+          k=VALTOINT(VPULL());
 					VPUSH(INTTOVAL(0));
 					audioPlayStart(44100,16,2,k);
 				}
@@ -767,7 +772,7 @@ void interpGo()
 			case OPrecStart:
 				{
 					int32_t freq,gain;
-					VCALLSTACKSET(sys_start,SYS_CBREC,VPULL());
+					VCALLSTACKSET(_sys_start,SYS_CBREC,VPULL());
 					gain=VALTOINT(VPULL());
 					freq=VALTOINT(VPULL());
 					VPUSH(INTTOVAL(0));
@@ -806,7 +811,7 @@ void interpGo()
 				break;
 			case OPgc:
 				vmemGC();
-				VPUSH(INTTOVAL((vmem_heapindex-vmem_stack)*100/VMEM_LENGTH));
+				VPUSH(INTTOVAL((_vmem_heapindex-_vmem_stack)*100/VMEM_LENGTH));
 				break;
 			case OPsave:
 				{
@@ -830,7 +835,7 @@ void interpGo()
 				{
 					uint8_t* q;
 					int32_t env=-1;
-					int32_t p=VALTOPNT(VCALLSTACKGET(sys_start,SYS_ENV));
+					int32_t p=VALTOPNT(VCALLSTACKGET(_sys_start,SYS_ENV));
 					audioPlayStop();
 					audioRecStop();
 					if (p!=NIL)
@@ -843,12 +848,12 @@ void interpGo()
 					//                                        dump(q+0x2df0,128);
 
 					loaderInit(q);
-					//                          dump(&bytecode[0x2440],32);
+					//                          dump(&_bytecode[0x2440],32);
 
 					if (env>=0)
 					{
 						//                                          dump(audioFifoPlay,env);
-						VCALLSTACKSET(sys_start,SYS_ENV,
+						VCALLSTACKSET(_sys_start,SYS_ENV,
 							PNTTOVAL(VMALLOCSTR(audioFifoPlay,env)));
 					}
 					VPUSH(INTTOVAL(0));
@@ -863,7 +868,7 @@ void interpGo()
 				}
 				break;
 			case OPloopcb:
-				VCALLSTACKSET(sys_start,SYS_CBLOOP,VSTACKGET(0));
+				VCALLSTACKSET(_sys_start,SYS_CBLOOP,VSTACKGET(0));
 				break;
 			case OPSecholn:
 				logSecho(VSTACKGET(0),1);
@@ -872,10 +877,10 @@ void interpGo()
 				logIecho(VSTACKGET(0),1);
 				break;
 			case OPenvget:
-				VPUSH(VCALLSTACKGET(sys_start,SYS_ENV));
+				VPUSH(VCALLSTACKGET(_sys_start,SYS_ENV));
 				break;
 			case OPenvset:
-				VCALLSTACKSET(sys_start,SYS_ENV,VSTACKGET(0));
+				VCALLSTACKSET(_sys_start,SYS_ENV,VSTACKGET(0));
 				break;
 			case OPsndVol:
 				audioVol(VALTOINT(VSTACKGET(0)));
@@ -892,7 +897,7 @@ void interpGo()
 				VPUSH(INTTOVAL(audioPlayTime()));
 				break;
 			case OPnetCb:
-				VCALLSTACKSET(sys_start,SYS_CBTCP,VSTACKGET(0));
+				VCALLSTACKSET(_sys_start,SYS_CBTCP,VSTACKGET(0));
 				break;
             case OPnetSend:
 				{
@@ -1077,7 +1082,7 @@ void interpGo()
 				audioAmpli(VALTOINT(VSTACKGET(0)));
 				break;
 			case OPcorePP:
-				VPUSH(INTTOVAL(vmem_stack));
+				VPUSH(INTTOVAL(_vmem_stack));
 				break;
 			case OPcorePush:
 				VPUSH(VSTACKGET(0));
@@ -1271,33 +1276,33 @@ void interpGo()
 			  break;
 			case OPi2cRead:
 			{ // Lecture à partir d'un périphérique I2C
-                          int32_t val2 = VALTOINT(VPULL()); // Taille de lecture
-                          uint8_t val1 = VALTOINT(VPULL()); // Adresse du lapin
-                          sysI2cRead(val1, val2);
+        int32_t val2 = VALTOINT(VPULL()); // Taille de lecture
+        uint8_t val1 = VALTOINT(VPULL()); // Adresse du lapin
+        sysI2cRead(val1, val2);
 			}
 			break;
 			case OPi2cWrite:
 			{ // Ecriture sur un périphérique I2C
-                          int32_t val3=VALTOINT(VPULL());  // Taille du buffer
-                          int32_t val2=VALTOPNT(VPULL());  // Buffer à écrire
-                          uint8_t val1=VALTOINT(VPULL()); // Adresse du périphérique
-                          sysI2cWrite(val1, (uint8_t *)VSTARTBIN(val2), val3);
+        int32_t val3=VALTOINT(VPULL());  // Taille du buffer
+        int32_t val2=VALTOPNT(VPULL());  // Buffer à écrire
+        uint8_t val1=VALTOINT(VPULL()); // Adresse du périphérique
+        sysI2cWrite(val1, (uint8_t *)VSTARTBIN(val2), val3);
 			}
 			break;
 			default:
 				consolestr("unknown opcode ");consoleint(op);
 				consolestr(" at ");consoleint(pc-1);consolestr("\n");
-				//                                dump(bytecode,256);
+				//                                dump(_bytecode,256);
 				return;
 			}
-			/*                        if (bytecode[8]==0x48)
+			/*                        if (_bytecode[8]==0x48)
 			{
 			consolestr("bytecode erase ");consoleint(op);
 			consolestr(" at ");consoleint(pc-1);consolestr("\n");
-			dump(bytecode,256);
+			dump(_bytecode,256);
 			}
 			*/		}while(cont);
-			currentop=-1;
+			_currentop=-1;
 			if (callstack>0)return;
 			if(pc>=0)
 			{
@@ -1306,6 +1311,6 @@ void interpGo()
 
 				//			getchar();
 			}
-			op=255&bytecode[pc++];
+			op=255&_bytecode[pc++];
 	}
 }

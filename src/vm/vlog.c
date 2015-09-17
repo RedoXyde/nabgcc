@@ -12,30 +12,30 @@
 #include "ml674061.h"
 #include "common.h"
 
-#include "delay.h"
+#include "utils/delay.h"
 
-#include "usbctrl.h"
+#include "usb/usbctrl.h"
 #include "ml60842.h"
-#include "hcdmem.h"
-#include "hcd.h"
-#include "usbh.h"
-#include "rt2501usb.h"
+#include "usb/hcdmem.h"
+#include "usb/hcd.h"
+#include "usb/usbh.h"
+#include "usb/rt2501usb.h"
 
-#include "debug.h"
+#include "utils/debug.h"
 #include "irq.h"
-#include "i2c.h"
-#include "spi.h"
-#include "uart.h"
+#include "hal/i2c.h"
+#include "hal/spi.h"
+#include "hal/uart.h"
 
-#include "audio.h"
-#include "led.h"
-#include "mem.h"
-#include "motor.h"
-#include "rfid.h"
+#include "hal/audio.h"
+#include "hal/led.h"
+#include "utils/mem.h"
+#include "hal/motor.h"
+#include "hal/rfid.h"
 
-#include "vmem.h"
-#include "vloader.h"
-#include "vlog.h"
+#include "vm/vmem.h"
+#include "vm/vloader.h"
+#include "vm/vlog.h"
 
 void logSecho(int32_t p,int32_t nl)
 {
@@ -57,17 +57,17 @@ void logIecho(int32_t i,int32_t nl)
     consolestr(EOL);
 }
 
-extern int32_t currentop;
+extern int32_t _currentop;
 void logGC(void)
 {
-	consolestr("#GC : sp=");consoleint(-vmem_stack);
-	consolestr(" hp=");consoleint(vmem_heapindex);
-	consolestr(" used=");consoleint((vmem_heapindex-vmem_stack)*100/VMEM_LENGTH);
+	consolestr("#GC : sp=");consoleint(-_vmem_stack);
+	consolestr(" hp=");consoleint(_vmem_heapindex);
+	consolestr(" used=");consoleint((_vmem_heapindex-_vmem_stack)*100/VMEM_LENGTH);
 	consolestr("%"EOL);
-  consolestr(" b:");consolehx((int)vmem_heap);
-  consolestr(" bc:");consolehx((int)bytecode);
-  consolestr(" st:");consolehx(vmem_start);
-  consolestr(" op:");consolehx(currentop);
+  consolestr(" b:");consolehx((int)_vmem_heap);
+  consolestr(" bc:");consolehx((int)_bytecode);
+  consolestr(" st:");consolehx(_vmem_start);
+  consolestr(" op:");consolehx(_currentop);
 	consolestr(EOL);
 
 }

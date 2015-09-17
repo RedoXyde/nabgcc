@@ -8,12 +8,12 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "audio.h"
+#include "hal/audio.h"
 
-#include "vaudio.h"
-#include "vinterp.h"
-#include "vloader.h"
-#include "vmem.h"
+#include "vm/vaudio.h"
+#include "vm/vinterp.h"
+#include "vm/vloader.h"
+#include "vm/vmem.h"
 
 uint8_t audioFifoPlay[AUDIO_FIFOPLAY];
 
@@ -82,7 +82,7 @@ int32_t audioPlayTryFeed(int32_t ask)
     if (dispo<0) dispo+=AUDIO_FIFOPLAY;
 
     VPUSH(INTTOVAL(AUDIO_FIFOPLAY-dispo));
-    VPUSH(VCALLSTACKGET(sys_start,SYS_CBPLAY));
+    VPUSH(VCALLSTACKGET(_sys_start,SYS_CBPLAY));
     if (VSTACKGET(0)==NIL)
     {
       (void)VPULL();
@@ -151,7 +151,7 @@ uint8_t *audioRecFeed_begin(int32_t size)
 
 void audioRecFeed_end()
 {
-	VPUSH(VCALLSTACKGET(sys_start,SYS_CBREC));
+	VPUSH(VCALLSTACKGET(_sys_start,SYS_CBREC));
 	if (VSTACKGET(0)!=NIL) interpGo();
 	else { (void)VPULL();}
 	(void)VPULL();

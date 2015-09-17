@@ -6,9 +6,9 @@
 #ifndef _RT2501_INTERNAL_H_
 #define _RT2501_INTERNAL_H_
 
-#include "usbh.h"
-#include "rt2501usb_hw.h"
-#include "ieee80211.h"
+#include "usb/usbh.h"
+#include "usb/rt2501usb_hw.h"
+#include "net/ieee80211.h"
 
 extern PDEVINFO rt2501_dev;
 

@@ -75,8 +75,11 @@ extern void __enable_interrupt(void);
 #define BIT_7   0x80
 
 
-#define CLR_WDT do {put_value(WDTCON,0xC3);put_value(WDTCON,0x3C);} while(0)
-//#define CLR_WDT
+#ifndef _NAB_SIM
+  #define CLR_WDT do {put_value(WDTCON,0xC3);put_value(WDTCON,0x3C);} while(0)
+#else
+  #define CLR_WDT
+#endif
 
 #define LLC2_2  0
 #define LLC2_3  1

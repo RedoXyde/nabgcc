@@ -8,7 +8,7 @@
 #ifndef _LOGGER_
 #define _LOGGER_
 
-#include "uart.h"
+#include "hal/uart.h"
 #define consolestr(val) putst_uart((uint8_t*)val)
 #define consolebin(val,len) putbin_uart(val,len)
 #define consoleint(val) putint_uart(val)

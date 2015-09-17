@@ -8,7 +8,7 @@
  #ifndef _DEBUG_H_
 #define _DEBUG_H
 
-#include "vlog.h"
+#include "vm/vlog.h"
 
 extern char dbg_buffer[];
 

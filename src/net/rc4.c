@@ -5,7 +5,7 @@
  * @date 2015/09/07
  * @brief RT2501 Wifi/Network driver
  */
-#include "rc4.h"
+#include "net/rc4.h"
 
 void rc4_init(struct rc4_context *rc4, const unsigned char *key, unsigned int length)
 {

@@ -8,24 +8,46 @@
 #ifndef _LOADER_
 #define _LOADER_
 
-#define SYS_NB 6
-#define SYS_CBPLAY 0
-#define SYS_CBUDP 1
-#define SYS_CBTCP 2
-#define SYS_CBLOOP 3
-#define SYS_ENV 4
-#define SYS_CBREC 5
+/** @todo Find the meaning of theses defines, document it */
+#define SYS_CBPLAY  0   /**< @brief FIXME */
+#define SYS_CBUDP   1   /**< @brief FIXME */
+#define SYS_CBTCP   2   /**< @brief FIXME */
+#define SYS_CBLOOP  3   /**< @brief FIXME */
+#define SYS_ENV     4   /**< @brief FIXME */
+#define SYS_CBREC   5   /**< @brief FIXME */
+#define SYS_NB      6   /**< @brief FIXME */
 
-#define bytecode ((uint8_t*)vmem_heap)
+/**
+ * Macro to improve readability, when accessing bytecode array directly
+ */
+#define _bytecode ((uint8_t*)_vmem_heap)
 
-extern uint8_t *bc_tabfun;
-extern int32_t bc_nbfun;
-extern int32_t sys_start;
-extern int32_t global_start;
+extern uint8_t *_bc_tabfun;
+extern uint16_t _bc_nbfun;
+extern int32_t _sys_start;
+extern int32_t _global_start;
 
-uint32_t loaderGetInt(uint8_t *src);
-uint16_t loaderGetShort(uint8_t *src);
+/**
+ * @brief Macro to get a single byte from src array
+ *
+ * @param [in]  *src  Source address
+ */
+#define loaderGetByte(src)  (*(int8_t *)src)
+/**
+ * @brief Macro to get a Short from src array
+ *
+ * @param [in]  *src  Source address
+ */
+#define loaderGetShort(src) (*(int16_t*)src)
+/**
+ * @brief Macro to get an Integer from src array
+ *
+ * @param [in]  *src  Source address
+ */
+#define loaderGetInt(src)   (*(int32_t*)src)
+
 int32_t loaderFunstart(int32_t funnumber);
+
 void loaderInit(uint8_t *src);
 
 #endif

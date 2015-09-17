@@ -8,8 +8,8 @@
 #ifndef _RT2501_H_
 #define _RT2501_H_
 
-#include "rt2501usb_hw.h"
-#include "ieee80211.h"
+#include "usb/rt2501usb_hw.h"
+#include "net/ieee80211.h"
 
 extern const uint8_t ieee80211_broadcast_address[IEEE80211_ADDR_LEN];
 extern const uint8_t ieee80211_null_address[IEEE80211_ADDR_LEN];

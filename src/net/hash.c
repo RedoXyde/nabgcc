@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "hash.h"
+#include "net/hash.h"
 
 /* ===== start - public domain MD5 implementation ===== */
 
