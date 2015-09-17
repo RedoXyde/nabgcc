@@ -59,6 +59,20 @@ uint8_t *loaderInitRec(uint8_t *src)
 	return src;
 }
 
+
+int8_t loaderGetByte(uint8_t *src)
+{
+	return (int8_t)src[0];
+}
+int16_t loaderGetShort(uint8_t *src)
+{
+	return (int16_t)((src[1]<<8)+src[0]);
+}
+int32_t loaderGetInt(uint8_t *src)
+{
+	return ((int32_t)loaderGetShort(src+2)<<16)|loaderGetShort(src);
+}
+
 /**
  * @brief Get the Bytecode Size
  *
@@ -68,7 +82,7 @@ uint8_t *loaderInitRec(uint8_t *src)
  */
 uint32_t loaderSizeBC(uint8_t *src)
 {
-	uint32_t n,b;
+	int32_t n,b;
   /* Step 1: Global variables length*/
 	n=loaderGetInt(src);
 	src+=n;
