@@ -18,48 +18,6 @@
     </Plugin>
   </Plugins>
   <VirtualDirectory Name="testvm">
-    <VirtualDirectory Name="src">
-      <VirtualDirectory Name="net">
-        <File Name="testvm/src/net/eapol.c"/>
-        <File Name="testvm/src/net/rc4.c"/>
-        <File Name="testvm/src/net/ieee80211.c"/>
-        <File Name="testvm/src/net/hash.c"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="vm">
-        <File Name="testvm/src/vm/vnet.c"/>
-        <File Name="testvm/src/vm/vloader.c"/>
-        <File Name="testvm/src/vm/vaudio.c"/>
-        <File Name="testvm/src/vm/vlog.c"/>
-        <File Name="testvm/src/vm/vmem.c"/>
-        <File Name="testvm/src/vm/vinterp.c"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="utils">
-        <File Name="testvm/src/utils/delay.c"/>
-        <File Name="testvm/src/utils/sys.c"/>
-        <File Name="testvm/src/utils/mem.c"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="hal">
-        <File Name="testvm/src/hal/led.c"/>
-        <File Name="testvm/src/hal/uart.c"/>
-        <File Name="testvm/src/hal/i2c.c"/>
-        <File Name="testvm/src/hal/rfid.c"/>
-        <File Name="testvm/src/hal/spi.c"/>
-        <File Name="testvm/src/hal/motor.c"/>
-        <File Name="testvm/src/hal/audio.c"/>
-      </VirtualDirectory>
-      <VirtualDirectory Name="usb">
-        <File Name="testvm/src/usb/hcd.c"/>
-        <File Name="testvm/src/usb/usbctrl.c"/>
-        <File Name="testvm/src/usb/rt2501usb_buffer.c"/>
-        <File Name="testvm/src/usb/list.c"/>
-        <File Name="testvm/src/usb/rt2501usb_io.c"/>
-        <File Name="testvm/src/usb/hcdmem.c"/>
-        <File Name="testvm/src/usb/rt2501usb.c"/>
-        <File Name="testvm/src/usb/usbhcore.c"/>
-      </VirtualDirectory>
-      <File Name="testvm/src/bc.c"/>
-      <File Name="testvm/src/main.c"/>
-    </VirtualDirectory>
     <VirtualDirectory Name="stubs">
       <VirtualDirectory Name="utils">
         <File Name="testvm/stubs/utils/delay.c"/>

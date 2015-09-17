@@ -9,11 +9,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "hal/audio.h"  // For play_check
 #include "vm/vmem.h"
 #include "vm/vloader.h"
 #include "vm/vlog.h"
-
-void play_check(int32_t nocb);
 
 int32_t _vmem_heapindex;
 int32_t *_vmem_top;
