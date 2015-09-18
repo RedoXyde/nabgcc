@@ -375,7 +375,7 @@ void hcd_delete_ed(PHCD_ED ed)
     }
   }
 
-  hcd_free((long *)ed->HcED.TailP);
+  hcd_free((uint32_t *)ed->HcED.TailP);
   hcd_free(ed);
 }
 
@@ -518,7 +518,7 @@ void hcd_control_transfer_start(PURB urb)
       control = HcTD_CC | HcTD_R | HcTD_DP_IN  | HcTD_T_DATA1 | HcTD_DI;
     else
       control = HcTD_CC | HcTD_R | HcTD_DP_OUT | HcTD_T_DATA1 | HcTD_DI;
-    if(hcd_add_td(ed, control, urb->buffer, (int)urb->length, urb, TD_DATA)<0)
+    if(hcd_add_td(ed, control, urb->buffer, urb->length, urb, TD_DATA)<0)
     {
       urb->status = URB_ADDTDERR;
       return;

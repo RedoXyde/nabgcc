@@ -5,7 +5,7 @@
  * @date 2015/09/07
  * @brief RT2501 firmware
  */
-__attribute__ ((align(4))) const uint8_t rt2501_firmware[] =
+__attribute__ ((aligned(4))) const uint8_t rt2501_firmware[] =
 {
 /*
 	2005/07/22 Suport LED mode #0,#1,#2
