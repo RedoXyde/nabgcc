@@ -3,7 +3,7 @@
  * @author Sebastien Bourdeauducq - 2006 - Initial version
  * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
  * @date 2015/09/07
- * @brief RT2501 Wifi/Network driver
+ * @brief RT2501 USB buffer management
  */
 #include <stdio.h>
 #include <string.h>
@@ -15,12 +15,17 @@
 
 #include "usb/hcdmem.h"
 #include "usb/hcd.h"
-#include "usb/rt2501usb.h"
-#include "usb/rt2501usb_internal.h"
-#include "net/ieee80211.h"
+#include "usb/rt2501usb.h"            // rt2501_* stuff
+#include "usb/rt2501usb_buffer.h"
+
+#include "net/eapol.h"                // llc_* stuff
+#include "net/ieee80211.h"            // ieee80211* stuff
 
 static struct rt2501buffer *head, *queue;
 
+/**
+ * @brief Initialize the Buffer list for RT2501 tranfers
+ */
 void rt2501buffer_init(void)
 {
   disable_ohci_irq();
@@ -28,6 +33,9 @@ void rt2501buffer_init(void)
   enable_ohci_irq();
 }
 
+/**
+ * @brief Flush the Buffer list, by reading it
+ */
 void rt2501buffer_free(void)
 {
   disable_ohci_irq();
@@ -35,9 +43,20 @@ void rt2501buffer_free(void)
   enable_ohci_irq();
 }
 
+/**
+ * @brief Allocate and prepare a new buffer
+ *
+ * @param [in]  data        Input data pointer
+ * @param [in]  length      Input data Length
+ * @param [in]  source_mac  Source MAC address
+ * @param [in]  dest_mac    Destination MAC address
+ *
+ * @retval  0 on error
+ * @retval  1 on success
+ */
 uint8_t rt2501buffer_new(const uint8_t *data, uint32_t length,
-                     const uint8_t *source_mac,
-                     const uint8_t *dest_mac)
+                         const uint8_t *source_mac,
+                         const uint8_t *dest_mac)
 {
   struct rt2501buffer *newbuffer;
 
@@ -69,6 +88,11 @@ uint8_t rt2501buffer_new(const uint8_t *data, uint32_t length,
   return 1;
 }
 
+/**
+ * @brief Receive (pulls from buffer list) a buffer item
+ *
+ * @return  Pointer to the buffer item
+ */
 struct rt2501buffer *rt2501_receive(void)
 {
   struct rt2501buffer *r;
@@ -101,4 +125,5 @@ struct rt2501buffer *rt2501_receive(void)
     hcd_free(r);
     enable_ohci_irq();
   }
+  return NULL;
 }

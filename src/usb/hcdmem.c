@@ -30,7 +30,7 @@ typedef struct _memory
 {
   struct _memory *Next;
   uint32_t Address;
-  uint8_t Area;
+  uint32_t Area;
   uint32_t Size;
   uint32_t tag;
   uint32_t time;
@@ -74,7 +74,6 @@ int8_t hcd_malloc_init(int32_t Address, uint32_t Size,
     BufferTable[Bank].Size = Size;
     BufferTable[Bank].Boundary = Boundary;
     BufferTable[Bank].PhyAddress = Address;
-
   }
   else
   {
@@ -179,7 +178,7 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
     pNextMMDL = Buffer->MMDLs;
     while(pNextMMDL != NULL)
     {
-      sprintf(dbg_buffer,"addr=%lx area=%lx size=%lx tag=%ld time=%d\n",
+      sprintf(dbg_buffer,"addr=0x%lX area=0x%lX size=0x%lX tag=0x%lX time=%ld\n",
               pNextMMDL->Address,pNextMMDL->Area,pNextMMDL->Size,
               pNextMMDL->tag,pNextMMDL->time);
       DBG(dbg_buffer);

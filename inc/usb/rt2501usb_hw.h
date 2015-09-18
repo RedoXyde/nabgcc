@@ -6,7 +6,7 @@
 #ifndef _RT2501_HW_H_
 #define _RT2501_HW_H_
 
-#pragma pack(1)
+//#pragma pack(1)
 
 /* Sitecom dongle */
 #define RT2501_VENDORID1		0x0df6
@@ -20,10 +20,10 @@
 #define RT2501_VENDORID3		0x0db0
 #define RT2501_PRODUCTID3		0x6877
 
-
-#define RT2501_READMULTIMAC		0x03
-#define RT2501_WRITEMULTIMAC		0x06
-#define RT2501_READEEPROM		0x09
+/* RT2501 USB requests */
+#define RT2501_READMULTIMAC		0x07 //0x03
+#define RT2501_WRITEMULTIMAC	0x06
+#define RT2501_READEEPROM		  0x09
 
 /* 8051 firmware image */
 #define RT2501_FIRMWARE_IMAGE_BASE     0x800
@@ -474,6 +474,6 @@ typedef	struct	_TXD_STRUC {
 	uint32_t	Reserved:7;
 } TXD_STRUC, *PTXD_STRUC;
 
-#pragma pack()
+//#pragma pack()
 
-#endif /* _RT2501_HW_H_ */
+#endif

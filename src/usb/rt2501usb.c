@@ -24,11 +24,13 @@
 #include "usb/hcd.h"
 #include "usb/usbctrl.h"
 #include "usb/usbh.h"
+
+#include "usb/rt2501usb.h"
 #include "usb/rt2501usb_hw.h"
 #include "usb/rt2501usb_firmware.h"
+#include "usb/rt2501usb_buffer.h"
 #include "usb/rt2501usb_io.h"
-#include "usb/rt2501usb_internal.h"
-#include "usb/rt2501usb.h"
+
 
 typedef struct _CHANNEL_TX_POWER {
   uint8_t Channel;
@@ -195,7 +197,7 @@ static int32_t rt2501_setup(void)
   DBG_WIFI("Loading 8051 firmware...");
   for(i=0;i<sizeof(rt2501_firmware);i+=4) {
     if(!rt2501_write(rt2501_dev, RT2501_FIRMWARE_IMAGE_BASE+i,
-           *((int32_t *)&rt2501_firmware[i]))) return 0;
+           *((int32_t *)(rt2501_firmware+i)))) return 0;
 #ifdef DEBUG_WIFI
     if((i % 64) == 0) DBG_WIFI(".");
 #endif

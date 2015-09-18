@@ -8,7 +8,7 @@
 #ifndef _IEEE80211_H_
 #define _IEEE80211_H_
 
-#pragma pack(1)
+//#pragma pack(1)
 
 #define IEEE80211_ADDR_LEN	6
 #define IEEE80211_OUI_LEN	4
@@ -279,7 +279,62 @@ struct ieee80211_tkip_iv {
 	uint32_t iv32;
 };
 
-#pragma pack()
+//#pragma pack()
 
-#endif /* _IEEE80211_H_ */
+extern int32_t ieee80211_mode;
 
+extern int32_t ieee80211_state;
+extern uint32_t ieee80211_timeout;
+
+extern uint8_t ieee80211_assoc_mac[];
+extern uint8_t ieee80211_assoc_bssid[];
+extern uint8_t ieee80211_assoc_ssid[];
+extern uint8_t ieee80211_assoc_channel;
+extern uint16_t ieee80211_assoc_rateset;
+
+extern uint8_t ieee80211_authmode;
+extern uint8_t ieee80211_encryption;
+extern uint8_t ieee80211_key[];
+
+struct ieee80211_sta_state {
+	int32_t state;
+	uint32_t timer;
+	uint8_t mac[IEEE80211_ADDR_LEN];
+};
+
+enum {
+	IEEE80211_S_IDLE,  /* disconnected, no operation going on */
+	IEEE80211_S_SCAN,  /* scanning */
+	IEEE80211_S_AUTH,  /* awaiting authentication reply from AP */
+	IEEE80211_S_ASSOC, /* awaiting association reply from AP */
+	IEEE80211_S_EAPOL, /* awaiting WPA key exchange */
+	IEEE80211_S_RUN,   /* connected or master mode */
+};
+
+extern const uint8_t ieee80211_broadcast_address[IEEE80211_ADDR_LEN];
+extern const uint8_t ieee80211_null_address[IEEE80211_ADDR_LEN];
+
+enum {
+	IEEE80211_M_MANAGED,
+	IEEE80211_M_MASTER,
+};
+
+enum {
+	IEEE80211_CRYPT_NONE,
+	IEEE80211_CRYPT_WEP64,
+	IEEE80211_CRYPT_WEP128,
+	IEEE80211_CRYPT_WPA,
+	IEEE80211_CRYPT_WPA_UNSUPPORTED,
+};
+
+enum {
+	IEEE80211_AUTH_OPEN,
+	IEEE80211_AUTH_SHARED,
+};
+
+
+void ieee80211_init(void);
+void ieee80211_timer(void);
+void ieee80211_input(uint8_t *frame, uint32_t length, int16_t rssi);
+
+#endif

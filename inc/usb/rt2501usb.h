@@ -8,29 +8,9 @@
 #ifndef _RT2501_H_
 #define _RT2501_H_
 
+#include "usb/usbh.h"
 #include "usb/rt2501usb_hw.h"
 #include "net/ieee80211.h"
-
-extern const uint8_t ieee80211_broadcast_address[IEEE80211_ADDR_LEN];
-extern const uint8_t ieee80211_null_address[IEEE80211_ADDR_LEN];
-
-enum {
-	IEEE80211_M_MANAGED,
-	IEEE80211_M_MASTER,
-};
-
-enum {
-	IEEE80211_CRYPT_NONE,
-	IEEE80211_CRYPT_WEP64,
-	IEEE80211_CRYPT_WEP128,
-	IEEE80211_CRYPT_WPA,
-	IEEE80211_CRYPT_WPA_UNSUPPORTED,
-};
-
-enum {
-	IEEE80211_AUTH_OPEN,
-	IEEE80211_AUTH_SHARED,
-};
 
 enum {
 	RT2501_S_BROKEN,
@@ -60,6 +40,69 @@ struct rt2501buffer {
 	uint8_t dest_mac[IEEE80211_ADDR_LEN];	/* MAC address of the destination  */
 	uint8_t data[];				/* ethernet frame, starting at LLC */
 };
+
+extern PDEVINFO rt2501_dev;
+
+#define RT2501_MAX_NUM_OF_CHANNELS 14
+#define RT2501_USB_PACKET_SIZE     64
+#define RT2501_MAX_FRAME_SIZE      2048
+
+#define RT2501_MAX_ASSOCIATED_STA  5
+
+#define	RT2501_RATEMASK_1		(1<<0)
+#define	RT2501_RATEMASK_2		(1<<1)
+#define	RT2501_RATEMASK_5_5		(1<<2)
+#define	RT2501_RATEMASK_11		(1<<3)
+/* OFDM rates */
+#define RT2501_RATEMASK_6		(1<<4)
+#define RT2501_RATEMASK_9		(1<<5)
+#define RT2501_RATEMASK_12		(1<<6)
+#define RT2501_RATEMASK_18		(1<<7)
+#define RT2501_RATEMASK_24		(1<<8)
+#define RT2501_RATEMASK_36		(1<<9)
+#define RT2501_RATEMASK_48		(1<<10)
+#define RT2501_RATEMASK_54		(1<<11)
+
+#define	IEEE80211_RATEMASK_1		(1<<0)
+#define	IEEE80211_RATEMASK_2		(1<<1)
+#define	IEEE80211_RATEMASK_5_5		(1<<2)
+#define IEEE80211_RATEMASK_6		(1<<3)
+#define IEEE80211_RATEMASK_9		(1<<4)
+#define	IEEE80211_RATEMASK_11		(1<<5)
+#define IEEE80211_RATEMASK_12		(1<<6)
+#define IEEE80211_RATEMASK_18		(1<<7)
+#define IEEE80211_RATEMASK_24		(1<<8)
+#define IEEE80211_RATEMASK_36		(1<<9)
+#define IEEE80211_RATEMASK_48		(1<<10)
+#define IEEE80211_RATEMASK_54		(1<<11)
+#define IEEE80211_RATEMASK_HIGHEST	IEEE80211_RATEMASK_54
+
+#define RT2501_RSSI_SAMPLES		15
+
+void rt2501_switch_channel(uint8_t channel);
+uint8_t rt2501_set_bssid(const uint8_t *bssid);
+void rt2501_make_tx_descriptor(
+	PTXD_STRUC txd,
+	uint8_t CipherAlg,
+	uint8_t KeyTable,
+	uint8_t KeyIdx,
+	uint8_t Ack,
+	uint8_t Fragment,
+	uint8_t InsTimestamp,
+	uint8_t RetryMode,
+	uint8_t Ifs,
+	uint32_t Rate,
+	uint32_t Length,
+	uint8_t QueIdx,
+	uint8_t PacketId);
+int32_t rt2501_tx(void *buffer, uint32_t length);
+uint8_t rt2501_beacon(void *buffer, uint32_t length);
+int32_t rt2501_set_key(uint8_t index, uint8_t *key, uint8_t *txmic, uint8_t *rxmic, uint8_t cipher);
+uint16_t rt2501_txtime(uint32_t len, uint8_t rate);
+
+extern uint8_t rt2501_mac[IEEE80211_ADDR_LEN];
+
+
 
 int32_t rt2501_driver_install(void);
 int32_t rt2501_state(void);

@@ -9,20 +9,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
-#include "usb/usbctrl.h"
-#include "utils/mem.h"
-#include "usb/hcdmem.h"
-#include "usb/hcd.h"
-#include "usb/usbh.h"
+
 #include "utils/delay.h"
 #include "utils/debug.h"
+#include "utils/mem.h"
+
+#include "usb/hcd.h"
+#include "usb/hcdmem.h"
+#include "usb/usbh.h"
+#include "usb/usbctrl.h"
+
+#include "usb/rt2501usb.h"
+#include "usb/rt2501usb_hw.h"
+#include "usb/rt2501usb_buffer.h"
+#include "usb/rt2501usb_io.h"
 
 #include "net/ieee80211.h"
 #include "net/eapol.h"
-#include "usb/rt2501usb_hw.h"
-#include "usb/rt2501usb_io.h"
-#include "usb/rt2501usb_internal.h"
-#include "usb/rt2501usb.h"
+
 
 const uint8_t ieee80211_broadcast_address[IEEE80211_ADDR_LEN] =
 { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };

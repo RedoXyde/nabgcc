@@ -8,9 +8,13 @@
 #ifndef _EAPOL_H_
 #define _EAPOL_H_
 
-#pragma pack(1)
 
-#include "usb/rt2501usb_internal.h"
+#define LLC_LENGTH			8
+extern const uint8_t eapol_llc[LLC_LENGTH];
+
+
+//#pragma pack(1)
+
 
 #define EAPOL_DTYPE_WPAKEY        0xFE
 
@@ -81,6 +85,19 @@ struct eapol_frame {
 #define EAPOL_MASTER_KEY_LENGTH   32
 #define EAPOL_TSC_LENGTH          6
 
-#pragma pack()
+//#pragma pack()
+
+typedef enum {
+	EAPOL_S_MSG1,  /* awaiting first message */
+	EAPOL_S_MSG3,  /* awaiting third message */
+	EAPOL_S_GROUP, /* awaiting group key     */
+	EAPOL_S_RUN,
+} eapol_state_t;
+
+extern eapol_state_t eapol_state;
+extern uint8_t ptk_tsc[];
+
+void eapol_init(void);
+void eapol_input(uint8_t *frame, uint32_t length);
 
 #endif

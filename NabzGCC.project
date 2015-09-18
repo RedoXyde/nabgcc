@@ -118,7 +118,6 @@
       <File Name="inc/hal/rfid.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="usb">
-      <File Name="inc/usb/rt2501usb_internal.h"/>
       <File Name="inc/usb/hcd.h"/>
       <File Name="inc/usb/usbh.h"/>
       <File Name="inc/usb/hcdmem.h"/>
@@ -128,6 +127,7 @@
       <File Name="inc/usb/list.h"/>
       <File Name="inc/usb/rt2501usb.h"/>
       <File Name="inc/usb/rt2501usb_firmware.h"/>
+      <File Name="inc/usb/rt2501usb_buffer.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="mtl">
@@ -183,6 +183,7 @@
       <File Name="src/utils/mem.c"/>
       <File Name="src/utils/sys.c"/>
     </VirtualDirectory>
+    <File Name="Makefile"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

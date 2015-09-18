@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "usb/usbh.h"
 #include "usb/rt2501usb.h"
 
 #include "vm/vinterp.h"

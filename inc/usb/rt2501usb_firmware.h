@@ -2,8 +2,14 @@
 	Ralink RT2501 driver for Violet embedded platforms
 	(c) 2006 Sebastien Bourdeauducq
 */
-
-static const uint8_t rt2501_firmware[] =
+/**
+ * @file rt2501usb_firmware.h
+ * @author Sebastien Bourdeauducq - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief RT2501 firmware
+ */
+__attribute__ ((align(4))) const uint8_t rt2501_firmware[] =
 {
 /*
 	2005/07/22 Suport LED mode #0,#1,#2
