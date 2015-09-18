@@ -8,9 +8,8 @@
 #include "ml674061.h"
 #include "common.h"
 
-#include "led.h"
-#include "spi.h"
-
+#include "hal/spi.h"
+#include "hal/led.h"
 
 uint8_t led_intensity[14];
 

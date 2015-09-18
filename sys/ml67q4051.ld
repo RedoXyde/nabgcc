@@ -34,6 +34,12 @@ SECTIONS
     *(.rodata.*)
   } >IntROM
   . = ALIGN(4);
+
+  /* Bytecode */
+  .bytecode :
+  {
+    *(.bytecode.*)
+  } >IntROM
   _etext = . ;
   PROVIDE (etext = .);
 
@@ -63,14 +69,14 @@ SECTIONS
 
   /* Stack */
   . = ALIGN(4);
-  PROVIDE(__stack_start__ = .);
+  PROVIDE(__stack_start__ = ALIGN(ORIGIN(IntRAM)+LENGTH(IntRAM),8));
   /* Check in 76405x_cstartup for the stack size) */
-  PROVIDE(__stack_end__ = ALIGN(__stack_start__ + 0x1680 +8 ,8));
+  PROVIDE(__stack_end__ = ALIGN(__stack_start__ - 0x1680 +8 ,8));
 
   /* Heap */
   . = ALIGN(4);
   PROVIDE(__heap_start__ = .);
-  PROVIDE(__heap_end__ = ALIGN(ORIGIN(IntRAM) + LENGTH(IntRAM) - 8 ,8));
+  PROVIDE(__heap_end__ = ALIGN(__stack_end__ - 0x100  ,8));
 
   _end = .;
   PROVIDE (end = .);

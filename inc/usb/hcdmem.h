@@ -9,7 +9,6 @@
 #define _HCDMEM_H_
 
 /* Memory allocator */
-
 int8_t hcd_malloc_init(int32_t, uint32_t, uint32_t, uint8_t);
 void *hcd_malloc(uint32_t, int8_t,int32_t);
 int8_t hcd_free(void *);

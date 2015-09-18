@@ -6,38 +6,39 @@
  * @brief Linked list util
  */
 #include "common.h"
-#include "list.h"
+
+#include "usb/list.h"
 
 void __list_add(pLIST_ENTRY entry, pLIST_ENTRY Blink, pLIST_ENTRY Flink)
 {
-	entry->Blink = Blink;
-	entry->Flink = Flink;
-	Blink->Flink = entry;
-	Flink->Blink = entry;
+  entry->Blink = Blink;
+  entry->Flink = Flink;
+  Blink->Flink = entry;
+  Flink->Blink = entry;
 }
 
 void __list_del(pLIST_ENTRY Blink, pLIST_ENTRY Flink)
 {
-	Flink->Blink = Blink;
-	Blink->Flink = Flink;
+  Flink->Blink = Blink;
+  Blink->Flink = Flink;
 }
 
 void list_add_top(pLIST_ENTRY entry, pLIST_ENTRY head)
 {
-	__list_add(entry, head, head->Flink);
+  __list_add(entry, head, head->Flink);
 }
 
 void list_add(pLIST_ENTRY entry, pLIST_ENTRY head)
 {
-	__list_add(entry, head->Blink, head);
+  __list_add(entry, head->Blink, head);
 }
 
 void list_del(pLIST_ENTRY entry)
 {
-	__list_del(entry->Blink, entry->Flink);
+  __list_del(entry->Blink, entry->Flink);
 }
 
 int list_empty(pLIST_ENTRY head)
 {
-	return (head->Flink == head);
+  return (head->Flink == head);
 }

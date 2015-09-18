@@ -7,14 +7,17 @@
  */
 #include <string.h>
 #include <stdio.h>
+
 #include "ml674061.h"
 #include "common.h"
-#include "mem.h"
-#include "usbh.h"
-#include "hcd.h"
-#include "debug.h"
-#include "delay.h"
-#include "hcdmem.h"
+
+#include "utils/debug.h"
+#include "utils/delay.h"
+#include "utils/mem.h"
+
+#include "usb/usbh.h"
+#include "usb/hcd.h"
+#include "usb/hcdmem.h"
 
 DEFINE_LIST_ENTRY(usb_driver_list);
 
@@ -468,27 +471,30 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 	int32_t ret, err;
 	uint8_t temp[8];
 
-        DBG_USB("usbh_create_pipe\r\n");
+  DBG_USB("usbh_create_pipe"EOL);
 	dev->pipe[0] = usbh_create_pipe(dev, USB_CTRL, 0, 8, 0);
 	if(!dev->pipe[0]){
 		error(10, 0);
 		return -1;
 	}
 
-        DBG_USB("usbh_get_descriptor\r\n");
+  DBG_USB("usbh_get_descriptor");
 	for(err = 0; err < 3; err++){
 		ret = usbh_get_descriptor(dev, USB_DT_DEVICE, 0, 8, temp);
-		if(ret==8) break;
-               __no_operation();
+    DBG_USB(".");
+		if(ret==8)
+      break;
+    __no_operation();
 		DelayMs(20);
-               __no_operation();
+    __no_operation();
 	}
+  DBG_USB(EOL);
 	if(ret!=8){
 		error(11, ret);
 		return -1;
 	}
 
-        DBG_USB("find_zero_bit\r\n");
+  DBG_USB("find_zero_bit\r\n");
 
 	dev->dev_addr = find_zero_bit(&usb_devmap, 128, 1);
 	if (dev->dev_addr < 128) {
@@ -498,7 +504,7 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 		return -1;
 	}
 
-        DBG_USB("usbh_set_address\r\n");
+  DBG_USB("usbh_set_address\r\n");
 	ret = usbh_set_address(dev);
 	if(ret<0){
 		error(13, ret);
@@ -507,14 +513,14 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 
 	DelayMs(10);
 
-        DBG_USB("usbh_update_pipe0\r\n");
+  DBG_USB("usbh_update_pipe0\r\n");
 	ret = usbh_update_pipe0(dev, 8);
 	if(ret<0){
 		error(14, ret);
 		return -1;
 	}
 
-        DBG_USB("usbh_get_descriptor\r\n");
+  DBG_USB("usbh_get_descriptor\r\n");
 	ret = usbh_get_descriptor(dev, USB_DT_DEVICE, 0, 8, temp);
 	if(ret<8){
 		error(20, ret);

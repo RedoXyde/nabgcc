@@ -7,11 +7,15 @@
  */
 #include "ml674061.h"
 #include "common.h"
-#include "audio.h"
-#include "spi.h"
-#include "delay.h"
-#include "vlog.h"
-#include "hcd.h"
+
+#include "utils/delay.h"
+
+#include "hal/audio.h"
+#include "hal/spi.h"
+
+#include "usb/hcd.h"
+
+#include "vm/vlog.h"
 
 #if (PCB_RELEASE == LLC2_3) || (PCB_RELEASE == LLC2_4c)
 

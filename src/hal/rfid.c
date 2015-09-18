@@ -7,12 +7,13 @@
  */
 #include "ml674061.h"
 #include "common.h"
-#include "rfid.h"
-#include "i2c.h"
 
-#include "delay.h"
+#include "utils/delay.h"
 
-#include "vlog.h"
+#include "hal/i2c.h"
+#include "hal/rfid.h"
+
+#include "vm/vlog.h"
 
 uint8_t i2cerror;
 

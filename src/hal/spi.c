@@ -7,7 +7,8 @@
  */
 #include "ml674061.h"
 #include "common.h"
-#include "spi.h"
+
+#include "hal/spi.h"
 
 /**
  * @brief Initialization of the SPI peripheral

@@ -7,7 +7,8 @@
  */
 #include "ml674061.h"
 #include "common.h"
-#include "delay.h"
+
+#include "utils/delay.h"
 
 /**
  * @brief Delay routine in ms which uses hardware timer

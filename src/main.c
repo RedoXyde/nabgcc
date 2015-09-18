@@ -216,7 +216,7 @@ int main(void)
   init_uc_flash();
   //  set_bit(FLACON,0x01);
 
-  wdt_start();
+//  wdt_start();
 
   //Init System timer
   // Overflow in ms = ( 16 x (65536-value of TMRLR) x 1000 ) / (SystemClock)
@@ -300,22 +300,22 @@ int main(void)
     while(1);
   };
 
-  consolestr("Nabaztag firmware ready.\r\n");
+  consolestr("Nabaztag firmware ("__DATE__" "__TIME__") ready.\r\n");
   consolestr("vmemInit\r\n");
   vmemInit(0);
 
   consolestr("loaderInit\r\n");
   loaderInit((uint8_t*)&dumpbc);
 
-  consolestr("dumpShort\r\n");
-  vmemDumpShort();
-  vmemDump();
+//  consolestr("dumpShort\r\n");
+//  vmemDumpShort();
+//  vmemDump();
 
-  uint8_t i;
-	for(i=0;i<6;i++) {
-    sprintf(buffer,"fun %d at %d\n",i,loaderFunstart(i));
-    consolestr(buffer);
-  }
+//  uint8_t i;
+//	for(i=0;i<6;i++) {
+//    sprintf(buffer,"fun %d at %d\n",i,loaderFunstart(i));
+//    consolestr(buffer);
+//  }
   //~ consolestr("main\r\n");
 
   VPUSH(INTTOVAL(0));

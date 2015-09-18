@@ -81,7 +81,7 @@ void eapol_input(uint8_t *frame, uint32_t length);
 
 void rt2501buffer_init(void);
 void rt2501buffer_free(void);
-int32_t rt2501buffer_new(const uint8_t *data, uint32_t length,
+uint8_t rt2501buffer_new(const uint8_t *data, uint32_t length,
                      const uint8_t *source_mac,
                      const uint8_t *dest_mac);
 
