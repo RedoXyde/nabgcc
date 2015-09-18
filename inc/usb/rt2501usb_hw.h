@@ -1,8 +1,10 @@
-/*
-	Ralink RT2501 driver for Violet embedded platforms
-	(c) 2006 Sebastien Bourdeauducq
-*/
-
+/**
+ * @file rt2501usb_hw.h
+ * @author Sebastien Bourdeauducq - 2006 - Initial version
+ * @author RedoX <dev@redox.ws> - 2015 - GCC Port, cleanup
+ * @date 2015/09/07
+ * @brief RT2501 registers
+ */
 #ifndef _RT2501_HW_H_
 #define _RT2501_HW_H_
 
@@ -248,8 +250,8 @@ typedef	union	_MAC_CSR5_STRUC	{
 	struct	{
 		uint8_t		Byte4;		 // BSSID byte 4
 		uint8_t		Byte5;		 // BSSID byte 5
-		uint16_t      BssIdMask:2; // 11: one BSSID, 00: 4 BSSID, 10 or 01: 2 BSSID
-		uint16_t		Rsvd:14;
+		uint16_t  BssIdMask:2; // 11: one BSSID, 00: 4 BSSID, 10 or 01: 2 BSSID
+		uint16_t	Rsvd:14;
 	}	field;
 	uint32_t			word;
 }	MAC_CSR5_STRUC, *PMAC_CSR5_STRUC;
@@ -257,8 +259,8 @@ typedef	union	_MAC_CSR5_STRUC	{
 typedef	union	_MAC_CSR12_STRUC	{
 	struct	{
 		uint32_t		CurrentPowerState:1; /* 0:sleep, 1:awake */
-		uint32_t       PutToSleep:1;
-		uint32_t       ForceWakeup:1;/* ForceWake has higher privilege than PutToSleep when both set */
+		uint32_t    PutToSleep:1;
+		uint32_t    ForceWakeup:1;/* ForceWake has higher privilege than PutToSleep when both set */
 		uint32_t		BbpRfStatus:1; /* 0: not ready, 1:ready */
 		uint32_t		:28;
 	}	field;
@@ -267,12 +269,12 @@ typedef	union	_MAC_CSR12_STRUC	{
 
 typedef	union	_TXRX_CSR9_STRUC	{
 	struct	{
-		uint32_t       BeaconInterval:16; /* in unit of 1/16 TU */
+		uint32_t    BeaconInterval:16; /* in unit of 1/16 TU */
 		uint32_t		bTsfTicking:1; /* Enable TSF auto counting */
 		uint32_t		TsfSyncMode:2; /* Enable TSF sync, 00: disable, 01: infra mode, 10: ad-hoc mode */
-		uint32_t       bTBTTEnable:1;
+		uint32_t    bTBTTEnable:1;
 		uint32_t		bBeaconGen:1; /* Enable beacon generator */
-		uint32_t       :3;
+		uint32_t    :3;
 		uint32_t		TxTimestampCompensate:8;
 	}	field;
 	uint32_t			word;
@@ -311,9 +313,9 @@ typedef	union	_EEPROM_ANTENNA_STRUC	{
 		uint16_t		RxDefaultAntenna:2; /* default of antenna, 0: diversity, 1:antenna-A, 2:antenna-B reserved (default = 0) */
 		uint16_t		FrameType:1; /* 0: DPDT , 1: SPDT , noted this bit is valid for g only.	*/
 		uint16_t		Rsv:2;
-		uint16_t      DynamicTxAgcControl:1;
+		uint16_t    DynamicTxAgcControl:1;
 		uint16_t		HardwareRadioControl:1;	/* 1: Hardware controlled radio enabled, Read GPIO0 required. */
-		uint16_t      RfIcType:5;
+		uint16_t    RfIcType:5;
 	}	field;
 	uint16_t			word;
 }	EEPROM_ANTENNA_STRUC, *PEEPROM_ANTENNA_STRUC;
@@ -322,25 +324,25 @@ typedef	union	_EEPROM_NIC_CINFIG2_STRUC	{
 	struct	{
 		uint16_t		Rsv1:4;
 		uint16_t		ExternalLNA:1;
-		uint16_t      Rsv2:11;
+		uint16_t    Rsv2:11;
 	}	field;
 	uint16_t			word;
 }	EEPROM_NIC_CONFIG2_STRUC, *PEEPROM_NIC_CONFIG2_STRUC;
 
 typedef	union	_EEPROM_TX_PWR_STRUC	{
 	struct	{
-		uint8_t	Byte0; /* Low Byte */
-		uint8_t	Byte1; /* High Byte */
+		uint8_t	    Byte0; /* Low Byte */
+		uint8_t	    Byte1; /* High Byte */
 	}	field;
-	uint16_t	word;
+	uint16_t	    word;
 }	EEPROM_TX_PWR_STRUC, *PEEPROM_TX_PWR_STRUC;
 
 typedef	union	_EEPROM_VERSION_STRUC	{
 	struct	{
-		uint8_t	FaeReleaseNumber; /* Low Byte */
-		uint8_t	Version; /* High Byte */
+		uint8_t	    FaeReleaseNumber; /* Low Byte */
+		uint8_t	    Version; /* High Byte */
 	}	field;
-	uint16_t	word;
+	uint16_t	    word;
 }	EEPROM_VERSION_STRUC, *PEEPROM_VERSION_STRUC;
 
 typedef	union	_EEPROM_LED_STRUC	{
@@ -356,7 +358,7 @@ typedef	union	_EEPROM_LED_STRUC	{
 		uint16_t	LedMode:5;
 		uint16_t	Rsvd:3;
 	}	field;
-	uint16_t	word;
+	uint16_t	  word;
 }	EEPROM_LED_STRUC, *PEEPROM_LED_STRUC;
 
 typedef	union	_EEPROM_TXPOWER_DELTA_STRUC	{

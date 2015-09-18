@@ -1,7 +1,3 @@
-/*
-	Ralink RT2501 driver for Violet embedded platforms
-	(c) 2006 Sebastien Bourdeauducq
-*/
 /**
  * @file rt2501usb_firmware.h
  * @author Sebastien Bourdeauducq - 2006 - Initial version
