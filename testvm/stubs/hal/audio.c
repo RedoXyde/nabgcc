@@ -213,7 +213,7 @@ void play_eof()
  */
 void clear_vlsi_fifo(void)
 {
-  consolestr("clear_vlsi_fifo\n");
+  consolestr("clear_vlsi_fifo"EOL);
   sw_reset_vlsi();
 }
 

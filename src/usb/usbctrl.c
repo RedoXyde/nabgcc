@@ -201,13 +201,13 @@ void usbctrl_interrupt(void)
         //Clear EXINT2 interrupt
         set_hbit(EXIRQB,IRQB_IRQ36);
 
-	DBG_USB("ML60842 interrupt\r\n");
+	DBG_USB("ML60842 interrupt"EOL);
 	status = get_wvalue(OTGIntStt);
 	status &= get_wvalue(OTGIntMask);
 
 	if(status & (B_AVBUSVLDCHGINT | B_ABSESSVLDCHGINT))
 	{
-       		DBG_USB(" VBUS status changed\r\n");
+       		DBG_USB(" VBUS status changed"EOL);
 
 //		put_wvalue(OTGIntStt, (B_AVBUSVLDCHG | B_ABSESSVLDCHG));
 
@@ -217,7 +217,7 @@ void usbctrl_interrupt(void)
 	}
 	else if(status & B_IDSELCHGINT)
 	{
-		DBG_USB(" Host/Periphral ID changed\r\n");
+		DBG_USB(" Host/Periphral ID changed"EOL);
 
 //		usbctrl_id_changed();
 
@@ -225,7 +225,7 @@ void usbctrl_interrupt(void)
 	}
 	else if(status & B_BSE0SRPDETSTINT)
 	{
-		DBG_USB(" Host/Periphral ID changed\r\n");
+		DBG_USB(" Host/Periphral ID changed"EOL);
 
 //		usbctrl_se0_det();
 
@@ -234,17 +234,17 @@ void usbctrl_interrupt(void)
 
 	if(usbctrl_state == STATE_HOST_ACTV)
 	{
-		DBG_USB("usb_host_interrupt\r\n");
+		DBG_USB("usb_host_interrupt"EOL);
 		usbctrl_driver_table.usb_host_interrupt();
 	}
 	else if(usbctrl_state == STATE_PERI_ACTV)
 	{
-		DBG_USB("usb_peri_interrupt\r\n");
+		DBG_USB("usb_peri_interrupt"EOL);
 		usbctrl_driver_table.usb_peri_interrupt();
 	}
 	else
 	{
-		DBG_USB("unknown interrupt\r\n");
+		DBG_USB("unknown interrupt"EOL);
 		loop=0;
 		while(get_wvalue(HostPeriSel) & B_OPERATION)
 		{

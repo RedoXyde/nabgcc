@@ -483,7 +483,7 @@ void AudioAdp2wav(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t is
 	if ((idst<0)||(isrc<0)||(idst>=ldst)||(isrc>=lsrc)) return;
 	if (len&255) return;	// que des blocs de 256
 	if ((len>lsrc-isrc)||(((len>>8)*505*2)>ldst-idst)) return;
-//	printf("a2w%d\n",len);
+//	printf("a2w%d"EOL,len);
 	src+=isrc;
 	dst+=idst;
 	while(len>0)
@@ -509,7 +509,7 @@ void AudioWav2adp(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t is
 	if (l) return;// que des blocs de 505 échantillons 16 bits
 
 	if ((len>lsrc-isrc)||((n<<8)>ldst-idst)) return;
-//	printf("w2a%d\n",len);
+//	printf("w2a%d"EOL,len);
 	src+=isrc;
 	dst+=idst;
 	while(len>0)
@@ -529,7 +529,7 @@ void AudioWav2alaw(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t i
 	if (len&1) return;
 
 	if ((len>lsrc-isrc)||((len>>1)>ldst-idst)) return;
-//	printf("w2l%d\n",len);
+//	printf("w2l%d"EOL,len);
 	src+=isrc;
 	dst+=idst;
 	p=(int16_t *)src;
@@ -552,7 +552,7 @@ void AudioAlaw2wav(uint8_t *dst,int32_t idst,int32_t ldst,uint8_t *src,int32_t i
 	if ((idst<0)||(isrc<0)||(idst>=ldst)||(isrc>=lsrc)) return;
 
 	if ((len>lsrc-isrc)||(len+len>ldst-idst)) return;
-//	printf("l2w%d\n",len);
+//	printf("l2w%d"EOL,len);
 	src+=isrc;
 	dst+=idst;
 	p=(int16_t *)dst;

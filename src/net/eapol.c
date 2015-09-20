@@ -154,7 +154,7 @@ void prf(const uint8_t *key, uint16_t key_len,
 	input = hcd_malloc(1024, EXTRAM,1);
 	enable_ohci_irq();
 	if(input == NULL) {
-		DBG_WIFI("hcd_malloc failed in prf\r\n");
+		DBG_WIFI("hcd_malloc failed in prf"EOL);
 		return;
 	}
 	memcpy(input, prefix, prefix_len);
@@ -273,7 +273,7 @@ void eapol_init(void)
 		sprintf(dbg_buffer, "0x%02x,", pmk[i]);
 		DBG_WIFI(dbg_buffer);
 	}
-	DBG_WIFI("\r\n");
+	DBG_WIFI(EOL);
 #endif
 }
 
@@ -292,11 +292,11 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 	} fr_out;
 	uint8_t ptk_buffer[80];
 
-	DBG_WIFI("Received EAPOL message 1/4\r\n");
+	DBG_WIFI("Received EAPOL message 1/4"EOL);
 
 	/* EAPOL_S_MSG3 can happen if the AP did not receive our reply */
 	if((eapol_state != EAPOL_S_MSG1) && (eapol_state != EAPOL_S_MSG3)) {
-		DBG_WIFI("Inappropriate message\r\n");
+		DBG_WIFI("Inappropriate message"EOL);
 		return;
 	}
 	eapol_state = EAPOL_S_MSG1;
@@ -321,7 +321,7 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 		sprintf(dbg_buffer, "%02x", ptk[i]);
 		DBG_WIFI(dbg_buffer);
 	}
-	DBG_WIFI("\r\n");
+	DBG_WIFI(EOL);
 #endif
 
 	/* Make response frame */
@@ -367,12 +367,12 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
                                     sizeof(wpa_rsn)-LLC_LENGTH,
 		 fr_out.llc_eapol.key_frame.key_mic);
 
-	DBG_WIFI("Response computed\r\n");
+	DBG_WIFI("Response computed"EOL);
 
 	/* Send the response */
 	rt2501_send((uint8_t *)&fr_out, sizeof(fr_out), ieee80211_assoc_mac, 1, 1);
 
-	DBG_WIFI("Response sent\r\n");
+	DBG_WIFI("Response sent"EOL);
 
 	/* Install pairwise encryption and MIC keys */
 	rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_TKIP);
@@ -395,11 +395,11 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 		struct eapol_frame llc_eapol;
 	} fr_out;
 
-	DBG_WIFI("Received EAPOL message 3/4\r\n");
+	DBG_WIFI("Received EAPOL message 3/4"EOL);
 
 	/* EAPOL_S_GROUP can happen if the AP did not receive our reply */
 	if((eapol_state != EAPOL_S_MSG3) && (eapol_state != EAPOL_S_GROUP)) {
-		DBG_WIFI("Inappropriate message\r\n");
+		DBG_WIFI("Inappropriate message"EOL);
 		return;
 	}
 
@@ -409,7 +409,7 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 	/* Check ANonce */
 	if(memcmp(fr_in->key_frame.key_nonce, anonce, EAPOL_NONCE_LENGTH) != 0)
     return;
-	DBG_WIFI("ANonce OK\r\n");
+	DBG_WIFI("ANonce OK"EOL);
 
 	/* Check MIC */
 	memcpy(old_mic, fr_in->key_frame.key_mic, EAPOL_KEYMIC_LENGTH);
@@ -420,7 +420,7 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 		 fr_in->key_frame.key_mic);
 	if(memcmp(fr_in->key_frame.key_mic, old_mic, EAPOL_KEYMIC_LENGTH) != 0)
     return;
-	DBG_WIFI("MIC OK\r\n");
+	DBG_WIFI("MIC OK"EOL);
 
 	eapol_state = EAPOL_S_MSG3;
 
@@ -460,12 +460,12 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
 		 (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)-LLC_LENGTH,
 		 fr_out.llc_eapol.key_frame.key_mic);
 
-	DBG_WIFI("Response computed\r\n");
+	DBG_WIFI("Response computed"EOL);
 
 	/* Send the response */
 	rt2501_send((uint8_t *)&fr_out, sizeof(fr_out), ieee80211_assoc_mac, 1, 1);
 
-	DBG_WIFI("Response sent\r\n");
+	DBG_WIFI("Response sent"EOL);
 
 	eapol_state = EAPOL_S_GROUP;
 }
@@ -485,12 +485,12 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 	struct rc4_context rc4;
 	struct eapol_frame fr_out;
 
-	DBG_WIFI("Received GTK message\r\n");
+	DBG_WIFI("Received GTK message"EOL);
 
 	/* EAPOL_S_RUN can happen if the AP did not receive our reply, */
 	/* or in case of GTK renewal */
 	if((eapol_state != EAPOL_S_GROUP) && (eapol_state != EAPOL_S_RUN)) {
-		DBG_WIFI("Inappropriate message\r\n");
+		DBG_WIFI("Inappropriate message"EOL);
 		return;
 	}
 
@@ -502,7 +502,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 		 fr_in->key_frame.key_mic);
 	if(memcmp(fr_in->key_frame.key_mic, old_mic, EAPOL_KEYMIC_LENGTH) != 0)
     return;
-	DBG_WIFI("MIC OK\r\n");
+	DBG_WIFI("MIC OK"EOL);
 
 	/* Make response frame */
 	memcpy(fr_out.llc, eapol_llc, LLC_LENGTH);
@@ -539,13 +539,13 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 		 (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)-LLC_LENGTH,
 		 fr_out.key_frame.key_mic);
 
-	DBG_WIFI("Response computed\r\n");
+	DBG_WIFI("Response computed"EOL);
 
 	/* Send the response */
 	rt2501_send((uint8_t *)&fr_out, sizeof(struct eapol_frame),
               ieee80211_assoc_mac, 1, 1);
 
-	DBG_WIFI("Response sent\r\n");
+	DBG_WIFI("Response sent"EOL);
 
 	/* Decipher and install GTK */
 	memcpy(&key[0], fr_in->key_frame.key_iv, EAPOL_KEYIV_LENGTH);
@@ -561,7 +561,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 		sprintf(dbg_buffer, "%02x", gtk[i]);
 		DBG_WIFI(dbg_buffer);
 	}
-	DBG_WIFI("\r\n");
+	DBG_WIFI(EOL);
   #endif
 	rt2501_set_key(fr_in->key_frame.key_info.key_index,
                              &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_TKIP);
@@ -582,7 +582,7 @@ void eapol_input(uint8_t *frame, uint32_t length)
 	struct eapol_frame *fr = (struct eapol_frame *)frame;
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "Received EAPOL frame, key info 0x%02hhx%02hhx\r\n",
+	sprintf(dbg_buffer, "Received EAPOL frame, key info 0x%02hhx%02hhx"EOL,
 		*(((uint8_t *)&fr->key_frame.key_info)+0),
 		*(((uint8_t *)&fr->key_frame.key_info)+1));
 	DBG_WIFI(dbg_buffer);
@@ -605,38 +605,38 @@ void eapol_input(uint8_t *frame, uint32_t length)
 	if(replay_active) {
 		if(memcmp(fr->key_frame.replay_counter,
                             replay_counter, EAPOL_RPC_LENGTH) <= 0) {
-			DBG_WIFI("Replay counter ERR\r\n");
+			DBG_WIFI("Replay counter ERR"EOL);
 			return;
 		}
 	}
 	/* Update local replay counter */
 	memcpy(replay_counter, fr->key_frame.replay_counter, EAPOL_RPC_LENGTH);
 	replay_active = 1;
-	DBG_WIFI("Replay counter OK\r\n");
+	DBG_WIFI("Replay counter OK"EOL);
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "KeyInfo Key Description Version %d\r\n",
+	sprintf(dbg_buffer, "KeyInfo Key Description Version %d"EOL,
                       fr->key_frame.key_info.key_desc_ver);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Key Type %d\r\n",
+	sprintf(dbg_buffer, "KeyInfo Key Type %d"EOL,
                       fr->key_frame.key_info.key_type);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Key Index %d\r\n",
+	sprintf(dbg_buffer, "KeyInfo Key Index %d"EOL,
                       fr->key_frame.key_info.key_index);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Install %d\r\n", fr->key_frame.key_info.install);
+	sprintf(dbg_buffer, "KeyInfo Install %d"EOL, fr->key_frame.key_info.install);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Key Ack %d\r\n", fr->key_frame.key_info.key_ack);
+	sprintf(dbg_buffer, "KeyInfo Key Ack %d"EOL, fr->key_frame.key_info.key_ack);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Key MIC %d\r\n", fr->key_frame.key_info.key_mic);
+	sprintf(dbg_buffer, "KeyInfo Key MIC %d"EOL, fr->key_frame.key_info.key_mic);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Secure %d\r\n", fr->key_frame.key_info.secure);
+	sprintf(dbg_buffer, "KeyInfo Secure %d"EOL, fr->key_frame.key_info.secure);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Error %d\r\n", fr->key_frame.key_info.error);
+	sprintf(dbg_buffer, "KeyInfo Error %d"EOL, fr->key_frame.key_info.error);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo Request %d\r\n", fr->key_frame.key_info.request);
+	sprintf(dbg_buffer, "KeyInfo Request %d"EOL, fr->key_frame.key_info.request);
 	DBG_WIFI(dbg_buffer);
-	sprintf(dbg_buffer, "KeyInfo EKD_DL %d\r\n", fr->key_frame.key_info.ekd);
+	sprintf(dbg_buffer, "KeyInfo EKD_DL %d"EOL, fr->key_frame.key_info.ekd);
 	DBG_WIFI(dbg_buffer);
 #endif
 

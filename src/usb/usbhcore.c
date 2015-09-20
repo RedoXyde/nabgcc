@@ -124,15 +124,15 @@ static void usbh_free_urb_callback(PURB urb)
 	hcd_free(urb);
 }
 
-int32_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, ulong size)
+int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, ulong size)
 {
 	URB *urb;
-	int32_t ret;
 
 	disable_ohci_irq();
 	urb = hcd_malloc(sizeof(URB), EXTRAM,20);
 	enable_ohci_irq();
-	if(urb == NULL) return URB_NOMEM;
+	if(urb == NULL)
+    return URB_NOMEM;
 
 	urb->buffer		= (char *)buf;
 	urb->length		= size;
@@ -144,9 +144,8 @@ int32_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, ulong si
 
 	urb->callback		= usbh_free_urb_callback;
 
-	ret = hcd_transfer_request(urb);
+	return hcd_transfer_request(urb);
 
-	return ret;
 }
 
 int32_t usbh_transfer_request(PURB urb)
@@ -245,7 +244,7 @@ void error(int32_t code, int32_t status)
 		default: err = "Unknown error code.";			break;
 	}
 
-        sprintf((char*)dbg_buffer,"\r\n USBH: Error!! %s (%d, %d)\r\n", err, code, status);
+        sprintf((char*)dbg_buffer,EOL" USBH: Error!! %s (%d, %d)"EOL, err, code, status);
         DBG_USB(dbg_buffer);
 #endif
 }
@@ -429,7 +428,7 @@ int32_t usbh_get_descriptor_all(PDEVINFO dev)
 void usbh_driver_install(struct usbh_driver *driver)
 {
 #ifdef DEBUG_USB
-        sprintf((char*)dbg_buffer, "USBH: install driver (%s)\r\n", driver->name);
+        sprintf((char*)dbg_buffer, "USBH: install driver (%s)"EOL, driver->name);
         DBG_USB(dbg_buffer);
 #endif
 	list_add(&driver->driver_list, &usb_driver_list);
@@ -441,9 +440,9 @@ static int32_t usbh_find_driver(PDEVINFO dev)
 	struct usbh_driver *driver;
 	void *data;
 
-	DBG_USB("Trying to find driver !\r\n");
+	DBG_USB("Trying to find driver !"EOL);
 	if(list_empty(&usb_driver_list)) {
-		DBG_USB("Empty driver list\r\n");
+		DBG_USB("Empty driver list"EOL);
 		return 0;
 	}
 
@@ -452,7 +451,7 @@ static int32_t usbh_find_driver(PDEVINFO dev)
 
 		data = driver->connect(dev);
 		if(data){
-                        sprintf((char*)dbg_buffer, "USBH: found driver(%s)\r\n",
+                        sprintf((char*)dbg_buffer, "USBH: found driver(%s)"EOL,
 				driver->name);
                         DBG_USB(dbg_buffer);
 			dev->driver = driver;
@@ -494,7 +493,7 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 		return -1;
 	}
 
-  DBG_USB("find_zero_bit\r\n");
+  DBG_USB("find_zero_bit"EOL);
 
 	dev->dev_addr = find_zero_bit(&usb_devmap, 128, 1);
 	if (dev->dev_addr < 128) {
@@ -504,7 +503,7 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 		return -1;
 	}
 
-  DBG_USB("usbh_set_address\r\n");
+  DBG_USB("usbh_set_address"EOL);
 	ret = usbh_set_address(dev);
 	if(ret<0){
 		error(13, ret);
@@ -513,21 +512,21 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 
 	DelayMs(10);
 
-  DBG_USB("usbh_update_pipe0\r\n");
+  DBG_USB("usbh_update_pipe0"EOL);
 	ret = usbh_update_pipe0(dev, 8);
 	if(ret<0){
 		error(14, ret);
 		return -1;
 	}
 
-  DBG_USB("usbh_get_descriptor\r\n");
+  DBG_USB("usbh_get_descriptor"EOL);
 	ret = usbh_get_descriptor(dev, USB_DT_DEVICE, 0, 8, temp);
 	if(ret<8){
 		error(20, ret);
 		return -1;
 	}
 
-        DBG_USB("usbh_update_pipe0\r\n");
+        DBG_USB("usbh_update_pipe0"EOL);
 
 	ret = usbh_update_pipe0(dev, temp[7]);
 	if(ret<0){
@@ -535,7 +534,7 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 		return -1;
 	}
 
-        DBG_USB("usbh_get_descriptor_device\r\n");
+        DBG_USB("usbh_get_descriptor_device"EOL);
 
 	ret = usbh_get_descriptor_device(dev, (uint8_t **)&dev->descriptor);
 	if(ret<dev->descriptor->bLength){
@@ -549,7 +548,7 @@ static int32_t usbh_enumeration(PDEVINFO dev)
         dev->descriptor->configuration = NULL;
 	dev->descriptor->otg = NULL;
 
-        DBG_USB("usbh_get_descriptor_all\r\n");
+        DBG_USB("usbh_get_descriptor_all"EOL);
 	ret = usbh_get_descriptor_all(dev);
 	if(ret<0){
 		return -1;
@@ -572,7 +571,7 @@ PDEVINFO usbh_connect(uint8_t speed)
 
 	PDEVINFO dev;
 
-	DBG_USB(" USBH: connect a new device\r\n");
+	DBG_USB(" USBH: connect a new device"EOL);
 
 	dev = (PDEVINFO)hcd_malloc(sizeof(DEVINFO), EXTRAM,28);
 	if(!dev){
@@ -585,7 +584,7 @@ PDEVINFO usbh_connect(uint8_t speed)
 
 	ret = usbh_enumeration(dev);
 	if(ret<0){
-		DBG_USB(" USBH: Error!! failed enumeration\r\n");
+		DBG_USB(" USBH: Error!! failed enumeration"EOL);
 		usbh_release_descriptor_all(dev);
 		if(dev->pipe[0]){
 			usbh_delete_pipe(dev, 0);
@@ -600,7 +599,7 @@ int32_t usbh_disconnect(PDEVINFO *pdev)
 	uint8_t i;
 	PDEVINFO dev;
 
-	DBG_USB(" USBH: disconnect a device\n");
+	DBG_USB(" USBH: disconnect a device"EOL);
 
 	if(!pdev) return -1;
 	dev = *pdev;

@@ -29,7 +29,7 @@ uint8_t *loaderInitRec(uint8_t *src)
 	src+=4;
 	if (l==-1)
 	{
-		//		printf("nil\n",l>>1);
+		//		printf("nil"EOL,l>>1);
 		VPUSH(NIL);
 	}
 	else if (l&1)
@@ -38,7 +38,7 @@ uint8_t *loaderInitRec(uint8_t *src)
 		if (l&1)
 		{
 			l>>=1;
-			//			printf("tuple %d\n",l);
+			//			printf("tuple %d"EOL,l);
 			for(i=0;i<l;i++)
         src=loaderInitRec(src);
 			VMKTAB(l);
@@ -46,14 +46,14 @@ uint8_t *loaderInitRec(uint8_t *src)
 		else
 		{
 			l>>=1;
-			//			printf("string taille %d\n",l);
+			//			printf("string taille %d"EOL,l);
 			VPUSH(PNTTOVAL(VMALLOCSTR(src,l)));
 			src+=l;
 		}
 	}
 	else
 	{
-		//		printf("int int32_t %d\n",l>>1);
+		//		printf("int int32_t %d"EOL,l>>1);
 		VPUSH(l);
 	}
 	return src;

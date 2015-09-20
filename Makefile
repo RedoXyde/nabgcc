@@ -3,8 +3,8 @@ TARGET = Nab
 
 # User options
 OPTIONS += -DDEBUG
-OPTIONS += -DDEBUG_WIFI
-OPTIONS += -DDEBUG_USB
+#OPTIONS += -DDEBUG_WIFI
+#OPTIONS += -DDEBUG_USB
 
 # C Files to compile (take all)
 #C_FILES = $(wildcard src/*.c)
@@ -15,7 +15,7 @@ AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
 CFLAGS =
-CFLAGS += -Os
+CFLAGS += -O1
 CFLAGS += -g
 CFLAGS += -mthumb -mthumb-interwork
 CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wpointer-arith

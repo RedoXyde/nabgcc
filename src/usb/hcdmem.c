@@ -62,7 +62,7 @@ int8_t hcd_malloc_init(int32_t Address, uint32_t Size,
                     uint32_t Boundary, uint8_t Bank)
 {
   #ifdef DEBUG_USB
-  sprintf(dbg_buffer, "Set up memory bank %d, addr 0x%08lx, size %ld\r\n",
+  sprintf(dbg_buffer, "Set up memory bank %d, addr 0x%08lx, size %ld"EOL,
           Bank, Address, Size);
   DBG_USB(dbg_buffer);
   #endif
@@ -77,7 +77,7 @@ int8_t hcd_malloc_init(int32_t Address, uint32_t Size,
   }
   else
   {
-    DBG_USB(" hcd_malloc: Bad number of Bank.\n");
+    DBG_USB(" hcd_malloc: Bad number of Bank."EOL);
     return -1;
   }
   return 0;
@@ -112,13 +112,13 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
   }
   else
   {
-    DBG(" hcd_malloc: Bad number of Bank.\r\n");
+    DBG(" hcd_malloc: Bad number of Bank."EOL);
     return NULL;
   }
 
   if(Buffer->Address == 0)
   {
-    DBG("hcd_malloc: No memory for buffer.\r\n");
+    DBG("hcd_malloc: No memory for buffer."EOL);
     return NULL;
   }
 
@@ -127,7 +127,7 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 
   if( Size > (Buffer->Size - sizeof(MMDL)) )
   {
-    DBG("hcd_malloc: Size > (Buffer->Size - sizeof(MMDL)\r\n");
+    DBG("hcd_malloc: Size > (Buffer->Size - sizeof(MMDL)"EOL);
     return NULL;
   }
 
@@ -174,17 +174,17 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 
   if(NextBufferAddress + Area > Buffer->Address + Buffer->Size)
   {
-    DBG("hcd_malloc: NextBufferAddress + Area > Buffer->Address + Buffer->Size\r\n");
+    DBG("hcd_malloc: NextBufferAddress + Area > Buffer->Address + Buffer->Size"EOL);
     pNextMMDL = Buffer->MMDLs;
     while(pNextMMDL != NULL)
     {
-      sprintf(dbg_buffer,"addr=0x%lX area=0x%lX size=0x%lX tag=0x%lX time=%ld\n",
+      sprintf(dbg_buffer,"addr=0x%lX area=0x%lX size=0x%lX tag=0x%lX time=%ld"EOL,
               pNextMMDL->Address,pNextMMDL->Area,pNextMMDL->Size,
               pNextMMDL->tag,pNextMMDL->time);
       DBG(dbg_buffer);
       pNextMMDL = pNextMMDL->Next;
     }
-    sprintf(dbg_buffer,"time=%ld\n",counter_timer);
+    sprintf(dbg_buffer,"time=%ld"EOL,counter_timer);
     DBG(dbg_buffer);
     return NULL;
   }
@@ -208,7 +208,7 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 
   pNewMMDL->Next = pNextMMDL;
 
-//  sprintf(dbg_buffer, "hcd_malloc: %08lX (%d,%d)\r\n", NextBufferAddress, Size, Area);
+//  sprintf(dbg_buffer, "hcd_malloc: %08lX (%d,%d)"EOL, NextBufferAddress, Size, Area);
 //  DBG(dbg_buffer);
 
   return (uint8_t *)NextBufferAddress;
@@ -236,7 +236,7 @@ int8_t hcd_free(void * pAddress)
   {
 //    if (pNowMMDL->tag==19)
 //    {
-//      sprintf(dbg_buffer,"hcd_free: %x\r\n", pAddress);
+//      sprintf(dbg_buffer,"hcd_free: %x"EOL, pAddress);
 //      DBG(dbg_buffer);
 //    }
 
@@ -253,7 +253,7 @@ int8_t hcd_free(void * pAddress)
     {
 //      if (pNowMMDL->tag==19)
 //      {
-//        sprintf(dbg_buffer,"hcd_free: %x\r\n", pAddress);
+//        sprintf(dbg_buffer,"hcd_free: %x"EOL, pAddress);
 //        DBG(dbg_buffer);
 //      }
       pLastMMDL->Next = pNowMMDL->Next;
@@ -279,7 +279,7 @@ int32_t hcd_malloc_rest(uint8_t Bank)
   }
   else
   {
-    DBG_USB(" hcd_malloc_rest: Bad number of Bank.\r\n");
+    DBG_USB(" hcd_malloc_rest: Bad number of Bank."EOL);
     return -1;
   }
 

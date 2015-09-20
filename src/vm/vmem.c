@@ -57,7 +57,7 @@ void vmemGCfirst()
 		if ((ISVALPNT(k))&&(k!=NIL))
 		{
 			k=VALTOPNT(k);
-//      if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.k out of space\n");
+//      if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.k out of space"EOL);
 			if (!HEADER_USED(k))
 			{
 				HEADER_MARK(k);
@@ -69,7 +69,7 @@ void vmemGCfirst()
 	while(first!=-1)
 	{
 		k=first;
-//    if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.first out of space\n");
+//    if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.first out of space"EOL);
 		first=_vmem_heap[k+HEADER_LIST];
 		if (HEADER_TYPE(k))        // bloc table
 		{
@@ -81,7 +81,7 @@ void vmemGCfirst()
 				if ((ISVALPNT(k))&&(k!=NIL))
 				{
 					k=VALTOPNT(k);
-//          if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.k2 out of space\n");
+//          if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.k2 out of space"EOL);
 					if (!HEADER_USED(k))
 					{
 						HEADER_MARK(k);
@@ -104,10 +104,10 @@ void dumpheap()
 	{
 		realsize=VSIZE(pos)+HEADER_LENGTH;
                 consolehx(pos); consolestr(":pos ");consolehx(realsize);
-    consolestr(":realsize\n");
+    consolestr(":realsize"EOL);
   if ((realsize<0)||(realsize>=VMEM_LENGTH))
   {
-    consolestr("2.realsize out of range\n");
+    consolestr("2.realsize out of range"EOL);
     dump((uint8_t*)&_vmem_heap[pos-32],128);
     return;
   }
@@ -128,7 +128,7 @@ void vmemGCsecond()
 /*  if ((realsize<0)||(realsize>=VMEM_LENGTH))
   {
     dumpheap();
-//    consolestr("2.realsize out of range\n");
+//    consolestr("2.realsize out of range"EOL);
 //    dump((uint8_t*)&vmem_heap[pos-32],128);
   }
 */
@@ -206,7 +206,7 @@ void vmemGCfourth()
           memcpy(&_vmem_heap[newpos],&_vmem_heap[pos],realsize<<2);
         else
         {
-          consolestr("########GC : BIG MOVE\n");
+          consolestr("########GC : BIG MOVE"EOL);
           for(i=0;i<realsize;i++)
             _vmem_heap[newpos+i]=_vmem_heap[pos+i];
         }
@@ -250,7 +250,7 @@ int8_t vmem_check(int32_t wsize)
 		vmemGC();
 		if (VMEM_LENGTH+_vmem_stack-_vmem_heapindex-wsize<VMEM_GCTHRESHOLD)
 		{
-      consolestr("?OM Error\n");
+      consolestr("?OM Error"EOL);
       _vmem_broken=1;
       sysReboot();
 			return -1;

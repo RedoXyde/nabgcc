@@ -111,7 +111,7 @@ struct rt2501buffer *rt2501_receive(void)
       queue = NULL;
     enable_ohci_irq();
 /*
-    sprintf(dbg_buffer,"rt2501_receive: %x\r\n", r);
+    sprintf(dbg_buffer,"rt2501_receive: %x"EOL, r);
     DBG(dbg_buffer);
 */
     if((r->length < LLC_LENGTH)

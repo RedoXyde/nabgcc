@@ -21,12 +21,12 @@ int main(void)
   vmemInit(0);
   loaderInit((uint8_t *)&dumpbc);
 
-  consolestr("dumpShort\r\n");
+  consolestr("dumpShort"EOL);
   vmemDumpShort();
   vmemDump();
   uint32_t i;
   for(i=0;i<_bc_nbfun;i++)
-    printf("fun %d at %d\n",i,loaderFunstart(i));
+    printf("fun %d at %d"EOL,i,loaderFunstart(i));
 
 
   VPUSH(INTTOVAL(0));
@@ -84,7 +84,7 @@ void dump(uint8_t *src,int32_t len)
 {
   int32_t i,j;
   uint8_t buffer[64];
-  consolestr((uint8_t*)"\r\n");
+  consolestr(EOL);
   for(i=0;i<len;i+=16)
   {
     sprintf((char*)buffer,"%04lx ",i);
@@ -95,7 +95,7 @@ void dump(uint8_t *src,int32_t len)
     }
     else consolestr((uint8_t*)"   ");
     for(j=0;j<16;j++) if (i+j<len) putch_uart(((src[i+j]>=32)&&(src[i+j]<128))?src[i+j]:'.');
-    consolestr((uint8_t*)"\r\n");
+    consolestr(EOL);
 //    DelayMs(100);
   }
 }

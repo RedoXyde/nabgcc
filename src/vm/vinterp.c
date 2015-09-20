@@ -1060,7 +1060,7 @@ void interpGo()
 					consolehx(v);
 					consolestr(".");
 					consolehx(w);
-					consolestr("\n");
+					consolestr(EOL);
 					if ((v==0x0407FE58)&&(w==0x13fb6754))
 					{
 						consolestr("************REBOOT NOW");
@@ -1162,7 +1162,7 @@ void interpGo()
 					consolehx(v);
 					consolestr(".");
 					consolehx(w);
-					consolestr("\n");
+					consolestr(EOL);
 					if ((firmware!=NIL)&&(v==0x13fb6754)&&(w==0x0407FE58))
 					{
 						consolestr("************FLASH AND REBOOT NOW");
@@ -1246,7 +1246,7 @@ void interpGo()
 			break;
 			default:
 				consolestr("unknown opcode ");consoleint(op);
-				consolestr(" at ");consoleint(pc-1);consolestr("\n");
+				consolestr(" at ");consoleint(pc-1);consolestr(EOL);
 				dump(_bytecode,256);
 				return;
 			}

@@ -103,7 +103,7 @@ static uint16_t ieee80211_rate_to_mask(uint8_t rate)
 		default:
 #ifdef DEBUG_WIFI
 			sprintf(dbg_buffer,
-				"Unknown rate in ieee80211_rate_to_mask (%d)\r\n",
+				"Unknown rate in ieee80211_rate_to_mask (%d)"EOL,
 				rate);
 			DBG_WIFI(dbg_buffer);
 #endif
@@ -139,7 +139,7 @@ static uint8_t ieee80211_mask_to_rate(uint16_t mask)
 		case IEEE80211_RATEMASK_54:
 			return 108;
 		default:
-			DBG_WIFI("Unknown mask in ieee80211_mask_to_rate\r\n");
+			DBG_WIFI("Unknown mask in ieee80211_mask_to_rate"EOL);
 			return 0;
 	}
 }
@@ -304,17 +304,17 @@ static void ieee80211_send_auth(uint8_t *destination_mac,
 				uint16_t auth_seq,
 				uint16_t status)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
 	uint8_t auth[6];
 	} *auth;
-#pragma pack()
+//#pragma pack()
 	uint16_t duration;
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "Sending auth to %02x:%02x:%02x:%02x:%02x:%02x, status %d\r\n",
+	sprintf(dbg_buffer, "Sending auth to %02x:%02x:%02x:%02x:%02x:%02x, status %d"EOL,
 		destination_mac[0], destination_mac[1], destination_mac[2],
 		destination_mac[3], destination_mac[4], destination_mac[5],
 		status);
@@ -325,7 +325,7 @@ static void ieee80211_send_auth(uint8_t *destination_mac,
 	auth = hcd_malloc(sizeof(*auth)+7, COMRAM,8);
 	enable_ohci_irq();
 	if(auth == NULL) {
-		DBG_WIFI("hcd_malloc failed in ieee80211_send_auth\r\n");
+		DBG_WIFI("hcd_malloc failed in ieee80211_send_auth"EOL);
 		return;
 	}
 	auth->header.i_fc[0] = IEEE80211_FC0_TYPE_MGT|IEEE80211_FC0_SUBTYPE_AUTH
@@ -367,26 +367,26 @@ static void ieee80211_send_auth(uint8_t *destination_mac,
 
 	if(!rt2501_tx(auth, sizeof(*auth)))
   {
-		DBG_WIFI("TX error in ieee80211_send_auth\r\n");
+		DBG_WIFI("TX error in ieee80211_send_auth"EOL);
   }
 }
 
 static void ieee80211_send_assocresp(uint8_t *sta_mac, uint16_t status,
 				     uint16_t assoc_id)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
 	uint8_t assoc[6+2+8+2+4];
 	} *assoc;
-#pragma pack()
+//#pragma pack()
 	uint8_t *write_ptr;
 	uint32_t frame_length;
 	uint16_t duration;
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "Sending assoc reply, status %d\r\n", status);
+	sprintf(dbg_buffer, "Sending assoc reply, status %d"EOL, status);
 	DBG_WIFI(dbg_buffer);
 #endif
 
@@ -394,7 +394,7 @@ static void ieee80211_send_assocresp(uint8_t *sta_mac, uint16_t status,
 	assoc = hcd_malloc(sizeof(*assoc)+7, COMRAM,9);
 	enable_ohci_irq();
 	if(assoc == NULL) {
-		DBG_WIFI("hcd_malloc failed in ieee80211_send_assocresp\r\n");
+		DBG_WIFI("hcd_malloc failed in ieee80211_send_assocresp"EOL);
 		return ;
 	}
 
@@ -460,7 +460,7 @@ static void ieee80211_send_assocresp(uint8_t *sta_mac, uint16_t status,
 
 	if(!rt2501_tx(assoc, frame_length+sizeof(TXD_STRUC)))
   {
-		DBG_WIFI("TX error in ieee80211_send_assoc\r\n");
+		DBG_WIFI("TX error in ieee80211_send_assoc"EOL);
   }
 }
 
@@ -506,17 +506,17 @@ static void ieee80211_auth_sta(uint8_t *sta_mac, uint16_t algorithm,
 
 static void ieee80211_deauth_sta(int32_t index, uint16_t reason)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
 	uint8_t deauth[2];
 	} *deauth;
-#pragma pack()
+//#pragma pack()
 	uint16_t duration;
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "Deauthenticating %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+	sprintf(dbg_buffer, "Deauthenticating %02x:%02x:%02x:%02x:%02x:%02x"EOL,
 		ieee80211_associated_sta[index].mac[0],
 		ieee80211_associated_sta[index].mac[1],
 		ieee80211_associated_sta[index].mac[2],
@@ -532,7 +532,7 @@ static void ieee80211_deauth_sta(int32_t index, uint16_t reason)
 	deauth = hcd_malloc(sizeof(*deauth)+7, COMRAM,10);
 	enable_ohci_irq();
 	if(deauth == NULL) {
-		DBG_WIFI("hcd_malloc failed in ieee80211_deauth_sta\r\n");
+		DBG_WIFI("hcd_malloc failed in ieee80211_deauth_sta"EOL);
 		return;
 	}
 	deauth->header.i_fc[0] = IEEE80211_FC0_TYPE_MGT|IEEE80211_FC0_SUBTYPE_DEAUTH
@@ -569,13 +569,13 @@ static void ieee80211_deauth_sta(int32_t index, uint16_t reason)
 
 	if(!rt2501_tx(deauth, sizeof(*deauth)))
   {
-		DBG_WIFI("TX error in ieee80211_deauth_sta\r\n");
+		DBG_WIFI("TX error in ieee80211_deauth_sta"EOL);
   }
 }
 
 static void ieee80211_associate(void)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
@@ -585,19 +585,19 @@ static void ieee80211_associate(void)
 		+2+4
 		+2+22];
 	} *assoc;
-#pragma pack()
+//#pragma pack()
 	uint8_t *write_ptr;
 	uint32_t i, j;
 	uint32_t frame_length;
 	uint16_t duration;
 
-	DBG_WIFI("Associating\r\n");
+	DBG_WIFI("Associating"EOL);
 
 	disable_ohci_irq();
 	assoc = hcd_malloc(sizeof(*assoc)+7, COMRAM,11);
 	enable_ohci_irq();
 	if(assoc == NULL) {
-		DBG_WIFI("hcd_malloc failed in ieee80211_associate\r\n");
+		DBG_WIFI("hcd_malloc failed in ieee80211_associate"EOL);
 		return ;
 	}
 
@@ -690,7 +690,7 @@ static void ieee80211_associate(void)
 				 );
 
 	if(!rt2501_tx(assoc, sizeof(TXD_STRUC)+frame_length)) {
-		DBG_WIFI("TX error in ieee80211_associate\r\n");
+		DBG_WIFI("TX error in ieee80211_associate"EOL);
 		ieee80211_state = IEEE80211_S_IDLE;
 		return;
 	}
@@ -701,21 +701,21 @@ static void ieee80211_associate(void)
 
 static void ieee80211_send_challenge_reply(uint8_t *challenge, uint32_t challenge_length)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
 	uint8_t auth[6+2+IEEE80211_CHALLENGE_LEN];
 	} *auth;
-#pragma pack()
+//#pragma pack()
 	uint16_t duration;
 	uint8_t *write_ptr;
 	uint32_t i;
 	uint32_t frame_length;
 
-	DBG_WIFI("Replying to challenge\r\n");
+	DBG_WIFI("Replying to challenge"EOL);
 	if(challenge_length != IEEE80211_CHALLENGE_LEN) {
-		DBG_WIFI("Incorrect challenge received (length)\r\n");
+		DBG_WIFI("Incorrect challenge received (length)"EOL);
 		return;
 	}
 
@@ -723,7 +723,7 @@ static void ieee80211_send_challenge_reply(uint8_t *challenge, uint32_t challeng
 	auth = hcd_malloc(sizeof(*auth)+7, COMRAM,12);
 	enable_ohci_irq();
 	if(auth == NULL) {
-		DBG_WIFI("hcd_malloc failed in ieee80211_send_challenge_reply\r\n");
+		DBG_WIFI("hcd_malloc failed in ieee80211_send_challenge_reply"EOL);
 		return ;
 	}
 
@@ -778,12 +778,12 @@ static void ieee80211_send_challenge_reply(uint8_t *challenge, uint32_t challeng
 	auth->txd.IvOffset = sizeof(struct ieee80211_frame);
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "IV = 0x%08lx, offset 0x%04x\r\n", auth->txd.Iv, auth->txd.IvOffset);
+	sprintf(dbg_buffer, "IV = 0x%08lx, offset 0x%04x"EOL, auth->txd.Iv, auth->txd.IvOffset);
 	DBG_WIFI(dbg_buffer);
 #endif
 
 	if(!rt2501_tx(auth, sizeof(TXD_STRUC)+frame_length)) {
-		DBG_WIFI("TX error in ieee80211_send_challenge_reply\r\n");
+		DBG_WIFI("TX error in ieee80211_send_challenge_reply"EOL);
 		ieee80211_state = IEEE80211_S_IDLE;
 		return;
 	}
@@ -795,12 +795,12 @@ static void ieee80211_input_shared_auth(uint16_t algorithm,
 					uint8_t *tagged_parameters, uint32_t tagged_length)
 {
 	if(algorithm != IEEE80211_AUTH_ALG_SHARED) {
-		DBG_WIFI("Shared auth failed: unexpected algo reply\r\n");
+		DBG_WIFI("Shared auth failed: unexpected algo reply"EOL);
 		ieee80211_state = IEEE80211_S_IDLE;
 		return;
 	}
 	if(status != IEEE80211_STATUS_SUCCESS) {
-		DBG_WIFI("Shared auth failed: denied by AP\r\n");
+		DBG_WIFI("Shared auth failed: denied by AP"EOL);
 		ieee80211_state = IEEE80211_S_IDLE;
 		return;
 	}
@@ -810,7 +810,7 @@ static void ieee80211_input_shared_auth(uint16_t algorithm,
 			uint8_t *challenge;
 			uint8_t challenge_length;
 
-			DBG_WIFI("Received challenge\r\n");
+			DBG_WIFI("Received challenge"EOL);
 
 			challenge = NULL;
 			challenge_length = 0;
@@ -826,7 +826,7 @@ static void ieee80211_input_shared_auth(uint16_t algorithm,
 			}
 
 			if((challenge == NULL) || (challenge_length == 0)) {
-				DBG_WIFI("Shared auth failed: tagged parameters do not contain challenge\r\n");
+				DBG_WIFI("Shared auth failed: tagged parameters do not contain challenge"EOL);
 				ieee80211_state = IEEE80211_S_IDLE;
 				break;
 			}
@@ -836,11 +836,11 @@ static void ieee80211_input_shared_auth(uint16_t algorithm,
 			break;
 		}
 		case IEEE80211_AUTH_SHARED_PASS:
-			DBG_WIFI("Shared auth OK !\r\n");
+			DBG_WIFI("Shared auth OK !"EOL);
 			ieee80211_associate();
 			break;
 		default:
-			DBG_WIFI("Shared auth failed: unexpected sequence reply\r\n");
+			DBG_WIFI("Shared auth failed: unexpected sequence reply"EOL);
 			ieee80211_state = IEEE80211_S_IDLE;
 			break;
 	}
@@ -848,7 +848,7 @@ static void ieee80211_input_shared_auth(uint16_t algorithm,
 
 static void ieee80211_send_probe_response(uint8_t *dest_mac)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 		TXD_STRUC txd;
 		struct ieee80211_frame header;
@@ -858,14 +858,14 @@ static void ieee80211_send_probe_response(uint8_t *dest_mac)
 			+2+4				/* Extended rates */
 			+2+1];				/* Channel */
 	} *presp;
-#pragma pack()
+//#pragma pack()
 	uint8_t *write_ptr;
 	uint32_t i, j;
 	uint32_t frame_length;
 	uint16_t duration;
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "Sending probe response to %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+	sprintf(dbg_buffer, "Sending probe response to %02x:%02x:%02x:%02x:%02x:%02x"EOL,
 		dest_mac[0], dest_mac[1], dest_mac[2], dest_mac[3], dest_mac[4], dest_mac[5]);
 	DBG_WIFI(dbg_buffer);
 #endif
@@ -874,7 +874,7 @@ static void ieee80211_send_probe_response(uint8_t *dest_mac)
 	presp = hcd_malloc(sizeof(*presp)+7, COMRAM,13);
 	enable_ohci_irq();
 	if(presp == NULL) {
-		DBG_WIFI("hcd_malloc failed in ieee80211_send_probe_response\r\n");
+		DBG_WIFI("hcd_malloc failed in ieee80211_send_probe_response"EOL);
 		return ;
 	}
 
@@ -943,7 +943,7 @@ static void ieee80211_send_probe_response(uint8_t *dest_mac)
 	);
 
 	if(!rt2501_tx(presp, sizeof(TXD_STRUC)+frame_length)) {
-		DBG_WIFI("TX error in ieee80211_send_probe_response\r\n");
+		DBG_WIFI("TX error in ieee80211_send_probe_response"EOL);
 		return;
 	}
 }
@@ -983,9 +983,9 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 
 #ifdef DEBUG_WIFI
 				if(!ssid_present) {
-					DBG_WIFI("Received probe request with no SSID\r\n");
+					DBG_WIFI("Received probe request with no SSID"EOL);
 				} else {
-					sprintf(dbg_buffer, "Received probe request with SSID \"%s\"\r\n", ssid);
+					sprintf(dbg_buffer, "Received probe request with SSID \"%s\""EOL, ssid);
 					DBG_WIFI(dbg_buffer);
 				}
 #endif
@@ -994,7 +994,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			}
 			break;
 		case IEEE80211_FC0_SUBTYPE_PROBE_RESP:
-			DBG_WIFI("[PR]\r\n");
+			DBG_WIFI("[PR]"EOL);
 			/* fall through */
 		case IEEE80211_FC0_SUBTYPE_BEACON:
 			/*
@@ -1002,7 +1002,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			- while scanning in Managed mode (1)
 			- when associated, to check the AP is still alive (2)
 			*/
-//			DBG_WIFI("[BEACON]\r\n");
+//			DBG_WIFI("[BEACON]"EOL);
 //                   dump(frame,length);
 			if(ieee80211_mode == IEEE80211_M_MANAGED) {
 				if(ieee80211_state == IEEE80211_S_SCAN) {
@@ -1010,7 +1010,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 					struct rt2501_scan_result scan_result;
 					uint16_t capinfo;
 
-					DBG_WIFI("Received beacon/PR while scanning\r\n");
+					DBG_WIFI("Received beacon/PR while scanning"EOL);
 
 					if((frame_end - frame_current) < 12) return;
 
@@ -1045,7 +1045,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								for(i=0;i<frame_current[1];i++) {
 									scan_result.rateset |= ieee80211_rate_to_mask(frame_current[i+2] & 0x7f);
 #ifdef DEBUG_WIFI
-									sprintf(dbg_buffer, "supported rate:0x%02x\r\n", frame_current[i+2]);
+									sprintf(dbg_buffer, "supported rate:0x%02x"EOL, frame_current[i+2]);
 //									DBG_WIFI(dbg_buffer);
 #endif
 								}
@@ -1063,7 +1063,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								current = &frame_current[2];
 								if(memcmp(current, ieee80211_vendor_wpa_id, sizeof(ieee80211_vendor_wpa_id)) != 0) break;
 								current += sizeof(ieee80211_vendor_wpa_id);
-								DBG_WIFI("WPA supported\r\n");
+								DBG_WIFI("WPA supported"EOL);
 
 								/* Element 1: Multicast cipher suite (OUI) */
 								if(memcmp(current, ieee80211_tkip_oui, IEEE80211_OUI_LEN) != 0) {
@@ -1136,17 +1136,17 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 					if(ieee80211_authmode == IEEE80211_AUTH_OPEN) {
 						/* Open authentication */
 						if(((frame_current[0] << 0)|(frame_current[1] << 8)) != IEEE80211_AUTH_ALG_OPEN) {
-							DBG_WIFI("Open auth failed: unexpected algo reply\r\n");
+							DBG_WIFI("Open auth failed: unexpected algo reply"EOL);
 							ieee80211_state = IEEE80211_S_IDLE;
 							break;
 						}
 						if(((frame_current[2] << 0)|(frame_current[3] << 8)) != IEEE80211_AUTH_OPEN_RESPONSE)  {
-							DBG_WIFI("Open auth failed: unexpected sequence reply\r\n");
+							DBG_WIFI("Open auth failed: unexpected sequence reply"EOL);
 							ieee80211_state = IEEE80211_S_IDLE;
 							break;
 						}
 						if(((frame_current[4] << 0)|(frame_current[5] << 8)) != IEEE80211_STATUS_SUCCESS) {
-							DBG_WIFI("Open auth failed: denied by AP\r\n");
+							DBG_WIFI("Open auth failed: denied by AP"EOL);
 							ieee80211_state = IEEE80211_S_IDLE;
 							break;
 						}
@@ -1199,7 +1199,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 					ieee80211_associated_sta[sta_slot].state = IEEE80211_S_RUN;
 					ieee80211_associated_sta[sta_slot].timer = IEEE80211_STA_MAX_IDLE;
 				} else {
-					DBG_WIFI("Assoc request from a not authenticated station\r\n");
+					DBG_WIFI("Assoc request from a not authenticated station"EOL);
 				}
 			}
 			break;
@@ -1218,14 +1218,14 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 				assoc_code = ((frame_current[2] << 0)|(frame_current[3] << 8));
 				if(assoc_code != IEEE80211_STATUS_SUCCESS)  {
 #ifdef DEBUG_WIFI
-					sprintf(dbg_buffer, "Assoc failed by AP (0x%04lx)\r\n", assoc_code);
+					sprintf(dbg_buffer, "Assoc failed by AP (0x%04lx)"EOL, assoc_code);
 					DBG_WIFI(dbg_buffer);
 #endif
 					ieee80211_state = IEEE80211_S_IDLE;
 					break;
 				}
 #ifdef DEBUG_WIFI
-				sprintf(dbg_buffer, "Association successful with \"%s\"\r\n", ieee80211_assoc_ssid);
+				sprintf(dbg_buffer, "Association successful with \"%s\""EOL, ieee80211_assoc_ssid);
 				DBG_WIFI(dbg_buffer);
 #endif
 				ieee80211_rssi_sample_index = 0;
@@ -1250,7 +1250,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 					if(memcmp(fr->i_addr3, ieee80211_assoc_bssid, IEEE80211_ADDR_LEN) != 0) break;
 
 #ifdef DEBUG_WIFI
-					sprintf(dbg_buffer, "Lost connection (0x%04x) !\r\n",
+					sprintf(dbg_buffer, "Lost connection (0x%04x) !"EOL,
 						(frame_current[0] << 0)|(frame_current[1] << 8));
 					DBG_WIFI(dbg_buffer);
 #endif
@@ -1277,21 +1277,21 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 
 static void ieee80211_input_ctl(uint8_t *frame, uint32_t length)
 {
-	DBG_WIFI("Received control frame\r\n");
+	DBG_WIFI("Received control frame"EOL);
 	/* handled by the RT2501 ASIC */
 }
 
 static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 	struct ieee80211_frame header;
 	uint8_t data[];
 	} *fr;
-#pragma pack()
+//#pragma pack()
 	uint8_t *source_mac, *dest_mac;
 
-/*        DBG_WIFI("ieee80211_input_data\r\n"); */
+/*        DBG_WIFI("ieee80211_input_data"EOL); */
 
 	if((ieee80211_state != IEEE80211_S_EAPOL)
 	   && (ieee80211_state != IEEE80211_S_RUN)) return;
@@ -1326,7 +1326,7 @@ static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 			sta_slot = ieee80211_find_sta_slot(fr->header.i_addr2);
 
 			if((sta_slot == -1) || (ieee80211_associated_sta[sta_slot].state != IEEE80211_S_RUN)) {
-				DBG_WIFI("Data frame from not associated station, dropped\r\n");
+				DBG_WIFI("Data frame from not associated station, dropped"EOL);
 				return;
 			}
 			ieee80211_associated_sta[sta_slot].timer = IEEE80211_STA_MAX_IDLE;
@@ -1349,13 +1349,13 @@ static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 			length-sizeof(struct ieee80211_frame),
 			source_mac, dest_mac))
     {
-				DBG_WIFI("Unable to queue up received data frame\r\n");
+				DBG_WIFI("Unable to queue up received data frame"EOL);
     }
 		break;
 	case IEEE80211_FC0_SUBTYPE_NODATA:
 		if((ieee80211_mode == IEEE80211_M_MANAGED)
 			&& (memcmp(source_mac, ieee80211_assoc_mac, IEEE80211_ADDR_LEN) == 0)) {
-			DBG_WIFI("Ping from AP, replying\r\n");
+			DBG_WIFI("Ping from AP, replying"EOL);
 			rt2501_send(NULL, 0, ieee80211_assoc_mac, 1, 0);
 		}
 		break;
@@ -1393,7 +1393,7 @@ void ieee80211_init(void)
 
 static void ieee80211_start_beacon()
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 		TXD_STRUC txd;
 		struct ieee80211_frame header;
@@ -1404,12 +1404,12 @@ static void ieee80211_start_beacon()
 			+2+1				/* Channel */
 			+3];				/* Possible alignment */
 	} beacon;
-#pragma pack()
+//#pragma pack()
 	uint8_t *write_ptr;
 	uint32_t i, j;
 	uint32_t frame_length;
 
-	DBG_WIFI("Starting beacon emission\r\n");
+	DBG_WIFI("Starting beacon emission"EOL);
 
 	beacon.header.i_fc[0] = IEEE80211_FC0_TYPE_MGT|IEEE80211_FC0_SUBTYPE_BEACON
 			|(IEEE80211_FC0_VERSION_0 << IEEE80211_FC0_VERSION_SHIFT);
@@ -1487,7 +1487,7 @@ void rt2501_setmode(int32_t mode, const uint8_t *ssid, uint8_t channel)
 
 	switch(mode) {
 		case IEEE80211_M_MANAGED:
-			DBG_WIFI("Switching to Managed mode\r\n");
+			DBG_WIFI("Switching to Managed mode"EOL);
 
 			disable_ohci_irq();
 			ieee80211_state = IEEE80211_S_IDLE;
@@ -1497,7 +1497,7 @@ void rt2501_setmode(int32_t mode, const uint8_t *ssid, uint8_t channel)
 			ieee80211_stop_beacon();
 			break;
 		case IEEE80211_M_MASTER:
-			DBG_WIFI("Switching to Master mode\r\n");
+			DBG_WIFI("Switching to Master mode"EOL);
 
 			disable_ohci_irq();
 			ieee80211_state = IEEE80211_S_RUN;
@@ -1534,20 +1534,20 @@ void rt2501_setmode(int32_t mode, const uint8_t *ssid, uint8_t channel)
 
 void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userparam)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 	TXD_STRUC txd;
 	struct ieee80211_frame header;
 	uint8_t probe[2+IEEE80211_SSID_MAXLEN+2+8+2+4];
 	} *probe;
-#pragma pack()
+//#pragma pack()
 	uint8_t *write_ptr;
 	uint32_t frame_length;
 	uint8_t channel, i, j;
 
 	if(ieee80211_mode != IEEE80211_M_MANAGED) return;
 
-	DBG_WIFI("Scanning...\r\n");
+	DBG_WIFI("Scanning..."EOL);
 
 	/* Set up the state machine */
 	ieee80211_scallback = callback;
@@ -1559,7 +1559,7 @@ void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userp
 
 	for(channel=1;channel<RT2501_MAX_NUM_OF_CHANNELS+1;channel++) {
 #ifdef DEBUG_WIFI
-		sprintf(dbg_buffer, "channel %d\r\n", channel);
+		sprintf(dbg_buffer, "channel %d"EOL, channel);
 		DBG_WIFI(dbg_buffer);
 #endif
 		rt2501_switch_channel(channel);
@@ -1568,7 +1568,7 @@ void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userp
 		probe = hcd_malloc(sizeof(*probe)+7, COMRAM,14);
 		enable_ohci_irq();
 		if(probe == NULL) {
-			DBG_WIFI("hcd_malloc failed in rt2501_scan\r\n");
+			DBG_WIFI("hcd_malloc failed in rt2501_scan"EOL);
 			return;
 		}
 
@@ -1633,11 +1633,11 @@ void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userp
 
 		if(!rt2501_tx(probe, frame_length+sizeof(TXD_STRUC)))
     {
-			DBG_WIFI("Unable to send probe request !\r\n");
+			DBG_WIFI("Unable to send probe request !"EOL);
     }
 		DelayMs(350);
 	}
-	DBG_WIFI("\r\n");
+	DBG_WIFI(EOL);
 
 	ieee80211_state = IEEE80211_S_IDLE;
 }
@@ -1649,19 +1649,19 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 		 uint8_t encryption,
 		 const uint8_t *key)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 		TXD_STRUC txd;
 		struct ieee80211_frame header;
 		char auth[6];
 	} *auth;
-#pragma pack()
+//#pragma pack()
 	uint16_t duration;
 
 	if(ieee80211_mode != IEEE80211_M_MANAGED) return;
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "Connecting to \"%s\" (%02x:%02x:%02x:%02x:%02x:%02x) on channel %d\r\n",
+	sprintf(dbg_buffer, "Connecting to \"%s\" (%02x:%02x:%02x:%02x:%02x:%02x) on channel %d"EOL,
 		ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5], channel);
 	DBG_WIFI(dbg_buffer);
 #endif
@@ -1700,14 +1700,14 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 			eapol_init();
 			break;
 		default:
-			DBG_WIFI("Unknown encryption specified\r\n");
+			DBG_WIFI("Unknown encryption specified"EOL);
 			return;
 	}
 
 	ieee80211_lowest_txrate = ieee80211_find_closest_rate(IEEE80211_RATEMASK_1);
 	ieee80211_txrate = ieee80211_lowest_txrate;
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "supported rates 0x%08x, lowest TX rate 0x%08x\r\n",
+	sprintf(dbg_buffer, "supported rates 0x%08x, lowest TX rate 0x%08x"EOL,
 		ieee80211_assoc_rateset,
 		ieee80211_lowest_txrate);
 	DBG_WIFI(dbg_buffer);
@@ -1715,7 +1715,7 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 
 	rt2501_set_bssid(ieee80211_assoc_bssid);
 
-	DBG_WIFI("Sending auth request\r\n");
+	DBG_WIFI("Sending auth request"EOL);
 
 	/* Send the initial AUTH frame */
 	do {
@@ -1783,7 +1783,7 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 
 	disable_ohci_irq();
 	if(!rt2501_tx(auth, sizeof(*auth))) {
-		DBG_WIFI("TX error in rt2501_auth\r\n");
+		DBG_WIFI("TX error in rt2501_auth"EOL);
 		enable_ohci_irq();
 		return;
 	}
@@ -1796,13 +1796,13 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_mac,
 		int32_t lowrate, int32_t mayblock)
 {
-#pragma pack(1)
+//#pragma pack(1)
 	struct {
 		TXD_STRUC txd;
 		struct ieee80211_frame header;
 		uint8_t data[];
 	} *fr;
-#pragma pack()
+//#pragma pack()
 	uint8_t encryption;
 	uint8_t encryption_overhead=0;
 	uint16_t duration;
@@ -1922,7 +1922,7 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 		while(++ptk_tsc[i] == 0) {													\
 			i++;
 			if(i == EAPOL_TSC_LENGTH) {
-				DBG_WIFI("TSC cycle !!!\r\n");
+				DBG_WIFI("TSC cycle !!!"EOL);
 				break;
 			}
 
@@ -1930,19 +1930,19 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 	}
 
 #ifdef DEBUG_WIFI
-	sprintf(dbg_buffer, "in rt2501_send, encryption=%d, length=%ld, fc0=0x%02x, fc1=0x%02x\r\n",
+	sprintf(dbg_buffer, "in rt2501_send, encryption=%d, length=%ld, fc0=0x%02x, fc1=0x%02x"EOL,
 		encryption, length, fr->header.i_fc[0], fr->header.i_fc[1]);
 	DBG_WIFI(dbg_buffer);
 #endif
 
 	disable_ohci_irq();
 	if(!rt2501_tx(fr, sizeof(TXD_STRUC)+sizeof(struct ieee80211_frame)+length)) {
-		DBG_WIFI("TX error in rt2501_send\r\n");
+		DBG_WIFI("TX error in rt2501_send"EOL);
 		enable_ohci_irq();
 		return 0;
 	}
 	enable_ohci_irq();
-	DBG_WIFI("TX done in rt2501_send\r\n");
+	DBG_WIFI("TX done in rt2501_send"EOL);
 	return 1;
 }
 

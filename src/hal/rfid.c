@@ -389,7 +389,7 @@ int32_t get_byuid(uint8_t* id)
 //    dump((uint8_t*)&(tag_rfid[i].UID[0]),8);
     if (!checkid(id,(uint8_t*)&(tag_rfid[i].UID[0]),8))
     {
-      consolestr("found !\n");
+      consolestr("found !"EOL);
       return tag_rfid[i].CHIP_ID;
     }
   }
@@ -398,25 +398,25 @@ int32_t get_byuid(uint8_t* id)
 
 int8_t rfid_read(uint8_t* id,int32_t bloc,uint8_t* data)
 {
-  consolestr("rfid_read\n");
+  consolestr("rfid_read"EOL);
 //  dump(id,8);
   i2cerror=0;
-//  putst_uart("detect\n");
+//  putst_uart("detect"EOL);
   nb_tag_detected=check_rfid_devices(tag_rfid);
-//  putst_uart("nb_tag_detected=");puthx_uart(nb_tag_detected);putst_uart("\n");
+//  putst_uart("nb_tag_detected=");puthx_uart(nb_tag_detected);putst_uart(EOL);
   if (i2cerror)
   {
     close_rfid();
     return -1;
   }
   int32_t chipid=get_byuid(id);
-  consolestr("chipid=");consolehx(chipid);consolestr("\n");
+  consolestr("chipid=");consolehx(chipid);consolestr(EOL);
   if (chipid==-1)
   {
     close_rfid();
     return -1;
   }
-//  putst_uart("read\n");
+//  putst_uart("read"EOL);
   read_eeprom_rfid(chipid, bloc, data, 4);
 //  dump(data,4);
   close_rfid();

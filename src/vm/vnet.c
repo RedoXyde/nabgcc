@@ -93,7 +93,7 @@ int32_t nscan;
 void netScan_(struct rt2501_scan_result *scan_result, void *userparam)
 {
   uint8_t buf[256];
-  sprintf((char*)buf,">>> %s %d %d %d %d\n",scan_result->ssid,scan_result->rssi,scan_result->channel,scan_result->rateset,scan_result->encryption);
+  sprintf((char*)buf,">>> %s %d %d %d %d"EOL,scan_result->ssid,scan_result->rssi,scan_result->channel,scan_result->rateset,scan_result->encryption);
   consolestr(buf);
   VPUSH(PNTTOVAL(VMALLOCSTR(scan_result->ssid,strlen((char*)scan_result->ssid))));
   VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)scan_result->mac,6)));

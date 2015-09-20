@@ -146,7 +146,7 @@ void dump(uint8_t *src,int32_t len)
 {
   int32_t i,j;
   uint8_t buffer[64];
-  consolestr((uint8_t*)"\r\n");
+  consolestr(EOL);
   for(i=0;i<len;i+=16)
   {
     sprintf((char*)buffer,"%04lx ",i);
@@ -157,7 +157,7 @@ void dump(uint8_t *src,int32_t len)
     }
     else consolestr((uint8_t*)"   ");
     for(j=0;j<16;j++) if (i+j<len) putch_uart(((src[i+j]>=32)&&(src[i+j]<128))?src[i+j]:'.');
-    consolestr((uint8_t*)"\r\n");
+    consolestr(EOL);
 //    DelayMs(100);
   }
 }
@@ -171,7 +171,8 @@ void dumpbin(uint8_t * p,int32_t n,int32_t ln)
     sprintf((char*)buffer,"%02x.",(p[i])&255);
     consolestr(buffer);
   }
-  if (ln) consolestr((uint8_t*)"\r\n");
+  if (ln)
+    consolestr(EOL);
 }
 
 char buffer[256];
@@ -262,20 +263,20 @@ int main(void)
 
   //Init Uart
   init_uart();
-  consolestr("\r\n****Reset");
+  consolestr(EOL"****Reset"EOL);
   ptest=(uint8_t *)&iii;
   iii=1;
   if (ptest[0])
-    consolestr("Little Endian");
+    consolestr("Little Endian"EOL);
   else if (ptest[3])
-    consolestr("Big Endian");
+    consolestr("Big Endian"EOL);
 
   // Configure USB
 	usbctrl_host_driver_set(NULL, usbhost_interrupt);
 	ret = usbctrl_init(USB_HOST);
 	if(ret != OK)
   {
-    consolestr("USB Controller initialization failed");
+    consolestr("USB Controller initialization failed"EOL);
     while(1);
   };
 
@@ -289,34 +290,34 @@ int main(void)
   ret = usbhost_init();
 	if(ret != OK)
   {
-    consolestr("USB Host initialization failed");
+    consolestr("USB Host initialization failed"EOL);
     while(1);
   };
 
 	ret = rt2501_driver_install();
 	if(ret != OK)
   {
-    consolestr("RT2501 Driver installation failed");
+    consolestr("RT2501 Driver installation failed"EOL);
     while(1);
   };
 
-  consolestr("Nabaztag firmware ("__DATE__" "__TIME__") ready.\r\n");
-  consolestr("vmemInit\r\n");
+  consolestr("Nabaztag firmware ("__DATE__" "__TIME__") ready."EOL);
+  consolestr("vmemInit"EOL);
   vmemInit(0);
 
-  consolestr("loaderInit\r\n");
+  consolestr("loaderInit"EOL);
   loaderInit((uint8_t*)&dumpbc);
 
-//  consolestr("dumpShort\r\n");
+//  consolestr("dumpShort"EOL);
 //  vmemDumpShort();
 //  vmemDump();
 
 //  uint8_t i;
 //	for(i=0;i<6;i++) {
-//    sprintf(buffer,"fun %d at %d\n",i,loaderFunstart(i));
+//    sprintf(buffer,"fun %d at %d"EOL,i,loaderFunstart(i));
 //    consolestr(buffer);
 //  }
-  //~ consolestr("main\r\n");
+  //~ consolestr("main"EOL);
 
   VPUSH(INTTOVAL(0));
   interpGo();

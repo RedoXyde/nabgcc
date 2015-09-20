@@ -212,13 +212,13 @@ static int32_t rt2501_setup(void)
         0x00,        /* wIndex */
         0,        /* wLength */
         NULL);
-  DBG_WIFI("OK!\r\n");
+  DBG_WIFI("OK!"EOL);
 
   /* Get ASIC version */
 /*
         rt2501_asicver = rt2501_read(rt2501_dev, RT2501_MAC_CSR0);
 #ifdef DEBUG_WIFI
-  sprintf(dbg_buffer, "ASIC version: 0x%08x\r\n", rt2501_asicver);
+  sprintf(dbg_buffer, "ASIC version: 0x%08x"EOL, rt2501_asicver);
   DBG_WIFI(dbg_buffer);
 #endif
 */
@@ -228,12 +228,12 @@ static int32_t rt2501_setup(void)
     if(!rt2501_write(rt2501_dev, rt2501_mac_defaults[i].reg, rt2501_mac_defaults[i].val))
       return 0;
   }
-  DBG_WIFI("OK!\r\n");
+  DBG_WIFI("OK!"EOL);
 
   DBG_WIFI("Resetting...");
   rt2501_write(rt2501_dev, RT2501_MAC_CSR1, 0x03);
   rt2501_write(rt2501_dev, RT2501_MAC_CSR1, 0x00);
-  DBG_WIFI("OK!\r\n");
+  DBG_WIFI("OK!"EOL);
 
   DBG_WIFI("Waiting for the hardware to be up and running...");
   while(1) {
@@ -244,7 +244,7 @@ static int32_t rt2501_setup(void)
     if(!rt2501_write(rt2501_dev, RT2501_MAC_CSR12, 0x4)) return 0;
     DelayMs(1000);
   }
-  DBG_WIFI("OK!\r\n");
+  DBG_WIFI("OK!"EOL);
 
   DBG_WIFI("Setting up BBP...");
   /* Make sure BBP is okay */
@@ -260,7 +260,7 @@ static int32_t rt2501_setup(void)
     rt2501_write_bbp(rt2501_dev, rt2501_bbp_defaults[i].reg,
          rt2501_bbp_defaults[i].val);
   }
-  DBG_WIFI("OK!\r\n");
+  DBG_WIFI("OK!"EOL);
 
   /* Assert HOST ready bit */
   if(!rt2501_write(rt2501_dev, RT2501_MAC_CSR1, 0x04)) return 0;
@@ -307,7 +307,7 @@ static int32_t rt2501_setup_eeprom(void)
       rt2501_txpower[i].Power = channels[i];
 
 #ifdef DEBUG_WIFI
-    sprintf(dbg_buffer, "TX power for channel %d: %0x\r\n",
+    sprintf(dbg_buffer, "TX power for channel %d: %0x"EOL,
       rt2501_txpower[i].Channel, rt2501_txpower[i].Power);
     DBG_WIFI(dbg_buffer);
 #endif
@@ -342,7 +342,7 @@ static int32_t rt2501_setup_eeprom(void)
   if(value != 0x00FF) rt2501_RfFreqOffset = value;
   else rt2501_RfFreqOffset = 0;
 #ifdef DEBUG_WIFI
-  sprintf(dbg_buffer, "EEPROM: RF freq offset=0x%lx\r\n", rt2501_RfFreqOffset);
+  sprintf(dbg_buffer, "EEPROM: RF freq offset=0x%lx"EOL, rt2501_RfFreqOffset);
   DBG_WIFI(dbg_buffer);
 #endif
 
@@ -380,13 +380,13 @@ static int32_t rt2501_setup_eeprom(void)
          DBG_WIFI(".");
        }
   }
-  DBG_WIFI("OK!\r\n");
+  DBG_WIFI("OK!"EOL);
 
   /* Get MAC address from the EEPROM */
   rt2501_read_eeprom(rt2501_dev, RT2501_EEPROM_MAC_ADDRESS_BASE_OFFSET, rt2501_mac,
          sizeof(rt2501_mac));
 #ifdef DEBUG_WIFI
-  sprintf(dbg_buffer, "MAC address: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+  sprintf(dbg_buffer, "MAC address: %02x:%02x:%02x:%02x:%02x:%02x"EOL,
     rt2501_mac[0],
     rt2501_mac[1],
     rt2501_mac[2],
@@ -406,7 +406,7 @@ static int32_t rt2501_setup_eeprom(void)
   csr3.field.U2MeMask = 0xff;
   rt2501_write(rt2501_dev, RT2501_MAC_CSR2, csr2.word);
   rt2501_write(rt2501_dev, RT2501_MAC_CSR3, csr3.word);
-  DBG_WIFI("OK!\r\n");
+  DBG_WIFI("OK!"EOL);
 
   return 1;
 }
@@ -416,7 +416,7 @@ static void rt2501_antenna_setting()
   uint8_t R3 = 0, R4 = 0, R77 = 0;
   uint8_t FrameTypeMaskBit5 = 0;
 
-  sprintf(dbg_buffer, "RxDefaultAntenna=%x\r\nRfIcType=%x",rt2501_Antenna.field.RxDefaultAntenna,rt2501_Antenna.field.RfIcType);
+  sprintf(dbg_buffer, "RxDefaultAntenna=%x"EOL"RfIcType=%x",rt2501_Antenna.field.RxDefaultAntenna,rt2501_Antenna.field.RfIcType);
   DBG(dbg_buffer);
 
         if(rt2501_Antenna.field.RxDefaultAntenna == RT2501_SOFTWARE_DIVERSITY)
@@ -674,7 +674,7 @@ void rt2501_switch_channel(uint8_t channel)
   rt2501_write(rt2501_dev, RT2501_TXRX_CSR0, 0x025eb032);
 
 #ifdef DEBUG_WIFI
-  sprintf(dbg_buffer, "SwitchChannel(RF=%d) to #%d, TXPwr=%d, R1=0x%08lx, R2=0x%08x, R3=0x%08x, R4=0x%08x\r\n",
+  sprintf(dbg_buffer, "SwitchChannel(RF=%d) to #%d, TXPwr=%d, R1=0x%08lx, R2=0x%08x, R3=0x%08x, R4=0x%08x"EOL,
     rt2501_Antenna.field.RfIcType,
     rt2501_LatchRfRegs.Channel,
     (R3 & 0x00003e00) >> 9,
@@ -692,7 +692,7 @@ uint8_t rt2501_set_bssid(const uint8_t *bssid)
   MAC_CSR5_STRUC csr5;
 
 #ifdef DEBUG_WIFI
-  sprintf(dbg_buffer, "Setting BSSID to %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+  sprintf(dbg_buffer, "Setting BSSID to %02x:%02x:%02x:%02x:%02x:%02x"EOL,
     bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
   DBG_WIFI(dbg_buffer);
 #endif
@@ -749,7 +749,7 @@ static void rt2501_calibrate(void)
 
       R3 += rt2501_TxAgcCompensate;
 #ifdef DEBUG_WIFI
-      sprintf(dbg_buffer, "-- Tx Power, BBP R1=%x, TxAgcStep=%x, step = -%d\r\n",
+      sprintf(dbg_buffer, "-- Tx Power, BBP R1=%x, TxAgcStep=%x, step = -%d"EOL,
         BbpR1, rt2501_TxAgcStep, index-1);
       DBG_WIFI(dbg_buffer);
 #endif
@@ -763,7 +763,7 @@ static void rt2501_calibrate(void)
       rt2501_TxAgcCompensate = rt2501_TxAgcStep*(index-1);
       R3 += rt2501_TxAgcCompensate;
 #ifdef DEBUG_WIFI
-      sprintf(dbg_buffer, "++ Tx Power, BBP R1=%x, TxAgcStep=%x, step = +%d\r\n",
+      sprintf(dbg_buffer, "++ Tx Power, BBP R1=%x, TxAgcStep=%x, step = +%d"EOL,
         BbpR1, rt2501_TxAgcStep, index-1);
       DBG_WIFI(dbg_buffer);
 #endif
@@ -791,7 +791,7 @@ static void rt2501_rx_callback(PURB urb)
   PRXD_STRUC rxd;
 
   if(urb->status < 0) {
-    sprintf(dbg_buffer, "USB BULK RX ERROR, status=%d, result=%ld\r\n",
+    sprintf(dbg_buffer, "USB BULK RX ERROR, status=%d, result=%ld"EOL,
       urb->status, urb->result);
     DBG_WIFI(dbg_buffer);
     rt2501_connected = 0;
@@ -802,7 +802,7 @@ static void rt2501_rx_callback(PURB urb)
   if(urb->status < RT2501_USB_PACKET_SIZE) {
     rxd = (PRXD_STRUC)rt2501_frame;
 #ifdef DEBUG_WIFI
-/*      sprintf(dbg_buffer, "RX Crc=%d, CipherErr=%d, KeyIndex=%d, CipherAlg=%d, MyBss=%d, Iv=%08x, Eiv=%08x\r\n",
+/*      sprintf(dbg_buffer, "RX Crc=%d, CipherErr=%d, KeyIndex=%d, CipherAlg=%d, MyBss=%d, Iv=%08x, Eiv=%08x"EOL,
         rxd->Crc,
         rxd->CipherErr,
         rxd->KeyIndex,
@@ -823,7 +823,7 @@ static void rt2501_rx_callback(PURB urb)
     rt2501_frame_position += RT2501_USB_PACKET_SIZE;
     if((rt2501_frame_position+64) >= RT2501_MAX_FRAME_SIZE) {
       /* this shouldn't happen (see MAC_CSR6) */
-      DBG_WIFI("RX Buffer overrun\r\n");
+      DBG_WIFI("RX Buffer overrun"EOL);
       rt2501_connected = 0;
       return;
     }
@@ -897,7 +897,7 @@ void rt2501_make_tx_descriptor(
   /* fill encryption related information, if required */
   txd->CipherAlg = CipherAlg;
 
-  sprintf(dbg_buffer, "Cipher = %u, rate = %lu\r\n", CipherAlg, Rate);
+  sprintf(dbg_buffer, "Cipher = %u, rate = %lu"EOL, CipherAlg, Rate);
   DBG(dbg_buffer);
 
   if(CipherAlg != RT2501_CIPHER_NONE) {
@@ -989,7 +989,7 @@ int32_t rt2501_tx(void *buffer, uint32_t length)
 
   ret = usbh_bulk_transfer_async(rt2501_dev, 1, buffer, length);
 
-  sprintf(dbg_buffer, "ret = %ld\r\n", ret);
+  sprintf(dbg_buffer, "ret = %ld"EOL, ret);
   DBG(dbg_buffer);
 
   return ((ret > 0) || (ret == URB_PENDING));
@@ -1054,7 +1054,7 @@ static int32_t rt2501_write_key(uint32_t address, uint8_t *buffer, uint32_t leng
       block.elements.c3 = buffer[i+2];
       block.elements.c4 = buffer[i+3];
 #ifdef DEBUG_WIFI
-      sprintf(dbg_buffer, "writing key data: 0x%08x <- 0x%08x\r\n",
+      sprintf(dbg_buffer, "writing key data: 0x%08x <- 0x%08x"EOL,
         address+i,
         block.value);
       DBG_WIFI(dbg_buffer);
@@ -1138,7 +1138,7 @@ static void *rt2501_connect(PDEVINFO dev)
   if(!dev) return NULL;
   if(!dev->descriptor) return NULL;
 
-  sprintf(dbg_buffer, "VID: 0x%04x PID: 0x%04x\r\n",
+  sprintf(dbg_buffer, "VID: 0x%04x PID: 0x%04x"EOL,
     dev->descriptor->idVendor,
     dev->descriptor->idProduct);
   DBG_WIFI(dbg_buffer);
@@ -1151,11 +1151,11 @@ static void *rt2501_connect(PDEVINFO dev)
   if(!dev->descriptor->configuration) return NULL;
    interface = dev->descriptor->configuration->interface;
   if(rt2501_connected) {
-    DBG_WIFI("This driver only supports one device at once\r\n");
+    DBG_WIFI("This driver only supports one device at once"EOL);
     return NULL;
   }
 
-  DBG_WIFI("RT2501 stick found !\r\n");
+  DBG_WIFI("RT2501 stick found !"EOL);
 
   /*
     If we don't send this Set Configuration request, some parts of the
@@ -1170,7 +1170,7 @@ static void *rt2501_connect(PDEVINFO dev)
   while(endpoint != NULL) {
     if((endpoint->bEndpointAddress == 0x01)
        && (endpoint->bmAttributes == 0x02)) {
-         DBG_WIFI("Recognized TX bulk endpoint\r\n");
+         DBG_WIFI("Recognized TX bulk endpoint"EOL);
          disable_ohci_irq();
          dev->pipe[1] = usbh_create_pipe(dev,
         endpoint->bmAttributes,
@@ -1182,7 +1182,7 @@ static void *rt2501_connect(PDEVINFO dev)
        }
     if((endpoint->bEndpointAddress == 0x81)
        && (endpoint->bmAttributes == 0x02)) {
-         DBG_WIFI("Recognized RX bulk endpoint\r\n");
+         DBG_WIFI("Recognized RX bulk endpoint"EOL);
          disable_ohci_irq();
          dev->pipe[2] = usbh_create_pipe(dev,
         endpoint->bmAttributes,
@@ -1226,7 +1226,7 @@ static void *rt2501_connect(PDEVINFO dev)
 
   rt2501_rxbuf = hcd_malloc(RT2501_USB_PACKET_SIZE, COMRAM,18);
   if(rt2501_rxbuf == NULL) {
-    DBG_WIFI("Unable to allocate RX buffer !\r\n");
+    DBG_WIFI("Unable to allocate RX buffer !"EOL);
     usbh_delete_pipe(dev, 1);
     usbh_delete_pipe(dev, 2);
     return NULL;
@@ -1247,7 +1247,7 @@ static void *rt2501_connect(PDEVINFO dev)
 
 static void rt2501_disconnect(PDEVINFO dev)
 {
-  DBG_WIFI("RT2501 stick disconnected\r\n");
+  DBG_WIFI("RT2501 stick disconnected"EOL);
   rt2501buffer_free();
   dev->driver_data = NULL;
   dev->driver = NULL;
@@ -1265,7 +1265,7 @@ int32_t rt2501_driver_install(void)
 {
   rt2501_connected = 0;
   usbh_driver_install(&usb_rt2501_driver);
-  DBG_WIFI("RT2501 driver installed, (c) 2006 lekernel\r\n");
+  DBG_WIFI("RT2501 driver installed, (c) 2006 lekernel"EOL);
   return OK;
 }
 
