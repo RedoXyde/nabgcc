@@ -965,6 +965,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 	frame_end = frame+length;
 	switch(fr->i_fc[0] & IEEE80211_FC0_SUBTYPE_MASK) {
 		case IEEE80211_FC0_SUBTYPE_PROBE_REQ:
+      DBG_WIFI("Probe_Req"EOL);
 			if(ieee80211_mode == IEEE80211_M_MASTER) {
 				int32_t ssid_present;
 				char ssid[IEEE80211_SSID_MAXLEN+1];
@@ -994,7 +995,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			}
 			break;
 		case IEEE80211_FC0_SUBTYPE_PROBE_RESP:
-			DBG_WIFI("[PR]"EOL);
+      DBG_WIFI("Probe_Resp"EOL);
 			/* fall through */
 		case IEEE80211_FC0_SUBTYPE_BEACON:
 			/*
@@ -1123,6 +1124,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			} /* ieee80211_mode == IEEE80211_M_MANAGED */
 			break;
 		case IEEE80211_FC0_SUBTYPE_AUTH:
+      DBG_WIFI("Auth"EOL);
 			if(length < (sizeof(struct ieee80211_frame)+6)) return;
 			if(ieee80211_mode == IEEE80211_M_MANAGED) {
 				/*
@@ -1176,6 +1178,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			}
 			break;
 		case IEEE80211_FC0_SUBTYPE_ASSOC_REQ:
+      DBG_WIFI("Assoc_Req"EOL);
 			/*
 			We're only insterested in them when in Master mode,
 			to take care of authenticated stations trying to associate
@@ -1204,6 +1207,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			}
 			break;
 		case IEEE80211_FC0_SUBTYPE_ASSOC_RESP:
+      DBG_WIFI("Assoc_Resp"EOL);
 			/*
 			Association Responses are only interesting after we have
 			sent an Association Request, in Managed mode only.
@@ -1241,7 +1245,9 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			}
 			break;
 		case IEEE80211_FC0_SUBTYPE_DISASSOC:
+      DBG_WIFI("Disassoc"EOL);
 		case IEEE80211_FC0_SUBTYPE_DEAUTH:
+      DBG_WIFI("Deauth"EOL);
 			if(ieee80211_mode == IEEE80211_M_MANAGED) {
 				/* Managed mode */
 				if(ieee80211_state != IEEE80211_S_IDLE) {
@@ -1271,6 +1277,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			}
 			break;
 		default:
+      DBG_WIFI("Unknown"EOL);
 			break;
 	}
 }

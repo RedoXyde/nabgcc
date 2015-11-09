@@ -124,7 +124,7 @@ static void usbh_free_urb_callback(PURB urb)
 	hcd_free(urb);
 }
 
-int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, ulong size)
+int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, uint32_t size)
 {
 	URB *urb;
 
@@ -148,9 +148,9 @@ int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, ulong siz
 
 }
 
-int32_t usbh_transfer_request(PURB urb)
+int8_t usbh_transfer_request(PURB urb)
 {
-	int32_t ret;
+	int8_t ret;
 
 	ret = hcd_transfer_request(urb);
 	if(ret == URB_PENDING) ret = 0;

@@ -95,7 +95,7 @@ void rt2501_make_tx_descriptor(
 	uint32_t Length,
 	uint8_t QueIdx,
 	uint8_t PacketId);
-int32_t rt2501_tx(void *buffer, uint32_t length);
+int8_t rt2501_tx(void *buffer, uint32_t length);
 uint8_t rt2501_beacon(void *buffer, uint32_t length);
 int32_t rt2501_set_key(uint8_t index, uint8_t *key, uint8_t *txmic, uint8_t *rxmic, uint8_t cipher);
 uint16_t rt2501_txtime(uint32_t len, uint8_t rate);

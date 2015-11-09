@@ -215,7 +215,7 @@ static void hcd_delete_td(PHCD_ED ed)
  * @retval  0   on success
  */
 static int8_t hcd_add_td(PHCD_ED ed, uint32_t control,
-                         void *buffer, int32_t length,
+                         void *buffer, uint32_t length,
                          PURB urb, int32_t index)
 {
   PHCD_TD td_tail;
@@ -239,12 +239,12 @@ static int8_t hcd_add_td(PHCD_ED ed, uint32_t control,
   {
     return -1;
   }
-  memset((uint32_t *)td_next, 0, sizeof(HCD_TD));
+  memset(td_next, 0, sizeof(HCD_TD));
 
   td_tail->HcTD.Control = control;
   td_tail->HcTD.CBP = (!buffer || !length) ? 0: buffer;
   td_tail->HcTD.NextTD = (uint32_t)td_next;
-  td_tail->HcTD.BE = (!buffer || !length ) ? 0: (char *)buffer + length - 1;
+  td_tail->HcTD.BE = (!buffer || !length ) ? 0: (uint8_t *)buffer + length - 1;
   td_tail->urb = urb;
   td_tail->index = index;
 
@@ -386,7 +386,7 @@ void hcd_delete_ed(PHCD_ED ed)
  *
  * @param ed Endpoint struct pointer
  */
-int8_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, ushort maxpacket)
+int8_t hcd_update_ed(PHCD_ED ed, uint8_t dev_addr, uint16_t maxpacket)
 {
   uint32_t control;
 
@@ -425,7 +425,7 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr,
   PHCD_TD td;
   uint32_t dir;
 
-  DBG_USB(" hcd_create_ed"EOL);
+  DBG_USB("hcd_create_ed"EOL);
 
   ed = (PHCD_ED)hcd_malloc(sizeof(HCD_ED), COMRAM,4);
   if (!ed)
@@ -439,7 +439,7 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr,
     hcd_free(ed);
     return NULL;
   }
-  memset((uint32_t *)td, 0, sizeof(HCD_TD));
+  memset(td, 0, sizeof(HCD_TD));
 
   dir = (uint32_t)((type == USB_CTRL) ? 0:
                           ((ep_num & USB_DIR_IN) ? HcED_DIR_IN : HcED_DIR_OUT));
@@ -459,11 +459,9 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr,
 
 void hcd_transfer_wait(PURB urb)
 {
-  int32_t timeout = 0;
+  uint16_t timeout = 0;
 
-#ifdef DEBUG_USB
   DBG_USB(" hcd_transfer_wait:"EOL);
-#endif
 
   while(urb->status == URB_PENDING)
   {
@@ -471,7 +469,7 @@ void hcd_transfer_wait(PURB urb)
     if(timeout++ > urb->timeout)
     {
       PHCD_ED ed = (PHCD_ED)urb->ed;
-      DBG_USB(" HCD: hcd_transfer_wait timeout!!"EOL);
+      DBG(" HCD: hcd_transfer_wait timeout!!"EOL);
       hcd_pause_ed(ed);
       urb->status = URB_TIMEOUT;
       return;
@@ -480,13 +478,11 @@ void hcd_transfer_wait(PURB urb)
 
   if(!list_empty(&urb->td_list))
     urb->status = URB_SYSERR;
-#ifdef DEBUG_USB
 #ifdef DEBUG_RAMAC_ERR
       hcd_info.hc_control |= OHCI_CTRL_PLE;
       put_wvalue(HcControl, hcd_info.hc_control);
 #endif
-  DBG_USB(" hcd_transfer_wait: done."EOL);
-#endif
+  DBG_USB("hcd_transfer_wait: done."EOL);
 }
 
 void hcd_control_transfer_start(PURB urb)
@@ -495,9 +491,7 @@ void hcd_control_transfer_start(PURB urb)
   PHCD_ED ed = (PHCD_ED)urb->ed;
   PHCD_ED ed_list_tail;
 
-#ifdef DEBUG_USB
-  DBG_USB(" hcd_control_transfer_start:"EOL);
-#endif
+  DBG_USB("hcd_control_transfer_start:"EOL);
 
   urb->result = 0;
   urb->status = URB_PENDING;
@@ -649,12 +643,11 @@ void hcd_bulk_transfer_start(PURB urb)
 {
   PHCD_ED ed = (PHCD_ED)urb->ed;
   PHCD_ED ed_list_tail;
-  char *buffer = (char *)urb->buffer;
+  uint8_t *buffer = (uint8_t *)urb->buffer;
   uint32_t length = urb->length;
-  uint8_t cnt = 0;
+  uint32_t cnt = 0;
 
   DBG_USB(" hcd_bulk_transfer_start:"EOL);
-
   urb->result = 0;
   urb->status = URB_PENDING;
   INIT_LIST_ENTRY(&urb->td_list);
@@ -666,6 +659,7 @@ void hcd_bulk_transfer_start(PURB urb)
     if(hcd_add_td(ed, HcTD_CC | HcTD_DI, buffer, TD_BUFFER_MAX, urb, cnt) < 0)
     {
       urb->status = URB_ADDTDERR;
+      DBG("x0");
       return;
     }
     buffer += TD_BUFFER_MAX;
@@ -673,9 +667,10 @@ void hcd_bulk_transfer_start(PURB urb)
     cnt++;
   }
 
-  if(hcd_add_td(ed, HcTD_CC, buffer, (int)length, urb, cnt) < 0)
+  if(hcd_add_td(ed, HcTD_CC, buffer, length, urb, cnt) < 0)
   {
     urb->status = URB_ADDTDERR;
+    DBG("x1");
     return;
   }
 
@@ -726,18 +721,17 @@ void hcd_bulk_transfer(PURB urb)
   if(hcd_malloc_check(urb->buffer) != COMRAM)
   {
     urb->status = URB_ADDTDERR;
+    DBG("x2");
     return;
-  } else
-  {
-    hcd_bulk_transfer_start(urb);
-    if(urb->timeout)
-      hcd_transfer_wait(urb);
   }
+  hcd_bulk_transfer_start(urb);
+  if(urb->timeout)
+    hcd_transfer_wait(urb);
 }
 
 int8_t hcd_transfer_request(PURB urb)
 {
-  DBG_USB(" hcd_transfer_request:"EOL);
+  DBG_USB(" hcd_transfer_request:");
 
   if (hcd_info.disabled)
   {
@@ -749,6 +743,7 @@ int8_t hcd_transfer_request(PURB urb)
   switch(((PHCD_ED)urb->ed)->type)
   {
     case USB_CTRL:
+//      DBG("Ctrl"EOL);
       #ifdef DEBUG_RAMAC_ERR
       hcd_info.hc_control &= ~OHCI_CTRL_PLE;
       put_wvalue(HcControl, hcd_info.hc_control);
@@ -757,6 +752,7 @@ int8_t hcd_transfer_request(PURB urb)
       break;
 
     case USB_BULK:
+//      DBG("Bulk"EOL);
       hcd_bulk_transfer(urb);
       break;
 

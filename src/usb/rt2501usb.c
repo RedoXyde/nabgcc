@@ -205,7 +205,7 @@ static int32_t rt2501_setup(void)
 
   /* Start firmware */
   usbh_control_transfer(rt2501_dev,
-              0,        /* pipe */
+        0,           /* pipe */
         0x01,        /* bRequest */
         USB_TYPE_VENDOR|USB_DIR_OUT,  /* bmRequestType */
         0x08,        /* wValue */
@@ -674,7 +674,7 @@ void rt2501_switch_channel(uint8_t channel)
   rt2501_write(rt2501_dev, RT2501_TXRX_CSR0, 0x025eb032);
 
 #ifdef DEBUG_WIFI
-  sprintf(dbg_buffer, "SwitchChannel(RF=%d) to #%d, TXPwr=%d, R1=0x%08lx, R2=0x%08x, R3=0x%08x, R4=0x%08x"EOL,
+  sprintf(dbg_buffer, "SwitchChannel(RF=%d) to #%d, TXPwr=%ld, R1=0x%08lx, R2=0x%08lx, R3=0x%08lx, R4=0x%08lx"EOL,
     rt2501_Antenna.field.RfIcType,
     rt2501_LatchRfRegs.Channel,
     (R3 & 0x00003e00) >> 9,
@@ -978,18 +978,18 @@ void rt2501_make_tx_descriptor(
 }
 
 /* Buffer must be in COMRAM */
-int32_t rt2501_tx(void *buffer, uint32_t length)
+int8_t rt2501_tx(void *buffer, uint32_t length)
 {
-  int32_t ret;
+  int8_t ret;
 
   /* Length must be a multiple of 4 */
   if((length % 4) != 0) length += 4 - (length % 4);
   /* Moreover, it must not be a multiple of the USB packet size */
   if((length % RT2501_USB_PACKET_SIZE) == 0) length += 4;
-
+//  dump(buffer,length);
   ret = usbh_bulk_transfer_async(rt2501_dev, 1, buffer, length);
 
-  sprintf(dbg_buffer, "ret = %ld"EOL, ret);
+  sprintf(dbg_buffer, "ret = %d"EOL, ret);
   DBG(dbg_buffer);
 
   return ((ret > 0) || (ret == URB_PENDING));
@@ -1054,7 +1054,7 @@ static int32_t rt2501_write_key(uint32_t address, uint8_t *buffer, uint32_t leng
       block.elements.c3 = buffer[i+2];
       block.elements.c4 = buffer[i+3];
 #ifdef DEBUG_WIFI
-      sprintf(dbg_buffer, "writing key data: 0x%08x <- 0x%08x"EOL,
+      sprintf(dbg_buffer, "writing key data: 0x%08lx <- 0x%08lx"EOL,
         address+i,
         block.value);
       DBG_WIFI(dbg_buffer);
