@@ -8,7 +8,7 @@
 #include "common.h"
 
 #include "usb/list.h"
-
+#include "utils/debug.h"
 void __list_add(pLIST_ENTRY entry, pLIST_ENTRY Blink, pLIST_ENTRY Flink)
 {
   entry->Blink = Blink;
@@ -30,15 +30,17 @@ void list_add_top(pLIST_ENTRY entry, pLIST_ENTRY head)
 
 void list_add(pLIST_ENTRY entry, pLIST_ENTRY head)
 {
+//  sprintf(dbg_buffer,"+%X(%X)",head,entry); DBG(dbg_buffer);
   __list_add(entry, head->Blink, head);
 }
 
 void list_del(pLIST_ENTRY entry)
 {
+//  sprintf(dbg_buffer,"-%X"EOL,entry); DBG(dbg_buffer);
   __list_del(entry->Blink, entry->Flink);
 }
 
-int list_empty(pLIST_ENTRY head)
+uint8_t list_empty(pLIST_ENTRY head)
 {
   return (head->Flink == head);
 }

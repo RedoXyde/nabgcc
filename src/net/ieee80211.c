@@ -920,7 +920,7 @@ static void ieee80211_send_probe_response(uint8_t *dest_mac)
 	*(write_ptr++) = 1;
 	*(write_ptr++) = ieee80211_assoc_channel;
 
-	frame_length = sizeof(struct ieee80211_frame)+((uint32_t)write_ptr - (uint32_t)presp->presp);
+	frame_length = sizeof(struct ieee80211_frame)+((uintptr_t)write_ptr - (uintptr_t)presp->presp);
 
 	duration = rt2501_txtime(frame_length, 2)+IEEE80211_SIFS;
 	presp->header.i_dur[0] = ((duration & 0x00ff) >> 0);

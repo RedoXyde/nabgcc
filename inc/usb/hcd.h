@@ -18,10 +18,10 @@
  */
 typedef struct _HC_ED
 {
-  volatile uint32_t  Control;         /**< @brief dword 0 */
-  volatile uint32_t  TailP;           /**< @brief physical pointer to HC_TD */
-  volatile uint32_t  HeadP;           /**< @brief flags + phys ptr to HC_TD */
-  volatile uint32_t  NextED;          /**< @brief phys ptr to HC_ED */
+  uint32_t  Control;        /**< @brief dword 0 */
+  uintptr_t  TailP;         /**< @brief physical pointer to HC_TD */
+  uintptr_t  HeadP;         /**< @brief flags + phys ptr to HC_TD */
+  uintptr_t  NextED;        /**< @brief phys ptr to HC_ED */
 } HC_ED, *PHC_ED;
 
 /* Control values */
@@ -47,10 +47,10 @@ typedef struct _HC_ED
  */
 typedef struct _HC_TD
 {
-  volatile uint32_t  Control;     /**< @brief dword 0 */
-  volatile void *CBP;             /**< @brief phys ptr to data buffer */
-  volatile uint32_t  NextTD;      /**< @brief phys ptr to HC_TD */
-  volatile void *BE;              /**< @brief phys ptr to end of data buffer */
+  uint32_t  Control;     /**< @brief dword 0 */
+  uintptr_t CBP;         /**< @brief phys ptr to data buffer */
+  uintptr_t NextTD;      /**< @brief phys ptr to HC_TD */
+  uintptr_t BE;          /**< @brief phys ptr to end of data buffer */
 } HC_TD, *PHC_TD;
 
 #define HcTD_CC           0xF0000000  /* */
@@ -99,7 +99,7 @@ typedef struct _HCD_ED
   uint8_t     interval;
   uint8_t     flag;
   uint8_t     reserved;
-  void        *dev;
+  PDEVINFO    dev;
   LIST_ENTRY  ed_list;
 } HCD_ED, *PHCD_ED;
 
@@ -109,12 +109,12 @@ typedef struct _HCD_ED
 typedef struct _HCD_TD {
   HC_TD       HcTD;
   PURB        urb;
-  int32_t     index;
+  uint8_t     index;
   LIST_ENTRY  list;
 } HCD_TD, *PHCD_TD;
 
 
-struct hcca
+typedef struct
 {
   uint32_t int_table[32]; /**< @brief Pointers to interrupt EDs */
   uint16_t framenumber;   /**< @brief Contains the current frame number.  */
@@ -123,11 +123,11 @@ struct hcca
                            */
   uint32_t donehead;      /**< @brief The Done Queue of completed TD's. */
   uint8_t  reserved[116]; /**< @brief FIXME: Remove this ? */
-};
+} hcca_t;
 
-struct hcd_info
+typedef struct
 {
-  struct hcca *hcca;      /* address of HCCA */
+  hcca_t *hcca;      /* address of HCCA */
 
   uint8_t     disabled;   /**< @brief status of host controller */
   uint32_t    hc_control; /**< @brief copy of the hc control reg */
@@ -139,14 +139,14 @@ struct hcd_info
   LIST_ENTRY  ed_pause1;  /**< @brief delete endpoint list1 */
 
   uint8_t     rh_status;  /**< @brief status of root hub */
-  void        *rh_device; /**< @brief FIXME ? */
-};
+  PDEVINFO    rh_device; /**< @brief FIXME ? */
+} hcd_info_t;
 
 #define HcdRH_CONNECT     0x01
 #define HcdRH_DISCONNECT  0x02
 #define HcdRH_SPEED       0x10
 
-extern struct hcd_info hcd_info;
+extern hcd_info_t hcd_info;
 
 #define disable_ohci_irq() put_wvalue(HostCtl, B_OHCIIRQ_MASK)
 #define enable_ohci_irq()  put_wvalue(HostCtl, 0)

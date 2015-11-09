@@ -239,17 +239,17 @@ void usbh_driver_install(struct usbh_driver *);
 void usbh_driver_uninstall(struct usbh_driver *);
 
 PDEVINFO usbh_connect(uint8_t);
-int32_t usbh_disconnect(PDEVINFO *);
+int8_t usbh_disconnect(PDEVINFO *);
 
 void *usbh_create_pipe(PDEVINFO, uint8_t, uint8_t, uint16_t, uint8_t);
 void usbh_delete_pipe(PDEVINFO, uint8_t);
 
-int32_t usbh_control_transfer(PDEVINFO, uint8_t, uint8_t, uint8_t, uint16_t, uint16_t, uint16_t, void *);
-int8_t usbh_bulk_transfer_async(PDEVINFO, uint8_t, void *, uint32_t);
+int8_t usbh_control_transfer(PDEVINFO, uint8_t, uint8_t, uint8_t, uint16_t, uint16_t, uint16_t, void *);
+int8_t usbh_bulk_transfer_async(PDEVINFO, uint8_t, void *, uint16_t);
 int8_t usbh_transfer_request(PURB urb);
 void usbh_transfer_cancel(PURB urb);
-int32_t usbh_set_configuration(PDEVINFO, uint16_t);
-int32_t usbhost_init(void);
+int8_t usbh_set_configuration(PDEVINFO, uint16_t);
+int8_t usbhost_init(void);
 void usbhost_exit(void);
 void usbhost_events(void);
 

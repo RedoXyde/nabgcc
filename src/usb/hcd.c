@@ -20,7 +20,7 @@
 #define RevisonNumber  0x00000010
 #define TD_BUFFER_MAX  4096
 
-struct hcd_info hcd_info;
+hcd_info_t hcd_info;
 
 void usbhost_interrupt(void);
 
@@ -37,8 +37,7 @@ int8_t hcd_init(void)
   uint32_t mask;
 
   #ifdef DEBUG_USB
-  sprintf(dbg_buffer,"HCD: Controller Address = %08lX"EOL,
-                                                        (uint32_t)HostCtl_addr);
+  sprintf(dbg_buffer,"HCD: Controller Address = %08X"EOL,HostCtl_addr);
   DBG_USB(dbg_buffer);
   #endif
 
@@ -47,7 +46,7 @@ int8_t hcd_init(void)
   if(rev != RevisonNumber)
   {
     #ifdef DEBUG_USB
-    sprintf(dbg_buffer,"Bad Revision Register : %08lX"EOL, (uint32_t)rev);
+    sprintf(dbg_buffer,"Bad Revision Register : %08lX"EOL, rev);
     DBG_USB(dbg_buffer);
     #endif
     return -1;
@@ -60,16 +59,16 @@ int8_t hcd_init(void)
   hcd_malloc_init(ComRAMAddr, ComRAMSize, 16, COMRAM);
 
   /* Init hcd_info */
-  memset(&hcd_info, 0, sizeof(struct hcd_info));
+  memset(&hcd_info, 0, sizeof(hcd_info_t));
 
   /* Set RAM for HCCA and send address to USB chip */
-  hcd_info.hcca = (struct hcca *)hcd_malloc(sizeof(struct hcca), COMRAM,2);
+  hcd_info.hcca = (hcca_t *)hcd_malloc(sizeof(hcca_t), COMRAM,2);
   if (!hcd_info.hcca)
   {
     return -1;
   }
-  memset((uint32_t *)hcd_info.hcca, 0, sizeof(struct hcca));
-  put_wvalue(HcHCCA, (uint32_t)hcd_info.hcca);
+  memset(hcd_info.hcca, 0, sizeof(hcca_t));
+  put_wvalue(HcHCCA, (uintptr_t)hcd_info.hcca);
 
   /* Set addres of the control ED */
   put_wvalue(HcControlHeadED, 0);
@@ -115,7 +114,7 @@ uint8_t hcd_rh_events(void)
     hcd_info.rh_status &= ~HcdRH_DISCONNECT;
 
     DBG_USB("HCD: disconnected the device."EOL);
-    usbh_disconnect((PDEVINFO *)&hcd_info.rh_device);
+    usbh_disconnect(&hcd_info.rh_device);
     hcd_info.rh_device = NULL;
 
     return HcdRH_DISCONNECT;
@@ -176,11 +175,11 @@ static void hcd_delete_td(PHCD_ED ed)
 {
   PURB urb;
   PHCD_TD td_next, td_prev;
-  uint32_t HeadP = ed->HcED.HeadP;
-  uint32_t TailP = ed->HcED.TailP;
+  uintptr_t HeadP = ed->HcED.HeadP;
+  uintptr_t TailP = ed->HcED.TailP;
 
   td_next = (PHCD_TD)(HeadP & 0xFFFFFFF0);
-  while((uint32_t)td_next != TailP)
+  while(td_next != (PHCD_TD)TailP)
   {
      urb = td_next->urb;
     if(urb)
@@ -216,7 +215,7 @@ static void hcd_delete_td(PHCD_ED ed)
  */
 static int8_t hcd_add_td(PHCD_ED ed, uint32_t control,
                          void *buffer, uint32_t length,
-                         PURB urb, int32_t index)
+                         PURB urb, uint8_t index)
 {
   PHCD_TD td_tail;
   PHCD_TD td_next;
@@ -242,13 +241,13 @@ static int8_t hcd_add_td(PHCD_ED ed, uint32_t control,
   memset(td_next, 0, sizeof(HCD_TD));
 
   td_tail->HcTD.Control = control;
-  td_tail->HcTD.CBP = (!buffer || !length) ? 0: buffer;
-  td_tail->HcTD.NextTD = (uint32_t)td_next;
-  td_tail->HcTD.BE = (!buffer || !length ) ? 0: (uint8_t *)buffer + length - 1;
+  td_tail->HcTD.CBP = (uintptr_t)((!buffer || !length) ? 0: buffer);
+  td_tail->HcTD.NextTD = (uintptr_t)td_next;
+  td_tail->HcTD.BE = (uintptr_t)((!buffer || !length ) ? 0: (uintptr_t)buffer + length - 1);
   td_tail->urb = urb;
   td_tail->index = index;
 
-  ed->HcED.TailP = (uint32_t)td_next;
+  ed->HcED.TailP = (uintptr_t)td_next;
 
   list_add(&td_tail->list, &urb->td_list);
 
@@ -356,7 +355,7 @@ static void hcd_pause_ed(PHCD_ED ed)
  */
 void hcd_delete_ed(PHCD_ED ed)
 {
-  int32_t timeout = 0;
+  uint8_t timeout = 0;
 
   #ifdef DEBUG_USB
   DBG_USB(" hcd_delete_ed:"EOL);
@@ -375,7 +374,7 @@ void hcd_delete_ed(PHCD_ED ed)
     }
   }
 
-  hcd_free((uint32_t *)ed->HcED.TailP);
+  hcd_free((uintptr_t *)ed->HcED.TailP);
   hcd_free(ed);
 }
 
@@ -446,9 +445,9 @@ PHCD_ED hcd_create_ed(uint8_t speed, uint8_t dev_addr,
   ed->HcED.Control =  ((uint32_t)maxpacket << 16) |
                       ((uint32_t)speed << 13 ) |
                       ((uint32_t)ep_num << 7)| dir |
-                      ((uint32_t)dev_addr & 0x7Fl) | HcED_SKIP;
-  ed->HcED.TailP = (uint32_t)td;
-  ed->HcED.HeadP = (uint32_t)td;
+                      ((uintptr_t)dev_addr & 0x7Fl) | HcED_SKIP;
+  ed->HcED.TailP = (uintptr_t)td;
+  ed->HcED.HeadP = (uintptr_t)td;
   ed->HcED.NextED = 0;
   ed->type = type;
   ed->interval = interval;
@@ -533,7 +532,7 @@ void hcd_control_transfer_start(PURB urb)
   {
     if(list_empty(&hcd_info.ed_control))
     {
-      put_wvalue(HcControlHeadED, (uint32_t)ed);
+      put_wvalue(HcControlHeadED, (uintptr_t)ed);
     }
     else
     {
@@ -542,7 +541,7 @@ void hcd_control_transfer_start(PURB urb)
       {
         ed_list_tail = (PHCD_ED)ed_list_tail->HcED.NextED;
       }
-      ed_list_tail->HcED.NextED = (uint32_t)ed;
+      ed_list_tail->HcED.NextED = (uintptr_t)ed;
     }
     ed->HcED.NextED = 0;
     ed->flag = ED_LINK;
@@ -552,12 +551,12 @@ void hcd_control_transfer_start(PURB urb)
 
   if(ed->HcED.HeadP & HcED_HeadP_HALT)
   {
-    ed->HcED.HeadP &= (uint32_t)(~HcED_HeadP_HALT);
+    ed->HcED.HeadP &= (uintptr_t)(~HcED_HeadP_HALT);
   }
 
   if(ed->HcED.Control & HcED_SKIP)
   {
-    ed->HcED.Control &= (uint32_t)(~HcED_SKIP);
+    ed->HcED.Control &= (uintptr_t)(~HcED_SKIP);
   }
 
   if( (hcd_info.hc_control & OHCI_CTRL_CLE) == 0 )
@@ -574,7 +573,7 @@ void hcd_control_transfer_start(PURB urb)
 void hcd_control_transfer(PURB urb)
 {
   struct usb_setup *setup, *setup_saved;
-  void *buffer, *buffer_saved;
+  uintptr_t *buffer, *buffer_saved;
 
   if(hcd_malloc_check(urb->setup) != COMRAM)
   {
@@ -585,7 +584,7 @@ void hcd_control_transfer(PURB urb)
       urb->status = URB_NOMEM;
       return;
     }
-    memcpy((void *)setup, (void *)(urb->setup), 8);
+    memcpy(setup,urb->setup, 8);
     setup_saved = urb->setup;
     urb->setup = setup;
   }
@@ -606,7 +605,7 @@ void hcd_control_transfer(PURB urb)
     }
     buffer_saved = urb->buffer;
     if((urb->setup->bmRequestType & USB_DIR_IN) == 0)
-      memcpy((uint32_t *)buffer, (uint32_t *)buffer_saved, urb->length);
+      memcpy(buffer, buffer_saved, urb->length);
     urb->buffer = buffer;
   }
   else
@@ -632,7 +631,7 @@ void hcd_control_transfer(PURB urb)
   {
     urb->buffer = buffer_saved;
     if(urb->setup->bmRequestType & USB_DIR_IN)
-      memcpy((uint32_t *)buffer_saved, (uint32_t *)buffer, urb->length);
+      memcpy(buffer_saved, buffer, urb->length);
     disable_ohci_irq();
     hcd_free(buffer);
     enable_ohci_irq();
@@ -678,7 +677,7 @@ void hcd_bulk_transfer_start(PURB urb)
   {
     if(list_empty(&hcd_info.ed_bulk))
     {
-      put_wvalue(HcBulkHeadED, (uint32_t)ed);
+      put_wvalue(HcBulkHeadED, (uintptr_t)ed);
     }
     else
     {
@@ -687,7 +686,7 @@ void hcd_bulk_transfer_start(PURB urb)
       {
         ed_list_tail = (PHCD_ED)ed_list_tail->HcED.NextED;
       }
-      ed_list_tail->HcED.NextED = (uint32_t)ed;
+      ed_list_tail->HcED.NextED = (uintptr_t)ed;
     }
     ed->HcED.NextED = 0;
     ed->flag = ED_LINK;
@@ -697,12 +696,12 @@ void hcd_bulk_transfer_start(PURB urb)
 
   if(ed->HcED.HeadP & HcED_HeadP_HALT)
   {
-    ed->HcED.HeadP &= (uint32_t)(~HcED_HeadP_HALT);
+    ed->HcED.HeadP &= (uintptr_t)(~HcED_HeadP_HALT);
   }
 
   if(ed->HcED.Control & HcED_SKIP)
   {
-    ed->HcED.Control &= (uint32_t)(~HcED_SKIP);
+    ed->HcED.Control &= (uintptr_t)(~HcED_SKIP);
   }
 
   if((hcd_info.hc_control & OHCI_CTRL_BLE) == 0)
@@ -775,11 +774,11 @@ PHCD_TD hcd_get_done_list(void)
   {
 
   #ifdef DEBUG_USB
-    sprintf(dbg_buffer,"HCD: Done TD = %08lX"EOL, (uint32_t)td_next);
+    sprintf(dbg_buffer,"HCD: Done TD = %08lX"EOL, (uintptr_t)td_next);
     DBG_USB(dbg_buffer);
   #endif
 
-    if( hcd_malloc_check((uint32_t *)td_next) != COMRAM)
+    if( hcd_malloc_check((uintptr_t *)td_next) != COMRAM)
     {
       DBG_USB(EOL"HCD: DoneHead is bad address!!"EOL);
       break;
@@ -788,20 +787,20 @@ PHCD_TD hcd_get_done_list(void)
     td_temp = td_done;
     td_done = td_next;
     td_next = (PHCD_TD)(td_next->HcTD.NextTD & 0xFFFFFFF0);
-    td_done->HcTD.NextTD = (uint32_t)td_temp;
+    td_done->HcTD.NextTD = (uintptr_t)td_temp;
   }
   return td_done;
 }
 
-uint32_t hcd_transfer_count(PHCD_TD td, void *buffer)
+uintptr_t hcd_transfer_count(PHCD_TD td, void *buffer)
 {
   if (td->HcTD.CBP == 0 && td->HcTD.BE != 0)
   {
-    return (uint32_t)td->HcTD.BE - (uint32_t)buffer + 1;
+    return (uintptr_t)td->HcTD.BE - (uintptr_t)buffer + 1;
   }
   else
   {
-    return (uint32_t)td->HcTD.CBP - (uint32_t)buffer;
+    return (uintptr_t)td->HcTD.CBP - (uintptr_t)buffer;
   }
 }
 
@@ -836,7 +835,7 @@ PHCD_TD hcd_control_transfer_done(PHCD_TD td)
     if( ((ed->HcED.HeadP & HcED_HeadP_HALT) != 0) &&
         ((ed->HcED.HeadP & 0xFFFFFFF0) != 0) )
     {
-      hcd_delete_td((PHCD_ED)ed);
+      hcd_delete_td(ed);
       hcd_pause_ed(ed);
     }
   }
@@ -862,8 +861,8 @@ PHCD_TD hcd_bulk_transfer_done(PHCD_TD td)
   if((cc != 0) && (cc != CC_DATAOVERRUN) && (cc != CC_DATAUNDERRUN))
   {
     #ifdef DEBUG_USB
-    sprintf(dbg_buffer,EOL"HCD: USB-error/status: %02lX: %08lX"EOL,
-            cc, (uint32_t)HostCtl_addr);
+    sprintf(dbg_buffer,EOL"HCD: USB-error/status: %02lX: %08X"EOL,
+            cc, HostCtl_addr);
     DBG_USB(dbg_buffer);
     #endif
 
@@ -876,7 +875,7 @@ PHCD_TD hcd_bulk_transfer_done(PHCD_TD td)
       hcd_pause_ed(ed);
     }
   }
-  urb->status = (int32_t)urb->result;
+  urb->status = (int8_t)urb->result;
 
   #ifdef BULK_UNLINK
   hcd_pause_ed(ed);
@@ -926,8 +925,8 @@ void hcd_writeback_done(void)
 
 void hcd_rh_irq(void)
 {
-  uint64_t hub_status;
-  uint64_t port_status;
+  uint32_t hub_status;
+  uint32_t port_status;
 
   hub_status = get_wvalue(HcRhStatus);
 
@@ -1024,7 +1023,6 @@ void hcd_ed_delete_list(void)
 void usbhost_interrupt(void)
 {
   uint32_t status;
-  uint32_t b;
 
   status = get_wvalue(SttTrnsCnt);
   if(status & B_DMAIRQ) {
@@ -1038,13 +1036,14 @@ void usbhost_interrupt(void)
       status = OHCI_INTR_WDH;
     } else
     {
-      b = get_wvalue(HcInterruptEnable);
-      if((status = (get_wvalue(HcInterruptStatus) & b)) == 0) return;
+      if((status =
+          (get_wvalue(HcInterruptEnable) & get_wvalue(HcInterruptStatus))) == 0)
+        return;
     }
 
 #ifdef DEBUG_USB
     sprintf(dbg_buffer, "HCD: Interrupt %lX frame: %X"EOL,
-            status, (uint16_t)hcd_info.hcca->framenumber);
+            status, hcd_info.hcca->framenumber);
     DBG_USB(dbg_buffer);
 #endif
 

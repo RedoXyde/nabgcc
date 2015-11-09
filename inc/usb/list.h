@@ -27,6 +27,6 @@ void __list_del(pLIST_ENTRY Blink, pLIST_ENTRY Flink);
 void list_add_top(pLIST_ENTRY entry, pLIST_ENTRY head);
 void list_add(pLIST_ENTRY entry, pLIST_ENTRY head);
 void list_del(pLIST_ENTRY entry);
-int list_empty(pLIST_ENTRY head);
+uint8_t list_empty(pLIST_ENTRY head);
 
 #endif

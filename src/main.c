@@ -437,7 +437,8 @@ void push_button_interrupt(void)
 
 uint8_t push_button_value(void)
 {
-  return !((INT_SWITCH_READ&INT_SWITCH_BIT)==INT_SWITCH_BIT);
+  // Hack to force Master mode
+  return counter_timer_s<3? 1 : 0;//!((INT_SWITCH_READ&INT_SWITCH_BIT)==INT_SWITCH_BIT);
 }
 
 /**

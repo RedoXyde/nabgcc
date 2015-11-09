@@ -25,40 +25,43 @@ struct _usb_devmap {
 	uint32_t map[128 / 32];
 } usb_devmap;
 
-int32_t usbhost_init_status = 0;
+uint8_t usbhost_init_status = 0;
 
 uint8_t find_zero_bit(void *map, uint8_t max, uint8_t start)
 {
-	uint32_t *ptr = (uint32_t *)map;
+	uint8_t *ptr = (uint8_t *)map;
 	while(start<max){
-		if(((*ptr >> start) & 1) == 0) break;
-		start++;
-		if(start%(32) == 0) ptr += 1;
+		if(((*ptr >> start) & 1) == 0)
+      break;
+		if(++start%(32) == 0)
+      ptr += 1;
 	}
 	return start;
 }
 
-void set_usb_bit(int32_t nr, void *addr)
+void set_usb_bit(uint8_t nr, void *addr)
 {
-	int32_t bit = nr % (32);
-	uint32_t * ptr = (uint32_t *)addr + (nr / (32));
-	uint32_t data = *ptr | ((unsigned long)1l << bit);
+	uint8_t bit = nr % (32);
+	uint8_t * ptr = (uint8_t *)addr + (nr / (32));
+	uint8_t data = *ptr | ((uint8_t)1 << bit);
 	*ptr = data;
 }
 
-void clear_bit(int32_t nr, volatile void *addr)
+void clear_bit(uint8_t nr, volatile void *addr)
 {
-	int32_t bit = nr % (32);
-	uint32_t * ptr = (uint32_t *)addr + (unsigned long)(nr / (32));
-	*ptr &= ~((unsigned long)1l << bit);
+	uint8_t bit = nr % (32);
+	uint8_t * ptr = (uint8_t *)addr + (uint8_t)(nr / (32));
+	*ptr &= ~((uint8_t)1 << bit);
 }
 
-int32_t usbhost_init(void)
+int8_t usbhost_init(void)
 {
-	int32_t ret;
-	if(usbhost_init_status == 1) return 0;
+	int8_t ret;
+	if(usbhost_init_status == 1)
+    return 0;
 	ret = hcd_init();
-	if(ret<0) return ret;
+	if(ret<0)
+    return ret;
 
 	usbhost_init_status = 1;
 
@@ -74,13 +77,13 @@ void usbhost_events(void)
 void *usbh_create_pipe(PDEVINFO dev, uint8_t type, uint8_t ep_num, ushort maxpacket,
                        uint8_t interval)
 {
-	return hcd_create_ed((uint8_t)dev->dev_speed, (uint8_t)dev->dev_addr, type,
+	return hcd_create_ed((uint8_t)dev->dev_speed, dev->dev_addr, type,
                           ep_num, maxpacket, interval);
 }
 
-int32_t usbh_update_pipe0(PDEVINFO dev, ushort maxpacket)
+int8_t usbh_update_pipe0(PDEVINFO dev, ushort maxpacket)
 {
-	return hcd_update_ed((PHCD_ED)dev->pipe[0], (uint8_t)dev->dev_addr, maxpacket);
+	return hcd_update_ed((PHCD_ED)dev->pipe[0], dev->dev_addr, maxpacket);
 }
 
 void usbh_delete_pipe(PDEVINFO dev, uint8_t ep_num)
@@ -89,17 +92,16 @@ void usbh_delete_pipe(PDEVINFO dev, uint8_t ep_num)
 	dev->pipe[ep_num] = NULL;
 }
 
-int32_t usbh_control_transfer(PDEVINFO dev, uint8_t pipe, uint8_t bRequest,
-	uint8_t bmRequestType, ushort wValue, ushort wIndex, ushort wLength,
+int8_t usbh_control_transfer(PDEVINFO dev, uint8_t pipe, uint8_t bRequest,
+	uint8_t bmRequestType, uint16_t wValue, uint16_t wIndex, uint16_t wLength,
 	void *data)
 {
 	URB urb;
 	struct usb_setup setup;
-	int32_t ret;
 
-	urb.buffer		= (char *)data;
-	urb.length		= (ulong)wLength;
-	urb.timeout		= 1000;
+	urb.buffer	= (uint8_t *)data;
+	urb.length	= wLength;
+	urb.timeout	= 1000;
 	urb.setup		= &setup;
 	urb.dev			= dev;
 	urb.ed			= dev->pipe[pipe];
@@ -112,9 +114,7 @@ int32_t usbh_control_transfer(PDEVINFO dev, uint8_t pipe, uint8_t bRequest,
 
 	urb.callback = NULL;
 
-	ret = hcd_transfer_request(&urb);
-
-	return ret;
+	return hcd_transfer_request(&urb);
 }
 
 /* Called with OHCI IRQ masked */
@@ -124,7 +124,7 @@ static void usbh_free_urb_callback(PURB urb)
 	hcd_free(urb);
 }
 
-int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, uint32_t size)
+int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, uint16_t size)
 {
 	URB *urb;
 
@@ -134,14 +134,13 @@ int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, uint32_t 
 	if(urb == NULL)
     return URB_NOMEM;
 
-	urb->buffer		= (char *)buf;
-	urb->length		= size;
-	urb->timeout		= 0;
-	urb->setup		= NULL;
-	urb->dev		= dev;
-	urb->ed			= dev->pipe[pipe];
-	urb->dma_enable		= 0;
-
+	urb->buffer		  = (uint8_t *)buf;
+	urb->length		  = size;
+	urb->timeout	  = 0;
+	urb->setup		  = NULL;
+	urb->dev		    = dev;
+	urb->ed			    = dev->pipe[pipe];
+	urb->dma_enable	= 0;
 	urb->callback		= usbh_free_urb_callback;
 
 	return hcd_transfer_request(urb);
@@ -150,11 +149,9 @@ int8_t usbh_bulk_transfer_async(PDEVINFO dev, uint8_t pipe, void *buf, uint32_t 
 
 int8_t usbh_transfer_request(PURB urb)
 {
-	int8_t ret;
-
-	ret = hcd_transfer_request(urb);
-	if(ret == URB_PENDING) ret = 0;
-
+	int8_t ret = hcd_transfer_request(urb);
+	if(ret == URB_PENDING)
+    ret = 0;
 	return ret;
 }
 
@@ -163,59 +160,77 @@ void usbh_transfer_cancel(PURB urb)
 	hcd_transfer_cancel(urb);
 }
 
-int32_t usbh_set_address(PDEVINFO dev)
+int8_t usbh_set_address(PDEVINFO dev)
 {
 	return usbh_control_transfer(dev, 0, USB_SET_ADDRESS, USB_DIR_OUT,
 		(uint8_t)dev->dev_addr, 0, 0, NULL);
 }
 
-int32_t usbh_get_descriptor(PDEVINFO dev, uint8_t type, uint8_t index, ushort size, void *buf)
+int8_t usbh_get_descriptor(PDEVINFO dev, uint8_t type, uint8_t index, uint16_t size, void *buf)
 {
 	return usbh_control_transfer(dev, 0, USB_GET_DESCRIPTOR, USB_DIR_IN,
 		((type<<8)|index), 0, size, buf);
 }
 
-int32_t usbh_set_configuration(PDEVINFO dev, ushort index)
+int8_t usbh_set_configuration(PDEVINFO dev, uint16_t index)
 {
 	return usbh_control_transfer(dev, 0, USB_SET_CONFIGURATION, USB_DIR_OUT,
 		index, 0, 0, NULL);
 }
 
-int32_t usbh_set_feature_dev(PDEVINFO dev, ushort feature)
+int8_t usbh_set_feature_dev(PDEVINFO dev, uint16_t feature)
 {
 	return usbh_control_transfer(dev, 0, USB_SET_FEATURE, USB_DIR_OUT,
 		feature, 0, 0, NULL);
 }
 
-int32_t usbh_get_descriptor_device(PDEVINFO dev, uint8_t **pbuf)
+int8_t usbh_get_descriptor_device(PDEVINFO dev, uint8_t **pbuf)
 {
-	int32_t ret;
+	int8_t ret;
 
 	*pbuf= (uint8_t *)hcd_malloc(sizeof(struct usb_device_descriptor), EXTRAM,21);
-	if(!*pbuf) return -1;
+	if(!*pbuf)
+  {
+    DBG("get_desc00err "EOL);
+    return -1;
+  }
 
 	ret = usbh_get_descriptor(dev, USB_DT_DEVICE, 0, 18, *pbuf);
-	if(ret<18) return -1;
-
+	if(ret<18)
+  {
+    DBG("get_desc01err "EOL);
+    return -1;
+  }
 	return ret;
 }
 
-int32_t usbh_get_descriptor_configuration(PDEVINFO dev, uint8_t **pbuf)
+int8_t usbh_get_descriptor_configuration(PDEVINFO dev, uint8_t **pbuf)
 {
-	int32_t ret;
-	ushort size;
-	ulong temp[2];	/* 8Byte buffer */
+	int8_t ret;
+	uint16_t size;
+	uint32_t temp[2];	/* 8Byte buffer */
 
 	ret = usbh_get_descriptor(dev, USB_DT_CONFIGURATION, 0, 8, temp);
-	if(ret<0) return ret;
+	if(ret<0)
+  {
+    DBG("get_descConf03err "EOL);
+    return ret;
+  }
 
 	size = ((struct usb_configuration_descriptor *)&temp)->wTotalLength;
 	*pbuf= (uint8_t *)hcd_malloc(size, EXTRAM,22);
-	if(!*pbuf) return -1;
+	if(!*pbuf)
+  {
+    DBG("get_descConf01err "EOL);
+    return -1;
+  }
 
 	ret = usbh_get_descriptor(dev, USB_DT_CONFIGURATION, 0, size, *pbuf);
-	if(ret<size) return -1;
-
+	if(ret<size)
+  {
+    DBG("get_descConf02err "EOL);
+    return -1;
+  }
 	return ret;
 }
 
@@ -494,10 +509,9 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 	}
 
   DBG_USB("find_zero_bit"EOL);
-
 	dev->dev_addr = find_zero_bit(&usb_devmap, 128, 1);
 	if (dev->dev_addr < 128) {
-		set_usb_bit((uint8_t)dev->dev_addr , &usb_devmap);
+		set_usb_bit(dev->dev_addr , &usb_devmap);
 	}else{
 		error(12, 0);
 		return -1;
@@ -526,49 +540,44 @@ static int32_t usbh_enumeration(PDEVINFO dev)
 		return -1;
 	}
 
-        DBG_USB("usbh_update_pipe0"EOL);
-
+  DBG_USB("usbh_update_pipe0"EOL);
 	ret = usbh_update_pipe0(dev, temp[7]);
 	if(ret<0){
 		error(21, ret);
 		return -1;
 	}
 
-        DBG_USB("usbh_get_descriptor_device"EOL);
-
+  DBG_USB("usbh_get_descriptor_device"EOL);
 	ret = usbh_get_descriptor_device(dev, (uint8_t **)&dev->descriptor);
 	if(ret<dev->descriptor->bLength){
 		dev->descriptor = NULL;
 		error(22, ret);
 		return -1;
 	}
-        __no_operation();
-        __no_operation();
+  __no_operation();
+  __no_operation();
 
-        dev->descriptor->configuration = NULL;
-	dev->descriptor->otg = NULL;
+  dev->descriptor->configuration = NULL;
+  dev->descriptor->otg = NULL;
 
-        DBG_USB("usbh_get_descriptor_all"EOL);
+  DBG_USB("usbh_get_descriptor_all"EOL);
 	ret = usbh_get_descriptor_all(dev);
 	if(ret<0){
 		return -1;
 	}
 
 	ret = usbh_find_driver(dev);
-        __no_operation();
+  __no_operation();
 
 	if(ret<0){
 		error(50, ret);
 		return -1;
 	}
-
 	return 0;
 }
 
 PDEVINFO usbh_connect(uint8_t speed)
 {
-	int32_t ret;
-
 	PDEVINFO dev;
 
 	DBG_USB(" USBH: connect a new device"EOL);
@@ -579,11 +588,10 @@ PDEVINFO usbh_connect(uint8_t speed)
 		return NULL;
 	}
 
-	memset((long *)dev, 0, sizeof(DEVINFO));
+	memset(dev, 0, sizeof(DEVINFO));
 	dev->dev_speed = speed;
 
-	ret = usbh_enumeration(dev);
-	if(ret<0){
+	if(usbh_enumeration(dev)<0){
 		DBG_USB(" USBH: Error!! failed enumeration"EOL);
 		usbh_release_descriptor_all(dev);
 		if(dev->pipe[0]){
@@ -594,24 +602,26 @@ PDEVINFO usbh_connect(uint8_t speed)
 	return dev;
 }
 
-int32_t usbh_disconnect(PDEVINFO *pdev)
+int8_t usbh_disconnect(PDEVINFO *pdev)
 {
 	uint8_t i;
 	PDEVINFO dev;
 
 	DBG_USB(" USBH: disconnect a device"EOL);
 
-	if(!pdev) return -1;
+	if(!pdev)
+    return -1;
 	dev = *pdev;
 
-	if(!dev) return -1;
+	if(!dev)
+    return -1;
 
 	if(dev->driver)
 		dev->driver->disconnect(dev);
 
 	usbh_release_descriptor_all(dev);
 
-	clear_bit((uint8_t)dev->dev_addr , &usb_devmap);
+	clear_bit(dev->dev_addr , &usb_devmap);
 
 	for(i=0; i<MAX_PIPE; i++){
 		if(dev->pipe[i]){
@@ -620,6 +630,5 @@ int32_t usbh_disconnect(PDEVINFO *pdev)
 	}
 
 	hcd_free(dev);
-
 	return 0;
 }
