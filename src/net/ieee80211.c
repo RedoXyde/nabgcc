@@ -967,7 +967,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 		case IEEE80211_FC0_SUBTYPE_PROBE_REQ:
       DBG_WIFI("Probe_Req"EOL);
 			if(ieee80211_mode == IEEE80211_M_MASTER) {
-				int32_t ssid_present;
+				uint8_t ssid_present;
 				char ssid[IEEE80211_SSID_MAXLEN+1];
 
 				ssid_present = 0;

@@ -460,16 +460,14 @@ void hcd_transfer_wait(PURB urb)
 {
   uint16_t timeout = 0;
 
-  DBG_USB(" hcd_transfer_wait:"EOL);
-
+  DBG_USB("hcd_transfer_wait:"EOL);
   while(urb->status == URB_PENDING)
   {
     DelayMs(1);
     if(timeout++ > urb->timeout)
     {
-      PHCD_ED ed = (PHCD_ED)urb->ed;
-      DBG(" HCD: hcd_transfer_wait timeout!!"EOL);
-      hcd_pause_ed(ed);
+      DBG("HCD: hcd_transfer_wait timeout!!"EOL);
+      hcd_pause_ed((PHCD_ED)urb->ed);
       urb->status = URB_TIMEOUT;
       return;
     }
