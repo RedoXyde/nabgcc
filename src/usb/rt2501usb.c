@@ -879,7 +879,7 @@ void rt2501_make_tx_descriptor(
 {
   uint32_t Residual;
 
-  memset(txd, 0, sizeof(TXD_STRUC));
+  memset((void*)txd, 0, sizeof(TXD_STRUC));
 
   txd->HostQId    = QueIdx;
   txd->MoreFrag    = Fragment;
@@ -898,7 +898,7 @@ void rt2501_make_tx_descriptor(
   txd->CipherAlg = CipherAlg;
 
   sprintf(dbg_buffer, "Cipher = %u, rate = %lu"EOL, CipherAlg, Rate);
-  DBG(dbg_buffer);
+  DBG_WIFI(dbg_buffer);
 
   if(CipherAlg != RT2501_CIPHER_NONE) {
     txd->KeyTable    = KeyTable;
@@ -986,11 +986,12 @@ int8_t rt2501_tx(void *buffer, uint32_t length)
   if((length % 4) != 0) length += 4 - (length % 4);
   /* Moreover, it must not be a multiple of the USB packet size */
   if((length % RT2501_USB_PACKET_SIZE) == 0) length += 4;
+//  DBG("Tx:"EOL);
 //  dump(buffer,length);
   ret = usbh_bulk_transfer_async(rt2501_dev, 1, buffer, length);
 
-  sprintf(dbg_buffer, "ret = %d"EOL, ret);
-  DBG(dbg_buffer);
+//  sprintf(dbg_buffer, "ret = %d"EOL, ret);
+//  DBG(dbg_buffer);
 
   return ((ret > 0) || (ret == URB_PENDING));
 }

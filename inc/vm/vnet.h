@@ -10,7 +10,7 @@
 
 int32_t netState();
 int32_t netSend(uint8_t * src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,uint8_t * macdst,int32_t inddst,int32_t lendst,int32_t speed);
-int32_t netCb(uint8_t * src,int32_t lensrc,uint8_t * macsrc);
+int32_t netCb(uint8_t * src,uint32_t lensrc,uint8_t * macsrc);
 uint8_t * netMac();
 int32_t netChk(uint8_t * src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,uint32_t val);
 void netSetmode(int32_t mode,uint8_t * ssid,int32_t chn);

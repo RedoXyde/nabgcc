@@ -35,17 +35,21 @@ int32_t netSend(uint8_t *src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,u
   if (lentosend<=0) return -1;
   if (inddst<0) return -1;
   if (inddst+6>lendst) return -1;
-  return rt2501_send((const uint8_t *)(src+indexsrc),lentosend,(const uint8_t *)(macdst+inddst),speed,1);
+  return rt2501_send((src+indexsrc),lentosend,(macdst+inddst),speed,1);
 
 }
 
-int32_t netCb(uint8_t *src,int32_t lensrc,uint8_t *macsrc)
+int32_t netCb(uint8_t *src,uint32_t lensrc,uint8_t *macsrc)
 {
   VPUSH(PNTTOVAL(VMALLOCSTR(src,lensrc)));
   VPUSH(PNTTOVAL(VMALLOCSTR(macsrc,6)));
   VPUSH(VCALLSTACKGET(_sys_start,SYS_CBTCP));
-  if (VSTACKGET(0)!=NIL) interpGo();
-  else { (void)VPULL();(void)VPULL();}
+  if (VSTACKGET(0)!=NIL)
+    interpGo();
+  else {
+    (void)VPULL();
+    (void)VPULL();
+  }
   (void)VPULL();
   return 0;
 }
@@ -54,12 +58,12 @@ extern uint8_t rt2501_mac[6];
 
 uint8_t *netMac()
 {
-  return (uint8_t*) rt2501_mac;
+  return rt2501_mac;
 }
 
 int32_t netChk(uint8_t *src,int32_t indexsrc,int32_t lentosend,int32_t lensrc,uint32_t val)
 {
-  unsigned short* p;
+  uint16_t* p;
 
   if (indexsrc<0) return val;
   if (indexsrc+lentosend>lensrc) lentosend=lensrc-indexsrc;

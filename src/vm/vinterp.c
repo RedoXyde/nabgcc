@@ -854,7 +854,7 @@ void interpGo()
 			case OPnetCb:
 				VCALLSTACKSET(_sys_start,SYS_CBTCP,VSTACKGET(0));
 				break;
-            case OPnetSend:
+      case OPnetSend:
 				{
 					int32_t speed=VALTOINT(VPULL());
 					int32_t indmac=VALTOINT(VPULL());

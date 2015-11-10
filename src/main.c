@@ -347,10 +347,10 @@ int main(void)
       {
         CLR_WDT;
 
-        sprintf(buffer,"receive frame size %ld"EOL,r->length);
-        DBG(buffer);
-        dump((uint8_t *)r->data,r->length);
-        netCb((uint8_t *)r->data,r->length,(uint8_t *)r->source_mac);
+//        sprintf(buffer,"receive frame size %ld"EOL,r->length);
+//        DBG(buffer);
+//        dump(r->data,r->length);
+        netCb(r->data,r->length,r->source_mac);
         disable_ohci_irq();
         hcd_free(r);
         enable_ohci_irq();
@@ -438,7 +438,8 @@ void push_button_interrupt(void)
 uint8_t push_button_value(void)
 {
   // Hack to force Master mode
-  return counter_timer_s<3? 1 : 0;//!((INT_SWITCH_READ&INT_SWITCH_BIT)==INT_SWITCH_BIT);
+//  return counter_timer_s<3? 1 : 0;
+  return !((INT_SWITCH_READ&INT_SWITCH_BIT)==INT_SWITCH_BIT);
 }
 
 /**

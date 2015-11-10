@@ -193,6 +193,7 @@ int32_t sysFind(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,int32
 	if ((j<0)||(j+len>lsrc))
     return NIL;
 	src+=j;
+
 	if (i<0) i=0;
 	while(i+len<=ldst)
 	{
@@ -221,19 +222,17 @@ int32_t sysFindrev(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *src,int32_t j,in
 
 int32_t sysStrgetword(uint8_t *src,int32_t len,int32_t ind)
 {
-	int32_t n;
   if ((ind<0)||(ind+2>len))
     return -1;
-  n=(src[ind]<<8)+src[ind+1];
-  return n;
+  return (int32_t)(src[ind]<<8)+src[ind+1];
 }
 
 void sysStrputword(uint8_t *src,int32_t len,int32_t ind,int32_t val)
 {
   if ((ind<0)||(ind+2>len))
     return;
-  src[ind+1]=val;
-  src[ind]=val>>8;
+  src[ind+1]=val&0xFF;
+  src[ind]=(val>>8)&0xFF;
 }
 
 // lecture d'une chaîne décimale (s'arrête au premier caractère incorrect)
@@ -255,7 +254,8 @@ int32_t sysAtoi(uint8_t* src)
 // lecture d'une chaîne hexadécimale (s'arrête au premier caractère incorrect)
 int32_t sysHtoi(uint8_t* src)
 {
-	int32_t x,c;
+	int32_t x;
+  uint8_t c;
 	x=0;
 	while((c=*src++))
 	{
@@ -275,7 +275,7 @@ void sysCtoa(int32_t c)
 {
   uint8_t res[1];
   res[0]=c;
-  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)res,1)));
+  VPUSH(PNTTOVAL(VMALLOCSTR(res,1)));
 }
 
 const int32_t itoarsc[10]={
@@ -356,7 +356,7 @@ void sysCtoh(int32_t c)
   res[0]=(v<10)?'0'+v:'a'+v-10;
   v=c&15;
   res[1]=(v<10)?'0'+v:'a'+v-10;
-  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)res,2)));
+  VPUSH(PNTTOVAL(VMALLOCSTR(res,2)));
 }
 
 void sysItobin2(int32_t c)
@@ -365,7 +365,7 @@ void sysItobin2(int32_t c)
   res[1]=c;
   c>>=8;
   res[0]=c;
-  VPUSH(PNTTOVAL(VMALLOCSTR((uint8_t*)res,2)));
+  VPUSH(PNTTOVAL(VMALLOCSTR(res,2)));
 }
 
 int32_t sysListswitch(int32_t p,int32_t key)
@@ -393,9 +393,6 @@ int32_t sysListswitchstr(int32_t p,uint8_t* key)
   }
   return NIL;
 }
-
-void simuSetLed(int32_t i,int32_t val);
-void set_motor_dir(int32_t num_motor, int32_t sens);
 
 int32_t get_motor_val(int32_t i);
 int32_t getButton();
