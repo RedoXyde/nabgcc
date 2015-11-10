@@ -60,13 +60,13 @@ uint8_t *loaderInitRec(uint8_t *src)
 }
 
 
-int8_t loaderGetByte(uint8_t *src)
+int32_t loaderGetByte(uint8_t *src)
 {
 	return (int8_t)src[0];
 }
-int16_t loaderGetShort(uint8_t *src)
+int32_t loaderGetShort(uint8_t *src)
 {
-	return (int16_t)((src[1]<<8)+src[0]);
+	return (((int16_t)src[1]<<8)+src[0]);
 }
 int32_t loaderGetInt(uint8_t *src)
 {

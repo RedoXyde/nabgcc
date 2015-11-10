@@ -46,8 +46,8 @@ extern int32_t _global_start;
  * @param [in]  *src  Source address
  */
 //#define loaderGetInt(src)   (*(uint32_t*)(src))
-int8_t loaderGetByte(uint8_t *s);
-int16_t loaderGetShort(uint8_t *s);
+int32_t loaderGetByte(uint8_t *s);
+int32_t loaderGetShort(uint8_t *s);
 int32_t loaderGetInt(uint8_t *s);
 
 int32_t loaderFunstart(int32_t funnumber);
