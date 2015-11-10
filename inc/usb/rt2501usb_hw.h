@@ -409,7 +409,7 @@ typedef	struct	_RXD_STRUC	{
 
 	/* Word	5 */
 	uint32_t	Rsv3; /* BufPhyAddr */
-} RXD_STRUC, *PRXD_STRUC;
+} volatile RXD_STRUC, *PRXD_STRUC;
 
 #define RT2501_CIPHER_NONE		0
 #define RT2501_CIPHER_WEP64		1
@@ -474,7 +474,7 @@ typedef	struct	_TXD_STRUC {
 	uint32_t	BbpTxPower:8;
 	uint32_t	bWaitingDmaDoneInt:1; /* pure s/w flag. 1:TXD been filled with data and waiting for TxDoneISR for housekeeping */
 	uint32_t	Reserved:7;
-} TXD_STRUC, *PTXD_STRUC;
+}volatile TXD_STRUC, *PTXD_STRUC;
 
 //#pragma pack()
 
