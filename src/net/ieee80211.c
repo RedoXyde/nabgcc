@@ -42,6 +42,12 @@ static const uint8_t ieee80211_tkip_oui[IEEE80211_OUI_LEN] =
 static const uint8_t ieee80211_psk_oui[IEEE80211_OUI_LEN] =
 { 0x00, 0x50, 0xf2, 0x02 };
 
+static const uint8_t ieee80211_wpa2_aes_oui[IEEE80211_OUI_LEN] =
+{ 0x00, 0x0f, 0xac, 0x04 };
+
+static const uint8_t ieee80211_wpa2_psk_oui[IEEE80211_OUI_LEN] =
+{ 0x00, 0x0f, 0xac, 0x02 };
+
 int32_t ieee80211_mode;
 int32_t ieee80211_state;
 uint32_t ieee80211_timeout;
@@ -664,6 +670,29 @@ static void ieee80211_associate(void)
 		/* Auth key management suites: PSK */
 		for(i=0;i<IEEE80211_OUI_LEN;i++)
 			*(write_ptr++) = ieee80211_psk_oui[i];
+	} else if(ieee80211_encryption == IEEE80211_CRYPT_WPA2) {
+		*(write_ptr++) = 0x30; // RSN IE
+		*(write_ptr++) = 0x14; // Length
+    *(write_ptr++) = 0x01; // Version
+    *(write_ptr++) = 0x00; // Version
+		/* Group cipher: AES */
+		for(i=0;i<IEEE80211_OUI_LEN;i++)
+			*(write_ptr++) = ieee80211_wpa2_aes_oui[i];
+		/* 1 pairwise */
+		*(write_ptr++) = 0x01;
+		*(write_ptr++) = 0x00;
+		/* Unicast cipher: AES */
+		for(i=0;i<IEEE80211_OUI_LEN;i++)
+			*(write_ptr++) = ieee80211_wpa2_aes_oui[i];
+		/* 1 auth key management */
+		*(write_ptr++) = 0x01;
+		*(write_ptr++) = 0x00;
+		/* Auth key management suites: PSK */
+		for(i=0;i<IEEE80211_OUI_LEN;i++)
+			*(write_ptr++) = ieee80211_wpa2_psk_oui[i];
+    /* RSN Capability */
+    *(write_ptr++) = 0x00;
+		*(write_ptr++) = 0x00;
 	}
 
 	frame_length = sizeof(struct ieee80211_frame)+(write_ptr - assoc->assoc);
@@ -1706,6 +1735,12 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 			rt2501_set_key(0, NULL, NULL, NULL, RT2501_CIPHER_NONE);
 			eapol_init();
 			break;
+    case IEEE80211_CRYPT_WPA2:
+      ieee80211_authmode = IEEE80211_AUTH_OPEN;
+			strcpy((char *)ieee80211_key, (const char *)key);
+			rt2501_set_key(0, NULL, NULL, NULL, RT2501_CIPHER_NONE);
+			eapol_init();
+			break;
 		default:
 			DBG_WIFI("Unknown encryption specified"EOL);
 			return;
@@ -1857,6 +1892,9 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 			encryption_overhead = 8; /* IV[4] + ICV [4] */
 			break;
 		case IEEE80211_CRYPT_WPA:
+			encryption_overhead = 20; /* (TKIP) IV[4] + EIV[4] + ICV[4] + MIC[8] */
+			break;
+    case IEEE80211_CRYPT_WPA2:
 			encryption_overhead = 20; /* (TKIP) IV[4] + EIV[4] + ICV[4] + MIC[8] */
 			break;
 	}
