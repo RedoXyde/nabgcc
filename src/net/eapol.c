@@ -323,9 +323,26 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 
 	/* Save ANonce */
 	memcpy(anonce, fr_in->key_frame.key_nonce, EAPOL_NONCE_LENGTH);
+#ifdef DEBUG_WIFI
+	DBG_WIFI("ANonce: ");
+  uint16_t i;
+	for(i=0;i<EAPOL_NONCE_LENGTH;i++) {
+		sprintf(dbg_buffer, "%02x", anonce[i]);
+		DBG_WIFI(dbg_buffer);
+	}
+	DBG_WIFI(EOL);
+#endif
 
 	/* Generate SNonce */
 	randbuffer(snonce, EAPOL_NONCE_LENGTH);
+#ifdef DEBUG_WIFI
+	DBG_WIFI("SNonce: ");
+	for(i=0;i<EAPOL_NONCE_LENGTH;i++) {
+		sprintf(dbg_buffer, "%02x", snonce[i]);
+		DBG_WIFI(dbg_buffer);
+	}
+	DBG_WIFI(EOL);
+#endif
 
 	/* Derive PTK */
 	compute_ptk(pmk,
@@ -336,7 +353,6 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 
 #ifdef DEBUG_WIFI
 	DBG_WIFI("PTK computed, ");
-  uint16_t i;
 	for(i=0;i<EAPOL_PTK_LENGTH;i++) {
 		sprintf(dbg_buffer, "%02x", ptk[i]);
 		DBG_WIFI(dbg_buffer);
@@ -652,7 +668,11 @@ void eapol_input(uint8_t *frame, uint32_t length)
       fr->packet_type != EAPOL_TYPE_KEY ||
       (fr->key_frame.descriptor_type != EAPOL_DTYPE_WPAKEY &&
       fr->key_frame.descriptor_type != EAPOL_DTYPE_WPA2KEY) )
-    return;
+      {
+        DBG_WIFI("Drop EAPOL frame");
+        return;
+      }
+
 
 
 	/* Validate replay counter */
