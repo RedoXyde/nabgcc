@@ -79,10 +79,15 @@ struct eapol_frame {
 #define EAPOL_TKIP_RXMICK_LENGTH  8
 #define EAPOL_TKIP_TXMICK_LENGTH  8
 
+#define EAPOL_AES_EK_LENGTH      16
+#define EAPOL_AES_RXMICK_LENGTH  8
+#define EAPOL_AES_TXMICK_LENGTH  8
+
 #define EAPOL_PTK_LENGTH          (EAPOL_MICK_LENGTH + \
                                     EAPOL_EK_LENGTH + EAPOL_TKIP_EK_LENGTH + \
                                     EAPOL_TKIP_RXMICK_LENGTH + \
                                     EAPOL_TKIP_TXMICK_LENGTH)
+
 
 #define EAPOL_MASTER_KEY_LENGTH   32
 #define EAPOL_TSC_LENGTH          6

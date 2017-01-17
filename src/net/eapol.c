@@ -379,7 +379,10 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
   else
     fr_out.llc_eapol.key_frame.descriptor_type = EAPOL_DTYPE_WPAKEY;
 	fr_out.llc_eapol.key_frame.key_info.reserved = 0;
-	fr_out.llc_eapol.key_frame.key_info.key_desc_ver = 1;
+  if(ieee80211_encryption == IEEE80211_CRYPT_WPA2)
+    fr_out.llc_eapol.key_frame.key_info.key_desc_ver = 2;
+  else
+    fr_out.llc_eapol.key_frame.key_info.key_desc_ver = 1;
 	fr_out.llc_eapol.key_frame.key_info.key_type = 1;
 	fr_out.llc_eapol.key_frame.key_info.key_index = 0;
 	fr_out.llc_eapol.key_frame.key_info.install = 0;
@@ -407,24 +410,35 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 
 	/* Compute MIC */
 	memset(fr_out.llc_eapol.key_frame.key_mic, 0, EAPOL_KEYMIC_LENGTH);
-	hmac_md5(ptk, EAPOL_MICK_LENGTH,
-		 (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)+
-                                    rsn_size-LLC_LENGTH,
-		 fr_out.llc_eapol.key_frame.key_mic);
+  if(ieee80211_encryption == IEEE80211_CRYPT_WPA2)
+    hmac_sha1(ptk, EAPOL_MICK_LENGTH,
+              (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)+
+              rsn_size-LLC_LENGTH, fr_out.llc_eapol.key_frame.key_mic);
+  else
+    hmac_md5(ptk, EAPOL_MICK_LENGTH,
+              (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)+
+              rsn_size-LLC_LENGTH, fr_out.llc_eapol.key_frame.key_mic);
 
 	DBG_WIFI("Response computed"EOL);
 
 	/* Send the response */
 
-	rt2501_send((uint8_t *)&fr_out, sizeof(fr_out)-(sizeof(wpa_rsn)-rsn_size), ieee80211_assoc_mac, 1, 1);
+	//rt2501_send((uint8_t *)&fr_out, sizeof(fr_out)-(sizeof(wpa_rsn)-rsn_size), ieee80211_assoc_mac, 1, 1);
+	rt2501_send((uint8_t *)&fr_out, sizeof(fr_out), ieee80211_assoc_mac, 1, 1);
 
 	DBG_WIFI("Response sent"EOL);
 
 	/* Install pairwise encryption and MIC keys */
   if(ieee80211_encryption == IEEE80211_CRYPT_WPA2)  // FIXME
-    rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_AES);
+  {
+    if(!rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_AES))
+      DBG_WIFI("SetKey Failed"EOL);
+  }
   else
-    rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_TKIP);
+  {
+    if(rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_TKIP))
+      DBG_WIFI("SetKey Failed"EOL);
+  }
 
 	memset(ptk_tsc, 0, EAPOL_TSC_LENGTH);
 
