@@ -210,6 +210,8 @@ static uint8_t ieee80211_crypt_to_rt2501cipher(uint8_t crypt)
 			return RT2501_CIPHER_WEP128;
 		case IEEE80211_CRYPT_WPA:
 			return RT2501_CIPHER_TKIP;
+		case IEEE80211_CRYPT_WPA2:
+			return RT2501_CIPHER_AES;
 		default:
 			return RT2501_CIPHER_NONE;
 	}

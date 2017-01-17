@@ -1084,6 +1084,9 @@ int32_t rt2501_set_key(uint8_t index, uint8_t *key, uint8_t *txmic, uint8_t *rxm
   case RT2501_CIPHER_TKIP:
     key_length = EAPOL_TKIP_EK_LENGTH;
     break;
+  case RT2501_CIPHER_AES:
+    key_length = EAPOL_AES_EK_LENGTH;
+    break;
   }
 
   /* Mark the key invalid */
@@ -1102,6 +1105,12 @@ int32_t rt2501_set_key(uint8_t index, uint8_t *key, uint8_t *txmic, uint8_t *rxm
       if(!rt2501_write_key(base_address+RT2501_MICS_OFFSET, txmic, EAPOL_TKIP_TXMICK_LENGTH)) return 0;
       /* Send the RX MIC key */
       if(!rt2501_write_key(base_address+RT2501_MICS_OFFSET+EAPOL_TKIP_TXMICK_LENGTH, rxmic, EAPOL_TKIP_RXMICK_LENGTH)) return 0;
+    }
+    else if(cipher == RT2501_CIPHER_AES) {
+      /* Send the TX MIC key */
+      if(!rt2501_write_key(base_address+RT2501_MICS_OFFSET, txmic, EAPOL_AES_TXMICK_LENGTH)) return 0;
+      /* Send the RX MIC key */
+      if(!rt2501_write_key(base_address+RT2501_MICS_OFFSET+EAPOL_AES_TXMICK_LENGTH, rxmic, EAPOL_AES_RXMICK_LENGTH)) return 0;
     }
 
     /* Set cipher algorithm */
