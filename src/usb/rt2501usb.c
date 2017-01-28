@@ -801,8 +801,9 @@ static void rt2501_rx_callback(PURB urb)
   memcpy(rt2501_frame+rt2501_frame_position, urb->buffer, RT2501_USB_PACKET_SIZE);
   if(urb->status < RT2501_USB_PACKET_SIZE) {
     rxd = (PRXD_STRUC)rt2501_frame;
-#ifdef DEBUG_WIFI
-/*      sprintf(dbg_buffer, "RX Crc=%d, CipherErr=%d, KeyIndex=%d, CipherAlg=%d, MyBss=%d, Iv=%08x, Eiv=%08x"EOL,
+#if 0
+//#ifdef DEBUG_WIFI
+      sprintf(dbg_buffer, "RX Crc=%d, CipherErr=%d, KeyIndex=%d, CipherAlg=%d, MyBss=%d, Iv=%08lx, Eiv=%08lx"EOL,
         rxd->Crc,
         rxd->CipherErr,
         rxd->KeyIndex,
@@ -811,7 +812,9 @@ static void rt2501_rx_callback(PURB urb)
         rxd->Iv,
         rxd->Eiv);
       DBG_WIFI(dbg_buffer);
-*/
+
+      DBG_WIFI("Rxed:"EOL);
+      dump(urb->buffer,urb->length);
 #endif
     if(!rxd->Crc && ((rxd->CipherAlg == RT2501_CIPHER_NONE) || (rxd->CipherErr == 0))) {
       ieee80211_input(rt2501_frame+sizeof(RXD_STRUC),
@@ -986,13 +989,15 @@ int8_t rt2501_tx(void *buffer, uint32_t length)
   if((length % 4) != 0) length += 4 - (length % 4);
   /* Moreover, it must not be a multiple of the USB packet size */
   if((length % RT2501_USB_PACKET_SIZE) == 0) length += 4;
-  DBG("Tx:"EOL);
+#ifdef DEBUG_WIFI
+  DBG_WIFI("Tx:"EOL);
   dump(buffer,length);
+#endif
   ret = usbh_bulk_transfer_async(rt2501_dev, 1, buffer, length);
-
+#ifdef DEBUG_WIFI
   sprintf(dbg_buffer, "ret = %d"EOL, ret);
-  DBG(dbg_buffer);
-
+  DBG_WIFI(dbg_buffer);
+#endif
   return ((ret > 0) || (ret == URB_PENDING));
 }
 

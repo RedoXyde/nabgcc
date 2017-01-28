@@ -1869,12 +1869,14 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 		encryption = IEEE80211_CRYPT_NONE;
 	} else {
 		fr->header.i_fc[0] |= IEEE80211_FC0_SUBTYPE_DATA;
-		if(ieee80211_encryption == IEEE80211_CRYPT_WPA) {
-			if((eapol_state == EAPOL_S_MSG1) || (eapol_state == EAPOL_S_MSG3))
-				encryption = IEEE80211_CRYPT_NONE;
-			else
-				encryption = IEEE80211_CRYPT_WPA;
-		} else encryption = ieee80211_encryption;
+		if((ieee80211_encryption == IEEE80211_CRYPT_WPA ||
+        ieee80211_encryption == IEEE80211_CRYPT_WPA2
+       ) &&
+       (eapol_state == EAPOL_S_MSG1 || eapol_state == EAPOL_S_MSG3)
+      )
+      encryption = IEEE80211_CRYPT_NONE;
+    else
+      encryption = ieee80211_encryption;
 	}
 
 	if(ieee80211_mode == IEEE80211_M_MANAGED)
@@ -1897,7 +1899,7 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 			encryption_overhead = 20; /* (TKIP) IV[4] + EIV[4] + ICV[4] + MIC[8] */
 			break;
     case IEEE80211_CRYPT_WPA2:
-			encryption_overhead = 20; /* (TKIP) IV[4] + EIV[4] + ICV[4] + MIC[8] */
+			encryption_overhead = 16; /* FIXME (TKIP) IV[4] + EIV[4] + ICV[4] + MIC[8] */
 			break;
 	}
 
@@ -1974,6 +1976,8 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 			}
 
 		}
+	} else if(encryption == IEEE80211_CRYPT_WPA2) {
+    DBG_WIFI("rt2501_send encryption WPA2"EOL);
 	}
 
 #ifdef DEBUG_WIFI
