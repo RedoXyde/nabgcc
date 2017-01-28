@@ -447,7 +447,7 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
   }
   else
   {
-    if(rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_TKIP))
+    if(!rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_TKIP))
       DBG_WIFI("SetKey Failed"EOL);
   }
 
