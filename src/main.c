@@ -135,9 +135,7 @@ void wdt_start(void)
   put_value(WDTCON,0x3C);  //Start watchdog
 
   //Clear watchdog
-//  put_value(WDTCON,0xC3);
-//  put_value(WDTCON,0x3C);
-
+  CLR_WDT;
 }
 
 char dbg_buffer[256];
@@ -217,7 +215,7 @@ int main(void)
   init_uc_flash();
   //  set_bit(FLACON,0x01);
 
-//  wdt_start();
+  wdt_start();
 
   //Init System timer
   // Overflow in ms = ( 16 x (65536-value of TMRLR) x 1000 ) / (SystemClock)
@@ -599,10 +597,6 @@ void reset_uc(void)
   put_value(OVFAST,0x63);  //assert time to be ouput from the RSTOUT_N pin of 100us
 
   put_value(WDTCON,0x3C);  //Start watchdog
-
-  //Clear watchdog
-//  put_value(WDTCON,0xC3);
-//  put_value(WDTCON,0x3C);
 
   put_hvalue(WDTCNT,0x5A5A);  //release write protection
   put_hvalue(WDTCNT,0xFF00);  //rewrite counter register to overflow => overflow in 256us
