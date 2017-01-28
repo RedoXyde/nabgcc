@@ -1077,12 +1077,24 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								for(i=0;i<frame_current[1];i++) {
 									scan_result.rateset |= ieee80211_rate_to_mask(frame_current[i+2] & 0x7f);
 #ifdef DEBUG_WIFI
-									sprintf(dbg_buffer, "supported rate:0x%02x"EOL, frame_current[i+2]);
-//									DBG_WIFI(dbg_buffer);
+									//sprintf(dbg_buffer, "supported rate:0x%02x"EOL, frame_current[i+2]);
+									//DBG_WIFI(dbg_buffer);
 #endif
 								}
 								break;
-							case IEEE80211_ELEMID_VENDOR: {
+              case IEEE80211_ELEMID_RSN:
+              {
+                DBG_WIFI("RSN Information"EOL);
+                dump(frame_current,frame_current[1]);
+
+                frame_current += frame_current[1];
+                scan_result.encryption = IEEE80211_CRYPT_WPA2;
+                // FIXME !
+                DBG_WIFI("WPA2 supported"EOL);
+                break;
+              }
+							case IEEE80211_ELEMID_VENDOR:
+              {
 								/* Check for WPA */
 								uint8_t *current;
 								uint16_t count;
@@ -1090,6 +1102,9 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 
 								/* Minimal size of a WPA element */
 								if(frame_current[1] < 22) break;
+
+                if(scan_result.encryption == IEEE80211_CRYPT_WPA2)
+                  break;
 
 								/* Check RSN IE */
 								current = &frame_current[2];
@@ -1398,12 +1413,17 @@ static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 		}
 		break;
 	default:
+      DBG_WIFI("Unhandled frame in ieee80211_input_data"EOL);
 	    break;
 	}
 }
 
 void ieee80211_input(uint8_t *frame, uint32_t length, int16_t rssi)
 {
+//#ifdef DBG_WIFI
+//  DBG_WIFI("Rxed:"EOL);
+//  dump(frame,length);
+//#endif
 	struct ieee80211_frame_min *frame_min;
 
 	if(ieee80211_state == IEEE80211_S_IDLE) return;
@@ -1421,6 +1441,9 @@ void ieee80211_input(uint8_t *frame, uint32_t length, int16_t rssi)
 		case IEEE80211_FC0_TYPE_DATA:
 			ieee80211_input_data(frame, length, rssi);
 			break;
+    default:
+      DBG_WIFI("Unhandled frame in ie80211_input"EOL);
+      break;
 	}
 }
 
@@ -1949,7 +1972,7 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 		fr->txd.Iv = rand() & 0x00ffffff;
 		fr->txd.IvOffset = sizeof(struct ieee80211_frame);
 	}
-	if(encryption == IEEE80211_CRYPT_WPA) {
+	if(encryption == IEEE80211_CRYPT_WPA || encryption == IEEE80211_CRYPT_WPA2) {
 		struct ieee80211_tkip_iv iv;
 		uint32_t i;
 
