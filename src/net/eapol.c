@@ -755,13 +755,17 @@ if(ieee80211_encryption == IEEE80211_CRYPT_WPA2)
 	//}
 	//DBG_WIFI(EOL);
   #endif
-	
-  if(ieee80211_encryption == IEEE80211_CRYPT_WPA2)  // FIXME
-    rt2501_set_key(fr_in->key_frame.key_info.key_index,
-                             &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_AES);
-  else
-    rt2501_set_key(fr_in->key_frame.key_info.key_index,
-                             &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_TKIP);
+
+    // FIXME
+  if(fr_in->key_frame.key_info.key_index != 0)
+  {
+    if(ieee80211_encryption == IEEE80211_CRYPT_WPA2)  // FIXME
+      rt2501_set_key(fr_in->key_frame.key_info.key_index,
+                               &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_AES);
+    else
+      rt2501_set_key(fr_in->key_frame.key_info.key_index,
+                               &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_TKIP);
+  }
 	eapol_state = EAPOL_S_RUN;
 	ieee80211_state = IEEE80211_S_RUN;
 	ieee80211_timeout = IEEE80211_RUN_TIMEOUT;
