@@ -276,13 +276,12 @@ void eapol_init(void)
 	eapol_state = EAPOL_S_MSG1;
 	replay_active = 0;
 	/* Derive PMK */
-  char buffer[] = {0x3d,0x1d,0xa6,0x7f,0xb7,0xf0,0x49,0x79,0x86,0x2e,0xf2,0x82,0x0e,0x6b,0xff,0x4c,0x52,0x86,0xd4,0xa5,0xfb,0x6a,0x83,0xad,0x9f,0x33,0x13,0xb1,0xcc,0x4d,0x03,0x3c};
-	sprintf(dbg_buffer, "Computing PMK...AP '%s' PSK '%s'"EOL,ieee80211_assoc_ssid,"Hidden");
+	sprintf(dbg_buffer, "Computing PMK...AP '%s'"EOL,ieee80211_assoc_ssid);
   DBG_WIFI(dbg_buffer);
   //uint8_t buffer[64];
 	//password_to_pmk(psk, ieee80211_assoc_ssid, strlen(ieee80211_assoc_ssid), buffer);
-	memcpy(pmk, buffer, EAPOL_MASTER_KEY_LENGTH);
-	//memcpy(pmk, ieee80211_key, EAPOL_MASTER_KEY_LENGTH);
+	//memcpy(pmk, buffer, EAPOL_MASTER_KEY_LENGTH);
+	memcpy(pmk, ieee80211_key, EAPOL_MASTER_KEY_LENGTH);
 
 #ifdef DEBUG_WIFI
   uint16_t i;

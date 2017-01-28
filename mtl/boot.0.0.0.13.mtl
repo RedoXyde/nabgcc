@@ -2429,7 +2429,7 @@ fun wifiAuth=
 		let Iecholn confGetWificrypt -> crypt in
 		let if crypt==1 then confGetWifiauth else 0-> auth in
 		let if crypt==1 then wifiwepkey confGetWifikey0
-			else if crypt==2 then confGetWifipmk -> key in
+			else if crypt==2 || crypt==3 then confGetWifipmk -> key in
 		(
 			dump key;
 			set wifitry=time;
