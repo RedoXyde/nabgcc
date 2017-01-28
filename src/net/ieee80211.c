@@ -1084,9 +1084,10 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								break;
               case IEEE80211_ELEMID_RSN:
               {
+                #ifdef DEBUG_WIFI
                 DBG_WIFI("RSN Information"EOL);
                 dump(frame_current,frame_current[1]);
-
+                #endif
                 frame_current += frame_current[1];
                 scan_result.encryption = IEEE80211_CRYPT_WPA2;
                 // FIXME !

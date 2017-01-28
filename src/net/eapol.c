@@ -443,14 +443,17 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
   if(ieee80211_encryption == IEEE80211_CRYPT_WPA2)  // FIXME
   {
     if(!rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_AES))
+    {
       DBG_WIFI("SetKey Failed"EOL);
+    }
   }
   else
   {
     if(!rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_TKIP))
+    {
       DBG_WIFI("SetKey Failed"EOL);
+    }
   }
-
 	memset(ptk_tsc, 0, EAPOL_TSC_LENGTH);
 
 	eapol_state = EAPOL_S_MSG3;

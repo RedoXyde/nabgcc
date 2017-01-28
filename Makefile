@@ -4,7 +4,7 @@ TARGET = Nab
 # User options
 OPTIONS =
 #OPTIONS += -DDEBUG
-OPTIONS += -DDEBUG_WIFI
+#OPTIONS += -DDEBUG_WIFI
 #OPTIONS += -DDEBUG_USB
 
 # C Files to compile (take all)
