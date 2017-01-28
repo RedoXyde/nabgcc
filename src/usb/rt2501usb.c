@@ -812,9 +812,6 @@ static void rt2501_rx_callback(PURB urb)
         rxd->Iv,
         rxd->Eiv);
       DBG_WIFI(dbg_buffer);
-
-      DBG_WIFI("Rxed:"EOL);
-      dump(urb->buffer,urb->length);
 #endif
     if(!rxd->Crc && ((rxd->CipherAlg == RT2501_CIPHER_NONE) || (rxd->CipherErr == 0))) {
       ieee80211_input(rt2501_frame+sizeof(RXD_STRUC),
