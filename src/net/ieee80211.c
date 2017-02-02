@@ -591,7 +591,7 @@ static void ieee80211_associate(void)
 		+2+IEEE80211_SSID_MAXLEN
 		+2+8
 		+2+4
-		+2+22];
+		+2+0x16];
 	} *assoc;
 //#pragma pack()
 	uint8_t *write_ptr;
@@ -652,9 +652,10 @@ static void ieee80211_associate(void)
 	*(write_ptr++) = 0x18;
 	*(write_ptr++) = 0x60;
 
+    int8_t off_size=0;  // FIXME
 	if(ieee80211_encryption == IEEE80211_CRYPT_WPA) {
 		*(write_ptr++) = IEEE80211_ELEMID_VENDOR;
-		*(write_ptr++) = 22;
+		*(write_ptr++) = 0x16;
 		for(i=0;i<sizeof(ieee80211_vendor_wpa_id);i++)
 			*(write_ptr++) = ieee80211_vendor_wpa_id[i];
 		/* Multicast cipher suite: TKIP */
@@ -675,8 +676,8 @@ static void ieee80211_associate(void)
 	} else if(ieee80211_encryption == IEEE80211_CRYPT_WPA2) {
 		*(write_ptr++) = 0x30; // RSN IE
 		*(write_ptr++) = 0x14; // Length
-    *(write_ptr++) = 0x01; // Version
-    *(write_ptr++) = 0x00; // Version
+        *(write_ptr++) = 0x01; // Version
+        *(write_ptr++) = 0x00; // Version
 		/* Group cipher: AES */
 		for(i=0;i<IEEE80211_OUI_LEN;i++)
 			*(write_ptr++) = ieee80211_wpa2_aes_oui[i];
@@ -692,12 +693,13 @@ static void ieee80211_associate(void)
 		/* Auth key management suites: PSK */
 		for(i=0;i<IEEE80211_OUI_LEN;i++)
 			*(write_ptr++) = ieee80211_wpa2_psk_oui[i];
-    /* RSN Capability */
-    *(write_ptr++) = 0x00;
+        /* RSN Capability */
+        *(write_ptr++) = 0x00;
 		*(write_ptr++) = 0x00;
+        off_size = -2;
 	}
 
-	frame_length = sizeof(struct ieee80211_frame)+(write_ptr - assoc->assoc);
+	frame_length = sizeof(struct ieee80211_frame)+(write_ptr - assoc->assoc)+off_size;
 
 	duration = rt2501_txtime(frame_length, ieee80211_mask_to_rate(ieee80211_lowest_txrate))+IEEE80211_SIFS;
 	assoc->header.i_dur[0] = ((duration & 0x00ff) >> 0);
