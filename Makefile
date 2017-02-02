@@ -1,6 +1,8 @@
 # The name of the target file
 TARGET = Nab
 
+MTL_BOOT=boot.0.0.0.13
+
 # User options
 OPTIONS =
 #OPTIONS += -DDEBUG
@@ -91,4 +93,13 @@ clean:
 program: bin/$(TARGET).elf
 	$(PROGRAM) $< < gdb_load
 
-.PHONY: clean program elf hex bin
+mtl_boot: mtl/boot/$(MTL_BOOT).mtl
+	@cd mtl/mtl_linux; \
+	make
+	@test -d obj/ || mkdir -pm 775 obj/
+	@test -d bin/ || mkdir -pm 775 bin/
+	@cd obj/; \
+	../mtl/mtl_linux/mtl_compiler ../mtl/boot/$(MTL_BOOT).mtl ../bin/$(MTL_BOOT).bin
+
+
+.PHONY: clean program elf hex bin mtl_boot
