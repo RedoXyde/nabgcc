@@ -43,10 +43,10 @@ const netgateway_master="\192\168\0\1";;
 var wifiscans;;
 
 const IEEE80211_CRYPT_NONE=0;;
-const IEEE80211_CRYPT_WEP=10;;
-const IEEE80211_CRYPT_WPA=20;;
-const IEEE80211_CRYPT_WPA2=40;;
-const IEEE80211_CRYPT_WPA_UNSUPPORTED=80;;
+const IEEE80211_CRYPT_WEP=16;;
+const IEEE80211_CRYPT_WPA=32;;
+const IEEE80211_CRYPT_WPA2=64;;
+const IEEE80211_CRYPT_WPA_UNSUPPORTED=255;;
 
 const IEEE80211_AUTH_OPEN=0;;
 const IEEE80211_AUTH_SHARED=1;;
@@ -282,7 +282,7 @@ fun confSetstr i val len=
 fun webport s= ((strget s 0)<<8)+strget s 1;;
 
 fun confGetWifissid=confGetstr CONF_WIFISSID 32;;
-fun confGetWificrypt=strget confGet CONF_WIFICRYPT 1 0;;
+fun confGetWificrypt=strget confGetbin CONF_WIFICRYPT 1 0;;
 fun confGetWifikey0=confGetstr CONF_WIFIKEY0 64;;
 fun confGetWifiauth=strget confGet CONF_WIFIAUTH 1 0;;
 fun confGetWifipmk=confGetbin CONF_WIFIPMK 32;;
@@ -762,7 +762,7 @@ fun mkdhcp op netip hostip newip =
 		strset b 236+6 op;
 		strcpy b 236+7 "\61\7\1" 0 3;
 		strcpy b 236+10 mymac 0 6;
-		strcpy b 236+16 "\12\7Pabcdef\55\3\1\3\6" 0 14;
+		strcpy b 236+16 "\12\7Nabaztg\55\3\1\3\6" 0 14;
 		if op==DHCP_REQUEST then strcatlist b::"\54\4"::hostip::"\50\4"::newip::"\255"::nil
 		else strcat b "\255"
 	);;
@@ -1376,13 +1376,13 @@ a:hover {
     <td colspan=\"2\" class=\"subhead\">Encryption</td>
   </tr>
   <tr>
-    <td><input type=\"radio\" name=\"m\" "::"<ENC-NONE>"::" value=\"<ENC-NONE-VAL>\" />
+    <td><input type=\"radio\" name=\"m\" "::"<ENC-NONE>"::" value=\""::"<ENC-VNONE>"::"\" />
       No encryption<br />
-      <input type=\"radio\" name=\"m\" "::"<ENC-WEP>"::" value=\"<ENC-WEP-VAL>\" />
+      <input type=\"radio\" name=\"m\" "::"<ENC-WEP>"::" value=\""::"<ENC-VWEP>"::"\" />
       WEP encryption<br />
-      <input type=\"radio\" name=\"m\" "::"<ENC-WPA>"::" value=\"<ENC-WPA-VAL>\" />
+      <input type=\"radio\" name=\"m\" "::"<ENC-WPA>"::" value=\""::"<ENC-VWPA>"::"\" />
       WPA encryption<br />
-      <input type=\"radio\" name=\"m\" "::"<ENC-WPA2>"::" value=\"<ENC-WPA2-VAL>\" />
+      <input type=\"radio\" name=\"m\" "::"<ENC-WPA2>"::" value=\""::"<ENC-VWPA2>"::"\" />
       WPA2 encryption</td>
     <td class=\"hint\">Select your network's encryption type.</td>
   </tr>
@@ -1695,11 +1695,11 @@ fun filterweb val=
 	strreplace (strreplace val "\"" "&quot;") "<" "&lt;";;
 
 fun webcrypt i=
-	if i==IEEE80211_CRYPT_NONE then "No encryption"
-	else if i==IEEE80211_CRYPT_WEP then "WEP encryption"
-	else if i==IEEE80211_CRYPT_WPA then "WPA-PSK encryption"
-  else if i==IEEE80211_CRYPT_WPA2 then "WPA2-PSK encryption"
-	else "Unkown encryption";;
+	if i==IEEE80211_CRYPT_NONE then "None"
+	else if i==IEEE80211_CRYPT_WEP then "WEP"
+	else if i==IEEE80211_CRYPT_WPA then "WPA"
+  else if i==IEEE80211_CRYPT_WPA2 then "WPA2"
+	else "Unkown ";;
 
 fun isinscan s l=
 	if l==nil then 0
@@ -1772,10 +1772,10 @@ fun httpindex=
 			["<ENC-WEP>" if crypt==IEEE80211_CRYPT_WEP then "checked"]::
 			["<ENC-WPA>" if crypt==IEEE80211_CRYPT_WPA then "checked"]::
       ["<ENC-WPA2>" if crypt==IEEE80211_CRYPT_WPA2 then "checked"]::
-      ["<ENC-NONE-VAL>" itoa IEEE80211_CRYPT_NONE]::
-			["<ENC-WEP-VAL>" itoa IEEE80211_CRYPT_WEP]::
-			["<ENC-WPA-VAL>" itoa IEEE80211_CRYPT_WPA]::
-      ["<ENC-WPA2-VAL>" itoa IEEE80211_CRYPT_WPA2]::
+      ["<ENC-VNONE>" itoa IEEE80211_CRYPT_NONE]::
+			["<ENC-VWEP>" itoa IEEE80211_CRYPT_WEP]::
+			["<ENC-VWPA>" itoa IEEE80211_CRYPT_WPA]::
+      ["<ENC-VWPA2>" itoa IEEE80211_CRYPT_WPA2]::
 			["<AUTH>" webSelectList auth [IEEE80211_AUTH_OPEN "OpenSystem"]::[IEEE80211_AUTH_SHARED "SharedKey"]::nil]::
 			["<KEY>" filterweb key]::
 			["<FIRMWARE>" webip FIRMWARE]::
@@ -1810,7 +1810,7 @@ fun useparam v val=
 	else if v=='k' then (if val!=nil && strlen val then confSetstr CONF_WIFISSID val 32)
 	else if v=='w' then (if strcmp val "-" then confSetstr CONF_WIFISSID val 32)
 	else if v=='l' then confSet CONF_WIFIAUTH useparamcheck val 1
-	else if v=='m' then confSet CONF_WIFICRYPT useparamcheck val 1
+	else if v=='m' then confSetbin CONF_WIFICRYPT ctoa atoi val 1
 	else if v=='n' then confSetstr CONF_WIFIKEY0 val 64
 	else if v=='o' then confSet CONF_LOGIN useparammac val 4
 	else if v=='p' then confSet CONF_PWD useparammac val 4
@@ -1859,7 +1859,7 @@ fun updateconf args=
 		let confGetWifissid -> ssid in
 		let confGetWificrypt-> crypt in
 		let confGetWifikey0 -> key in
-		if crypt==2 || crypt==3 &&
+		if crypt==IEEE80211_CRYPT_WPA || crypt==IEEE80211_CRYPT_WPA2 &&
 		((crypt0!=crypt)||(strcmp ssid0 ssid)||(strcmp key0 key))
 		then	// recalculer le pmk
 		(
@@ -2419,10 +2419,10 @@ fun wifiAuth=
 	setleds 0xff8000;
 	if wifiscans==nil then 0
 	else
-		let Iecholn confGetWificrypt -> crypt in
-		let if crypt==1 then confGetWifiauth else 0-> auth in
-		let if crypt==1 then wifiwepkey confGetWifikey0
-			else if crypt==2 || crypt==3 then confGetWifipmk -> key in
+		let confGetWificrypt -> crypt in
+		let if crypt==IEEE80211_CRYPT_WEP then confGetWifiauth else 0-> auth in
+		let if crypt==IEEE80211_CRYPT_WEP then wifiwepkey confGetWifikey0
+			else if crypt==IEEE80211_CRYPT_WPA || crypt==IEEE80211_CRYPT_WPA2 then confGetWifipmk -> key in
 		(
 			dump key;
 			set wifitry=time;
