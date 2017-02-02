@@ -92,6 +92,7 @@
       <File Name="inc/net/hash.h"/>
       <File Name="inc/net/eapol.h"/>
       <File Name="inc/net/ieee80211.h"/>
+      <File Name="inc/net/aes128.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="vm">
       <File Name="inc/vm/vbc.h"/>
@@ -159,6 +160,7 @@
       <File Name="src/net/hash.c"/>
       <File Name="src/net/ieee80211.c"/>
       <File Name="src/net/rc4.c"/>
+      <File Name="src/net/aes128.c"/>
     </VirtualDirectory>
     <VirtualDirectory Name="usb">
       <File Name="src/usb/hcd.c"/>
