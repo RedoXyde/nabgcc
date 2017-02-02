@@ -36,17 +36,11 @@ const uint8_t ieee80211_null_address[IEEE80211_ADDR_LEN] =
 static const uint8_t ieee80211_vendor_wpa_id[] =
 { 0x00, 0x50, 0xf2, 0x01, 0x01, 0x00 };
 
-static const uint8_t ieee80211_tkip_oui[IEEE80211_OUI_LEN] =
-{ 0x00, 0x50, 0xf2, 0x02 };
+static const uint8_t ieee80211_wpa_oui[IEEE80211_OUI_LEN] =
+{ 0x00, 0x50, 0xf2, 0x00 };
 
-static const uint8_t ieee80211_psk_oui[IEEE80211_OUI_LEN] =
-{ 0x00, 0x50, 0xf2, 0x02 };
-
-static const uint8_t ieee80211_wpa2_aes_oui[IEEE80211_OUI_LEN] =
-{ 0x00, 0x0f, 0xac, 0x04 };
-
-static const uint8_t ieee80211_wpa2_psk_oui[IEEE80211_OUI_LEN] =
-{ 0x00, 0x0f, 0xac, 0x02 };
+static const uint8_t ieee80211_wpa_oui[IEEE80211_OUI_LEN] =
+{ 0x00, 0x0f, 0xac, 0x00 };
 
 int32_t ieee80211_mode;
 int32_t ieee80211_state;
@@ -208,9 +202,11 @@ static uint8_t ieee80211_crypt_to_rt2501cipher(uint8_t crypt)
 			return RT2501_CIPHER_WEP64;
 		case IEEE80211_CRYPT_WEP128:
 			return RT2501_CIPHER_WEP128;
-		case IEEE80211_CRYPT_WPA:
+		case IEEE80211_CRYPT_WPA_TKIP:
+    case IEEE80211_CRYPT_WPA2_TKIP:
 			return RT2501_CIPHER_TKIP;
-		case IEEE80211_CRYPT_WPA2:
+    case IEEE80211_CRYPT_WPA_AES:
+    case IEEE80211_CRYPT_WPA2_AES:
 			return RT2501_CIPHER_AES;
 		default:
 			return RT2501_CIPHER_NONE;
@@ -1086,13 +1082,57 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								break;
               case IEEE80211_ELEMID_RSN:
               {
+                uint8_t *current;
+                uint16_t count;
+                uint8_t found;
+
                 #ifdef DEBUG_WIFI
                 DBG_WIFI("RSN Information"EOL);
                 dump(frame_current,frame_current[1]);
                 #endif
                 frame_current += frame_current[1];
+
+                current = &frame_current[2];
+                /* Element 1: Group cipher suites (OUIs) */
+                count = (current[0] << 0)|(current[1] << 8);
+                current += 2;
+                found = 0;
+                for(i=0;i<count;i++) {
+                  if(memcmp(current, ieee80211_wpa2_aes_oui,  IEEE80211_OUI_LEN) == 0) found = 1;
+                  if(memcmp(current, ieee80211_wpa2_tkip_oui, IEEE80211_OUI_LEN) == 0) found = 1;
+                  current += IEEE80211_OUI_LEN;
+                }
+                if(!found) {
+                  scan_result.encryption = IEEE80211_CRYPT_UNSUPPORTED;
+                  break;
+                }
+                /* Element 2: Pairwise cipher suites (OUIs) */
+                count = (current[0] << 0)|(current[1] << 8);
+                current += 2;
+                found = 0;
+                for(i=0;i<count;i++) {
+                  if(memcmp(current, ieee80211_wpa2_aes_oui,  IEEE80211_OUI_LEN) == 0) found = 1;
+                  if(memcmp(current, ieee80211_wpa2_tkip_oui, IEEE80211_OUI_LEN) == 0) found = 1;
+                  current += IEEE80211_OUI_LEN;
+                }
+                if(!found) {
+                  scan_result.encryption = IEEE80211_CRYPT_UNSUPPORTED;
+                  break;
+                }
+                /* Element 5: Auth key management suites (OUIs) */
+                count = (current[0] << 0)|(current[1] << 8);
+                current += 2;
+                found = 0;
+                for(i=0;i<count;i++) {
+                  if(memcmp(current, ieee80211_wpa2_psk_oui,  IEEE80211_OUI_LEN) == 0) found = 1;
+                  current += IEEE80211_OUI_LEN;
+                }
+                if(!found) {
+                  scan_result.encryption = IEEE80211_CRYPT_UNSUPPORTED;
+                  break;
+                }
+
                 scan_result.encryption = IEEE80211_CRYPT_WPA2;
-                // FIXME !
                 DBG_WIFI("WPA2 supported"EOL);
                 break;
               }
@@ -1758,13 +1798,8 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 			rt2501_set_key(0, ieee80211_key, NULL, NULL, RT2501_CIPHER_WEP128);
 			break;
 		case IEEE80211_CRYPT_WPA:
-			ieee80211_authmode = IEEE80211_AUTH_OPEN;
-			strcpy((char *)ieee80211_key, (const char *)key);
-			rt2501_set_key(0, NULL, NULL, NULL, RT2501_CIPHER_NONE);
-			eapol_init();
-			break;
     case IEEE80211_CRYPT_WPA2:
-      ieee80211_authmode = IEEE80211_AUTH_OPEN;
+			ieee80211_authmode = IEEE80211_AUTH_OPEN;
 			strcpy((char *)ieee80211_key, (const char *)key);
 			rt2501_set_key(0, NULL, NULL, NULL, RT2501_CIPHER_NONE);
 			eapol_init();
