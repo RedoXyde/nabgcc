@@ -332,7 +332,7 @@ enum {
 #define IEEE80211_CIPHER_TKIP 0x02
 #define IEEE80211_CIPHER_CCMP 0x04
 
-#define IEEE80211_PSK         0x02
+#define IEEE80211_AUTH_PSK         0x02
 
 enum {
 	IEEE80211_AUTH_OPEN,

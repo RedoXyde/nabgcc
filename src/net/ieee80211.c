@@ -39,7 +39,7 @@ static const uint8_t ieee80211_vendor_wpa_id[] =
 static const uint8_t ieee80211_wpa_oui[IEEE80211_OUI_LEN] =
 { 0x00, 0x50, 0xf2, 0x00 };
 
-static const uint8_t ieee80211_wpa_oui[IEEE80211_OUI_LEN] =
+static const uint8_t ieee80211_wpa2_oui[IEEE80211_OUI_LEN] =
 { 0x00, 0x0f, 0xac, 0x00 };
 
 int32_t ieee80211_mode;
@@ -195,19 +195,29 @@ static uint16_t ieee80211_mask_to_rt2501mask(unsigned short ieee80211mask)
 
 static uint8_t ieee80211_crypt_to_rt2501cipher(uint8_t crypt)
 {
-	switch(crypt) {
-		case IEEE80211_CRYPT_NONE:
-			return RT2501_CIPHER_NONE;
-		case IEEE80211_CRYPT_WEP64:
-			return RT2501_CIPHER_WEP64;
-		case IEEE80211_CRYPT_WEP128:
-			return RT2501_CIPHER_WEP128;
-		case IEEE80211_CRYPT_WPA_TKIP:
-    case IEEE80211_CRYPT_WPA2_TKIP:
-			return RT2501_CIPHER_TKIP;
-    case IEEE80211_CRYPT_WPA_AES:
-    case IEEE80211_CRYPT_WPA2_AES:
-			return RT2501_CIPHER_AES;
+	switch(crypt&0xF0) {
+		case IEEE80211_CRYPT_WEP:
+      switch(crypt)
+      {
+        case IEEE80211_CRYPT_WEP64:
+          return RT2501_CIPHER_WEP64;
+        case IEEE80211_CRYPT_WEP128:
+          return RT2501_CIPHER_WEP128;
+        default:
+          break;
+      };
+    case IEEE80211_CRYPT_WPA:
+    case IEEE80211_CRYPT_WPA2:
+      switch(crypt&0x0F)
+      {
+        case IEEE80211_CIPHER_TKIP:
+          return RT2501_CIPHER_TKIP;
+        case IEEE80211_CIPHER_CCMP:
+          return RT2501_CIPHER_AES;
+        default:
+          break;
+      };
+    case IEEE80211_CRYPT_NONE:
 		default:
 			return RT2501_CIPHER_NONE;
 	}
@@ -587,7 +597,7 @@ static void ieee80211_associate(void)
 		+2+IEEE80211_SSID_MAXLEN
 		+2+8
 		+2+4
-		+2+0x16];
+		+2+0x16];//+4];
 	} *assoc;
 //#pragma pack()
 	uint8_t *write_ptr;
@@ -649,53 +659,73 @@ static void ieee80211_associate(void)
 	*(write_ptr++) = 0x60;
 
     int8_t off_size=0;  // FIXME
-	if(ieee80211_encryption == IEEE80211_CRYPT_WPA) {
-		*(write_ptr++) = IEEE80211_ELEMID_VENDOR;
-		*(write_ptr++) = 0x16;
-		for(i=0;i<sizeof(ieee80211_vendor_wpa_id);i++)
-			*(write_ptr++) = ieee80211_vendor_wpa_id[i];
-		/* Multicast cipher suite: TKIP */
-		for(i=0;i<IEEE80211_OUI_LEN;i++)
-			*(write_ptr++) = ieee80211_tkip_oui[i];
-		/* 1 unicast cipher suite */
-		*(write_ptr++) = 0x01;
-		*(write_ptr++) = 0x00;
-		/* Unicast cipher suites: TKIP */
-		for(i=0;i<IEEE80211_OUI_LEN;i++)
-			*(write_ptr++) = ieee80211_tkip_oui[i];
-		/* 1 auth key management suite */
-		*(write_ptr++) = 0x01;
-		*(write_ptr++) = 0x00;
-		/* Auth key management suites: PSK */
-		for(i=0;i<IEEE80211_OUI_LEN;i++)
-			*(write_ptr++) = ieee80211_psk_oui[i];
-	} else if(ieee80211_encryption == IEEE80211_CRYPT_WPA2) {
-		*(write_ptr++) = 0x30; // RSN IE
-		*(write_ptr++) = 0x14; // Length
-        *(write_ptr++) = 0x01; // Version
-        *(write_ptr++) = 0x00; // Version
-		/* Group cipher: AES */
-		for(i=0;i<IEEE80211_OUI_LEN;i++)
-			*(write_ptr++) = ieee80211_wpa2_aes_oui[i];
-		/* 1 pairwise */
-		*(write_ptr++) = 0x01;
-		*(write_ptr++) = 0x00;
-		/* Unicast cipher: AES */
-		for(i=0;i<IEEE80211_OUI_LEN;i++)
-			*(write_ptr++) = ieee80211_wpa2_aes_oui[i];
-		/* 1 auth key management */
-		*(write_ptr++) = 0x01;
-		*(write_ptr++) = 0x00;
-		/* Auth key management suites: PSK */
-		for(i=0;i<IEEE80211_OUI_LEN;i++)
-			*(write_ptr++) = ieee80211_wpa2_psk_oui[i];
-        /* RSN Capability */
-        *(write_ptr++) = 0x00;
-		*(write_ptr++) = 0x00;
-        off_size = -2;
-	}
-
-	frame_length = sizeof(struct ieee80211_frame)+(write_ptr - assoc->assoc)+off_size;
+	switch(ieee80211_encryption&0xF0)
+  {
+    case IEEE80211_CRYPT_WPA:
+      *(write_ptr++) = IEEE80211_ELEMID_VENDOR;
+      *(write_ptr++) = 0x16;//+4;
+      for(i=0;i<sizeof(ieee80211_vendor_wpa_id);i++)
+        *(write_ptr++) = ieee80211_vendor_wpa_id[i];
+      /* Multicast cipher suite: TKIP */
+      for(i=0;i<IEEE80211_OUI_LEN-1;i++)
+        *(write_ptr++) = ieee80211_wpa_oui[i];
+      *(write_ptr++) = IEEE80211_CIPHER_TKIP;
+      /* 1 unicast cipher suite */
+      *(write_ptr++) = 0x02;
+      *(write_ptr++) = 0x00;
+      /* Unicast cipher suites: TKIP or CCMP */
+      for(i=0;i<IEEE80211_OUI_LEN-1;i++)
+        *(write_ptr++) = ieee80211_wpa_oui[i];
+      *(write_ptr++) = IEEE80211_CIPHER_TKIP;
+      //for(i=0;i<IEEE80211_OUI_LEN;i++)
+      //  *(write_ptr++) = ieee80211_wpa_oui[i];
+      //*(write_ptr-1) = IEEE80211_CIPHER_TKIP;
+      /* 1 auth key management suite */
+      *(write_ptr++) = 0x01;
+      *(write_ptr++) = 0x00;
+      /* Auth key management suites: PSK */
+      for(i=0;i<IEEE80211_OUI_LEN;i++)
+        *(write_ptr++) = ieee80211_wpa_oui[i];
+      *(write_ptr-1) = IEEE80211_AUTH_PSK;
+      break;
+    case IEEE80211_CRYPT_WPA2:
+      *(write_ptr++) = 0x30;   // RSN IE
+      *(write_ptr++) = 0x14;//+4; // Length
+      *(write_ptr++) = 0x01;   // Version
+      *(write_ptr++) = 0x00;   // Version
+      /* Group cipher: AES */
+      for(i=0;i<IEEE80211_OUI_LEN-1;i++)
+        *(write_ptr++) = ieee80211_wpa2_oui[i];
+      *(write_ptr++) = IEEE80211_CIPHER_TKIP;
+      /* 1 pairwise */
+      *(write_ptr++) = 0x01;
+      *(write_ptr++) = 0x00;
+      /* Unicast cipher: TKIP or AES */
+      for(i=0;i<IEEE80211_OUI_LEN-1;i++)
+        *(write_ptr++) = ieee80211_wpa2_oui[i];
+      *(write_ptr++) = IEEE80211_CIPHER_TKIP;
+      //for(i=0;i<IEEE80211_OUI_LEN;i++)
+      //  *(write_ptr++) = ieee80211_wpa2_oui[i];
+      //*(write_ptr-1) = IEEE80211_CIPHER_TKIP;
+      /* 1 auth key management */
+      *(write_ptr++) = 0x01;
+      *(write_ptr++) = 0x00;
+      /* Auth key management suites: PSK */
+      for(i=0;i<IEEE80211_OUI_LEN;i++)
+        *(write_ptr++) = ieee80211_wpa2_oui[i];
+      *(write_ptr-1) = IEEE80211_AUTH_PSK;
+          /* RSN Capability */
+      *(write_ptr++) = 0x00;
+      *(write_ptr++) = 0x00;
+      off_size = -2;
+      break;
+    default:
+      sprintf(dbg_buffer,"ieee80211_assoc Unknown encryption: %d"EOL,ieee80211_encryption);
+      DBG_WIFI(dbg_buffer);
+      break;
+  }
+	
+	frame_length = sizeof(struct ieee80211_frame)+(write_ptr - assoc->assoc);//+off_size;
 
 	duration = rt2501_txtime(frame_length, ieee80211_mask_to_rate(ieee80211_lowest_txrate))+IEEE80211_SIFS;
 	assoc->header.i_dur[0] = ((duration & 0x00ff) >> 0);
@@ -1040,7 +1070,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 					struct rt2501_scan_result scan_result;
 					uint16_t capinfo;
 
-					DBG_WIFI("Received beacon/PR while scanning"EOL);
+					//DBG_WIFI("Received beacon/PR while scanning"EOL);
 
 					if((frame_end - frame_current) < 12) return;
 
@@ -1054,7 +1084,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 					scan_result.rssi = rssi;
 					scan_result.rateset = 0;
 					if(capinfo & IEEE80211_CAPINFO_PRIVACY)
-						scan_result.encryption = IEEE80211_CRYPT_WEP64;
+						scan_result.encryption = IEEE80211_CRYPT_WEP;
 					else
 						scan_result.encryption = IEEE80211_CRYPT_NONE;
 
@@ -1087,10 +1117,10 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
                 uint8_t found;
 
                 #ifdef DEBUG_WIFI
-                DBG_WIFI("RSN Information"EOL);
-                dump(frame_current,frame_current[1]);
+                //DBG_WIFI("RSN Information"EOL);
+                //dump(frame_current,frame_current[1]);
                 #endif
-                frame_current += frame_current[1];
+                //frame_current += frame_current[1];
 
                 current = &frame_current[2];
                 /* Element 1: Group cipher suites (OUIs) */
@@ -1098,8 +1128,12 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
                 current += 2;
                 found = 0;
                 for(i=0;i<count;i++) {
-                  if(memcmp(current, ieee80211_wpa2_aes_oui,  IEEE80211_OUI_LEN) == 0) found = 1;
-                  if(memcmp(current, ieee80211_wpa2_tkip_oui, IEEE80211_OUI_LEN) == 0) found = 1;
+                  if(memcmp(current, ieee80211_wpa2_oui,  IEEE80211_OUI_LEN-1) == 0)
+                  {
+                    if(*(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_TKIP ||
+                        *(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_CCMP)
+                      found = 1;
+                  }
                   current += IEEE80211_OUI_LEN;
                 }
                 if(!found) {
@@ -1111,8 +1145,12 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
                 current += 2;
                 found = 0;
                 for(i=0;i<count;i++) {
-                  if(memcmp(current, ieee80211_wpa2_aes_oui,  IEEE80211_OUI_LEN) == 0) found = 1;
-                  if(memcmp(current, ieee80211_wpa2_tkip_oui, IEEE80211_OUI_LEN) == 0) found = 1;
+                  if(memcmp(current, ieee80211_wpa2_oui,  IEEE80211_OUI_LEN-1) == 0)
+                  {
+                    if(*(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_TKIP ||
+                        *(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_CCMP)
+                      found = 1;
+                  }
                   current += IEEE80211_OUI_LEN;
                 }
                 if(!found) {
@@ -1124,7 +1162,11 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
                 current += 2;
                 found = 0;
                 for(i=0;i<count;i++) {
-                  if(memcmp(current, ieee80211_wpa2_psk_oui,  IEEE80211_OUI_LEN) == 0) found = 1;
+                  if(memcmp(current, ieee80211_wpa2_oui,  IEEE80211_OUI_LEN-1) == 0)
+                  {
+                    if(*(current+IEEE80211_OUI_LEN-1) == IEEE80211_AUTH_PSK)
+                      found = 1;
+                  }
                   current += IEEE80211_OUI_LEN;
                 }
                 if(!found) {
@@ -1133,7 +1175,8 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
                 }
 
                 scan_result.encryption = IEEE80211_CRYPT_WPA2;
-                DBG_WIFI("WPA2 supported"EOL);
+                //DBG_WIFI("WPA2 supported"EOL);
+                frame_current += frame_current[1];
                 break;
               }
 							case IEEE80211_ELEMID_VENDOR:
@@ -1153,11 +1196,11 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								current = &frame_current[2];
 								if(memcmp(current, ieee80211_vendor_wpa_id, sizeof(ieee80211_vendor_wpa_id)) != 0) break;
 								current += sizeof(ieee80211_vendor_wpa_id);
-								DBG_WIFI("WPA supported"EOL);
+								//DBG_WIFI("WPA supported"EOL);
 
 								/* Element 1: Multicast cipher suite (OUI) */
-								if(memcmp(current, ieee80211_tkip_oui, IEEE80211_OUI_LEN) != 0) {
-									scan_result.encryption = IEEE80211_CRYPT_WPA_UNSUPPORTED;
+								if(memcmp(current, ieee80211_wpa_oui, IEEE80211_OUI_LEN-1) != 0) {
+									scan_result.encryption = IEEE80211_CRYPT_UNSUPPORTED;
 									break;
 								}
 								current += IEEE80211_OUI_LEN;
@@ -1169,11 +1212,16 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								/* Element 3: Unicast cipher suites (OUIs) */
 								found = 0;
 								for(i=0;i<count;i++) {
-									if(memcmp(current, ieee80211_tkip_oui, IEEE80211_OUI_LEN) == 0) found = 1;
-									current += IEEE80211_OUI_LEN;
+                  if(memcmp(current, ieee80211_wpa_oui,  IEEE80211_OUI_LEN-1) == 0)
+                  {
+                    if(*(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_TKIP ||
+                        *(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_CCMP)
+                      found = 1;
+                  }
+                  current += IEEE80211_OUI_LEN;
 								}
 								if(!found) {
-									scan_result.encryption = IEEE80211_CRYPT_WPA_UNSUPPORTED;
+									scan_result.encryption = IEEE80211_CRYPT_UNSUPPORTED;
 									break;
 								}
 
@@ -1184,11 +1232,16 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 								/* Element 5: Auth key management suites (OUIs) */
 								found = 0;
 								for(i=0;i<count;i++) {
-									if(memcmp(current, ieee80211_psk_oui, IEEE80211_OUI_LEN) == 0) found = 1;
-									current += IEEE80211_OUI_LEN;
+                  if(memcmp(current, ieee80211_wpa_oui,  IEEE80211_OUI_LEN-1) == 0)
+                  {
+                    if(*(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_TKIP ||
+                        *(current+IEEE80211_OUI_LEN-1) == IEEE80211_CIPHER_CCMP)
+                      found = 1;
+                  }
+                  current += IEEE80211_OUI_LEN;
 								}
 								if(!found) {
-									scan_result.encryption = IEEE80211_CRYPT_WPA_UNSUPPORTED;
+									scan_result.encryption = IEEE80211_CRYPT_UNSUPPORTED;
 									break;
 								}
 
@@ -1213,8 +1266,8 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			} /* ieee80211_mode == IEEE80211_M_MANAGED */
 			break;
 		case IEEE80211_FC0_SUBTYPE_AUTH:
-      DBG_WIFI("Auth"EOL);
 			if(length < (sizeof(struct ieee80211_frame)+6)) return;
+      DBG_WIFI("Auth"EOL);
 			if(ieee80211_mode == IEEE80211_M_MANAGED) {
 				/*
 				Managed mode.
@@ -1324,7 +1377,8 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 				ieee80211_rssi_sample_index = 0;
 				ieee80211_rssi_average = -100;
 				/* ieee80211_txrate was filled at auth */
-				if(ieee80211_encryption == IEEE80211_CRYPT_WPA) {
+				if((ieee80211_encryption&0xF0) == IEEE80211_CRYPT_WPA ||
+           (ieee80211_encryption&0xF0) == IEEE80211_CRYPT_WPA2) {
 					ieee80211_state = IEEE80211_S_EAPOL;
 					ieee80211_timeout = IEEE80211_EAPOL_TIMEOUT;
 				} else {
@@ -1787,15 +1841,20 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 			ieee80211_authmode = IEEE80211_AUTH_OPEN;
 			rt2501_set_key(0, NULL, NULL, NULL, RT2501_CIPHER_NONE);
 			break;
-		case IEEE80211_CRYPT_WEP64:
-			ieee80211_authmode = authmode;
-			memcpy(ieee80211_key, key, IEEE80211_WEP64_KEYLEN);
-			rt2501_set_key(0, ieee80211_key, NULL, NULL, RT2501_CIPHER_WEP64);
-			break;
-		case IEEE80211_CRYPT_WEP128:
-			ieee80211_authmode = authmode;
-			memcpy(ieee80211_key, key, IEEE80211_WEP128_KEYLEN);
-			rt2501_set_key(0, ieee80211_key, NULL, NULL, RT2501_CIPHER_WEP128);
+		case IEEE80211_CRYPT_WEP:
+      ieee80211_authmode = authmode;
+      if(strlen((char*)&key) > 8)
+      {
+        ieee80211_encryption = IEEE80211_CRYPT_WEP128;
+        memcpy(ieee80211_key, key, IEEE80211_WEP128_KEYLEN);
+        rt2501_set_key(0, ieee80211_key, NULL, NULL, RT2501_CIPHER_WEP128);
+      }
+      else
+      {
+        ieee80211_encryption = IEEE80211_CRYPT_WEP64;
+        memcpy(ieee80211_key, key, IEEE80211_WEP64_KEYLEN);
+        rt2501_set_key(0, ieee80211_key, NULL, NULL, RT2501_CIPHER_WEP64);
+      }
 			break;
 		case IEEE80211_CRYPT_WPA:
     case IEEE80211_CRYPT_WPA2:
@@ -1805,7 +1864,8 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 			eapol_init();
 			break;
 		default:
-			DBG_WIFI("Unknown encryption specified"EOL);
+      sprintf(dbg_buffer,"Unknown encryption specified: %d"EOL,ieee80211_encryption);
+			DBG_WIFI(dbg_buffer);
 			return;
 	}
 
@@ -1851,17 +1911,15 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 		auth->auth[1] = ((IEEE80211_AUTH_ALG_OPEN & 0xff00) >> 8);
 		auth->auth[2] = ((IEEE80211_AUTH_OPEN_REQUEST & 0x00ff) >> 0);
 		auth->auth[3] = ((IEEE80211_AUTH_OPEN_REQUEST & 0xff00) >> 8);
-		auth->auth[4] = ((IEEE80211_STATUS_SUCCESS & 0x00ff) >> 0);
-		auth->auth[5] = ((IEEE80211_STATUS_SUCCESS & 0xff00) >> 8);
 	} else {
 		/* Shared key authentication: algo[2], seq[2], status[2] */
 		auth->auth[0] = ((IEEE80211_AUTH_ALG_SHARED & 0x00ff) >> 0);
 		auth->auth[1] = ((IEEE80211_AUTH_ALG_SHARED & 0xff00) >> 8);
 		auth->auth[2] = ((IEEE80211_AUTH_SHARED_REQUEST & 0x00ff) >> 0);
 		auth->auth[3] = ((IEEE80211_AUTH_SHARED_REQUEST & 0xff00) >> 8);
+	}
 		auth->auth[4] = ((IEEE80211_STATUS_SUCCESS & 0x00ff) >> 0);
 		auth->auth[5] = ((IEEE80211_STATUS_SUCCESS & 0xff00) >> 8);
-	}
 
 	/* Tell the ASIC autoresponder the rates the AP supports */
 	rt2501_write(rt2501_dev, RT2501_TXRX_CSR5,
@@ -1930,8 +1988,8 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 		encryption = IEEE80211_CRYPT_NONE;
 	} else {
 		fr->header.i_fc[0] |= IEEE80211_FC0_SUBTYPE_DATA;
-		if((ieee80211_encryption == IEEE80211_CRYPT_WPA ||
-        ieee80211_encryption == IEEE80211_CRYPT_WPA2
+		if(((ieee80211_encryption&0xF0) == IEEE80211_CRYPT_WPA ||
+        (ieee80211_encryption&0xF0) == IEEE80211_CRYPT_WPA2
        ) &&
        (eapol_state == EAPOL_S_MSG1 || eapol_state == EAPOL_S_MSG3)
       )
@@ -1948,12 +2006,11 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 	if(encryption != IEEE80211_CRYPT_NONE)
 		fr->header.i_fc[1] |= IEEE80211_FC1_PROTECTED;
 
-	switch(encryption) {
+	switch(encryption&0xF0) {
 		case IEEE80211_CRYPT_NONE:
 			encryption_overhead = 0;
 			break;
-		case IEEE80211_CRYPT_WEP64:
-		case IEEE80211_CRYPT_WEP128:
+		case IEEE80211_CRYPT_WEP:
 			encryption_overhead = 8; /* IV[4] + ICV [4] */
 			break;
 		case IEEE80211_CRYPT_WPA:
@@ -2006,40 +2063,45 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 	0,					/* QueIdx */
 	0					/* PacketId */
 	);
-	if((encryption == IEEE80211_CRYPT_WEP64) || (encryption == IEEE80211_CRYPT_WEP128)) {
-		fr->txd.Iv = rand() & 0x00ffffff;
-		fr->txd.IvOffset = sizeof(struct ieee80211_frame);
-	}
-	if(encryption == IEEE80211_CRYPT_WPA || encryption == IEEE80211_CRYPT_WPA2) {
-		struct ieee80211_tkip_iv iv;
-		uint32_t i;
+	switch(encryption&0xF0)
+  {
+      case IEEE80211_CRYPT_WEP:
+        fr->txd.Iv = rand() & 0x00ffffff;
+        fr->txd.IvOffset = sizeof(struct ieee80211_frame);
+        break;
+      case IEEE80211_CRYPT_WPA:
+      case IEEE80211_CRYPT_WPA2:
+      {
+        struct ieee80211_tkip_iv iv;
+        uint32_t i;
 
-		iv.iv16.field.rc0 = ptk_tsc[1];
-		iv.iv16.field.rc1 = (iv.iv16.field.rc0 | 0x20) & 0x7f;
-		iv.iv16.field.rc2 = ptk_tsc[0];
-		iv.iv16.field.control.field.reserved = 0;
-		iv.iv16.field.control.field.ext_iv = 1;
-		iv.iv16.field.control.field.key_id = 0;
-//		iv.iv32 = *((uint32_t *)&ptk_tsc[2]);
-                iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
+        iv.iv16.field.rc0 = ptk_tsc[1];
+        iv.iv16.field.rc1 = (iv.iv16.field.rc0 | 0x20) & 0x7f;
+        iv.iv16.field.rc2 = ptk_tsc[0];
+        iv.iv16.field.control.field.reserved = 0;
+        iv.iv16.field.control.field.ext_iv = 1;
+        iv.iv16.field.control.field.key_id = 0;
+    //		iv.iv32 = *((uint32_t *)&ptk_tsc[2]);
+                    iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
 
 
-		fr->txd.Iv = iv.iv16.word;
-		fr->txd.Eiv = iv.iv32;
-		fr->txd.IvOffset = sizeof(struct ieee80211_frame);
+        fr->txd.Iv = iv.iv16.word;
+        fr->txd.Eiv = iv.iv32;
+        fr->txd.IvOffset = sizeof(struct ieee80211_frame);
 
-		i = 0;
-		while(++ptk_tsc[i] == 0) {													\
-			i++;
-			if(i == EAPOL_TSC_LENGTH) {
-				DBG_WIFI("TSC cycle !!!"EOL);
-				break;
-			}
-
-		}
-	} else if(encryption == IEEE80211_CRYPT_WPA2) {
-    DBG_WIFI("rt2501_send encryption WPA2"EOL);
-	}
+        i = 0;
+        while(++ptk_tsc[i] == 0) {													\
+          i++;
+          if(i == EAPOL_TSC_LENGTH) {
+            DBG_WIFI("TSC cycle !!!"EOL);
+            break;
+          }
+        }
+      }
+      break;
+      default:
+        break;
+  };
 
 #ifdef DEBUG_WIFI
 	sprintf(dbg_buffer, "in rt2501_send, encryption=%d, length=%ld, fc0=0x%02x, fc1=0x%02x"EOL,
