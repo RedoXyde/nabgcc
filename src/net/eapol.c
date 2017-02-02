@@ -265,8 +265,38 @@ static uint8_t replay_active;
 static uint8_t replay_counter[EAPOL_RPC_LENGTH];
 static uint8_t anonce[EAPOL_NONCE_LENGTH];
 static uint8_t snonce[EAPOL_NONCE_LENGTH];
-static uint8_t ptk[EAPOL_PTK_LENGTH+20];
-static uint8_t gtk[EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH];
+//static uint8_t ptk[EAPOL_PTK_LENGTH+20];
+static union
+{
+  struct
+  {
+    uint8_t kck[16];  // EAPOL Key Confirmation Key
+    uint8_t kek[16];  // EAPOL Key Encryption Key
+    uint8_t tk[16];   // Temporal Key
+    struct
+    {
+        uint8_t rx[8];  // Not used in CCMP;
+        uint8_t tx[8];  // Not used in CCMP;
+    } mick; // MIC Key
+  } s;
+  uint8_t b[64];
+} ptk;  // Pairwise Transient Key
+
+static union
+{
+  struct
+  {
+    uint8_t ek[16];
+    struct
+    {
+        uint8_t rx[8];  // Not used in CCMP;
+        uint8_t tx[8];  // Not used in CCMP;
+    } mick; // MIC Key
+  } s;
+  uint8_t b[32];
+} gtk;  // Group Transient Key
+
+//uint8_t gtk[EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH];
 uint8_t ptk_tsc[EAPOL_TSC_LENGTH];
 
 /**
@@ -370,12 +400,12 @@ static void eapol_input_msg1(uint8_t *frame, uint32_t length)
               anonce, ieee80211_assoc_mac,
               snonce, rt2501_mac,
               ptk_buffer, EAPOL_PTK_LENGTH);
-	memcpy(ptk, ptk_buffer, EAPOL_PTK_LENGTH);
+	memcpy(ptk.b, ptk_buffer, EAPOL_PTK_LENGTH);
 
 #ifdef DEBUG_WIFI
 	DBG_WIFI("PTK computed, ");
 	for(i=0;i<EAPOL_PTK_LENGTH;i++) {
-		sprintf(dbg_buffer, "%02x", ptk[i]);
+		sprintf(dbg_buffer, "%02x", ptk.b[i]);
 		DBG_WIFI(dbg_buffer);
 	}
 	DBG_WIFI(EOL);
@@ -443,7 +473,7 @@ fr_out.llc_eapol.key_frame.descriptor_type = EAPOL_DTYPE_WPAKEY;
     uint8_t kt[20]={0};
     //DBG_WIFI("Before MIC"EOL);
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)+rsn_size-LLC_LENGTH);
-    hmac_sha1(ptk, EAPOL_MICK_LENGTH,
+    hmac_sha1(ptk.s.kck, EAPOL_MICK_LENGTH,
               (uint8_t *)&fr_out+LLC_LENGTH,
               sizeof(struct eapol_frame)+ rsn_size-LLC_LENGTH,
               kt);
@@ -454,7 +484,7 @@ fr_out.llc_eapol.key_frame.descriptor_type = EAPOL_DTYPE_WPAKEY;
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)+rsn_size-LLC_LENGTH);
   }
   else
-    hmac_md5(ptk, EAPOL_MICK_LENGTH,
+    hmac_md5(ptk.s.kck, EAPOL_MICK_LENGTH,
               (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)+
               rsn_size-LLC_LENGTH, fr_out.llc_eapol.key_frame.key_mic);
 
@@ -469,11 +499,11 @@ fr_out.llc_eapol.key_frame.descriptor_type = EAPOL_DTYPE_WPAKEY;
 	/* Install pairwise encryption and MIC keys */
   if((ieee80211_encryption&0x0F) == IEEE80211_CIPHER_CCMP)  // FIXME
   {
-    rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_AES);
+    rt2501_set_key(0, ptk.s.tk, ptk.s.mick.tx, ptk.s.mick.rx, RT2501_CIPHER_AES);
   }
   else
   {
-    rt2501_set_key(0, &ptk[32], &ptk[32+16+8], &ptk[32+16], RT2501_CIPHER_TKIP);
+    rt2501_set_key(0, ptk.s.tk, ptk.s.mick.tx, ptk.s.mick.rx, RT2501_CIPHER_TKIP);
   }
 	memset(ptk_tsc, 0, EAPOL_TSC_LENGTH);
 
@@ -522,7 +552,7 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
     uint8_t kt[20]={0};
     //DBG_WIFI("Before MIC"EOL);
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)+rsn_size-LLC_LENGTH);
-     hmac_sha1(ptk, EAPOL_MICK_LENGTH,
+     hmac_sha1(ptk.s.kck, EAPOL_MICK_LENGTH,
 		 frame+LLC_LENGTH,
 		 ((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4,
 		 kt);
@@ -533,11 +563,11 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)+rsn_size-LLC_LENGTH);
   }
   else
-    hmac_md5(ptk, EAPOL_MICK_LENGTH,
+    hmac_md5(ptk.s.kck, EAPOL_MICK_LENGTH,
 		 frame+LLC_LENGTH,
 		 ((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4,
 		 fr_in->key_frame.key_mic);
-	
+
   if(memcmp(fr_in->key_frame.key_mic, old_mic, EAPOL_KEYMIC_LENGTH) != 0)
   {
     DBG_WIFI("Old MIC:"EOL);
@@ -602,8 +632,8 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
   {
     uint8_t kt[20]={0};
     //DBG_WIFI("Before MIC"EOL);
-    hmac_sha1(ptk, EAPOL_MICK_LENGTH,
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)-LLC_LENGTH);
+    hmac_sha1(ptk.s.kck, EAPOL_MICK_LENGTH,
           (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)-LLC_LENGTH,
           kt);
     //DBG_WIFI("MIC:");
@@ -613,7 +643,7 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)-LLC_LENGTH);
   }
   else
-    hmac_md5(ptk, EAPOL_MICK_LENGTH,
+    hmac_md5(ptk.s.kck, EAPOL_MICK_LENGTH,
 		 (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)-LLC_LENGTH,
 		 fr_out.llc_eapol.key_frame.key_mic);
 
@@ -660,7 +690,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
   if((ieee80211_encryption&0xF0) == IEEE80211_CIPHER_CCMP)
   {
     uint8_t kt[20]={0};
-     hmac_sha1(ptk, EAPOL_MICK_LENGTH, frame+LLC_LENGTH,
+     hmac_sha1(ptk.s.kck, EAPOL_MICK_LENGTH, frame+LLC_LENGTH,
      ((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4,
      kt);
     //DBG_WIFI("MIC:");
@@ -668,7 +698,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
     memcpy(fr_in->key_frame.key_mic,kt,EAPOL_KEYMIC_LENGTH);
   }
   else
-    hmac_md5(ptk, EAPOL_MICK_LENGTH, frame+LLC_LENGTH,
+    hmac_md5(ptk.s.kck, EAPOL_MICK_LENGTH, frame+LLC_LENGTH,
 		 ((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4,
 		 fr_in->key_frame.key_mic);
 
@@ -728,8 +758,8 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
   {
     uint8_t kt[20]={0};
     //DBG_WIFI("Before MIC"EOL);
-    hmac_sha1(ptk, EAPOL_MICK_LENGTH,
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)-LLC_LENGTH);
+    hmac_sha1(ptk.s.kck, EAPOL_MICK_LENGTH,
           (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)-LLC_LENGTH,
           kt);
     //DBG_WIFI("MIC:");
@@ -739,7 +769,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
     //dump((uint8_t *)&fr_out+LLC_LENGTH,sizeof(struct eapol_frame)-LLC_LENGTH);
   }
   else
-    hmac_md5(ptk, EAPOL_MICK_LENGTH,
+    hmac_md5(ptk.s.kck, EAPOL_MICK_LENGTH,
 		 (uint8_t *)&fr_out+LLC_LENGTH, sizeof(struct eapol_frame)-LLC_LENGTH,
 		 fr_out.key_frame.key_mic);
 
@@ -752,30 +782,58 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 	//DBG_WIFI("Response sent GTK"EOL);
 
 	/* Decipher and install GTK */
-  if((ieee80211_encryption&0x0F) == IEEE80211_CIPHER_TKIP)
+  switch(ieee80211_encryption&0x0F)
   {
-    memcpy(&key[0], fr_in->key_frame.key_iv, EAPOL_KEYIV_LENGTH);
-    memcpy(&key[EAPOL_KEYIV_LENGTH], &ptk[EAPOL_MICK_LENGTH], 16);
-    rc4_init(&rc4, key, 32);
-    for(i=0;i<256;i++)
-      rc4_byte(&rc4); /* discard first 256 bytes */
-    rc4_cipher(&rc4, gtk, fr_in->key_frame.key_data,
-                                               EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
-    #ifdef DEBUG_WIFI
-    DBG_WIFI("GTK is ");
-    dump(gtk,EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
-    //for(i=0;i<EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH;i++) {
-    //	sprintf(dbg_buffer, "%02x", gtk[i]);
-    //	DBG_WIFI(dbg_buffer);
-    //}
-    //DBG_WIFI(EOL);
-    #endif
+    case IEEE80211_CIPHER_TKIP: // Decrypt RC4
+      {
+        memcpy(&key[0], fr_in->key_frame.key_iv, EAPOL_KEYIV_LENGTH);
+        memcpy(&key[EAPOL_KEYIV_LENGTH], ptk.s.kek, 16);
+        rc4_init(&rc4, key, 32);
+        for(i=0;i<256;i++)
+          rc4_byte(&rc4); /* discard first 256 bytes */
+        rc4_cipher(&rc4, gtk.b, fr_in->key_frame.key_data,
+                                                   EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
+        #ifdef DEBUG_WIFI
+        DBG_WIFI("GTK is ");
+        dump(gtk.b,EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
+        //for(i=0;i<EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH;i++) {
+        //	sprintf(dbg_buffer, "%02x", gtk[i]);
+        //	DBG_WIFI(dbg_buffer);
+        //}
+        //DBG_WIFI(EOL);
+        #endif
 
-    // FIXME
-    if(fr_in->key_frame.key_info.key_index != 0)
-        rt2501_set_key(fr_in->key_frame.key_info.key_index,
-                       &gtk[0], &gtk[16+8], &gtk[16], RT2501_CIPHER_TKIP);
-  }
+        // FIXME
+        if(fr_in->key_frame.key_info.key_index != 0)
+            rt2501_set_key(fr_in->key_frame.key_info.key_index,
+                           gtk.s.ek, gtk.s.mick.tx, gtk.s.mick.rx, RT2501_CIPHER_TKIP);
+      }
+      break;
+    case IEEE80211_CIPHER_CCMP: // Decrypt CCMP/AES
+      {
+        memcpy(&key[0], ptk.s.kek, 16);
+        aes128_init(&aes, key, 16); // 16 or 128 ?
+        aes128_decrypt(&aes, gtk.b, fr_in->key_frame.key_data,
+                                                   EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
+        #ifdef DEBUG_WIFI
+        DBG_WIFI("GTK is ");
+        dump(gtk.b,EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
+        //for(i=0;i<EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH;i++) {
+        //	sprintf(dbg_buffer, "%02x", gtk[i]);
+        //	DBG_WIFI(dbg_buffer);
+        //}
+        //DBG_WIFI(EOL);
+        #endif
+
+        // FIXME
+        if(fr_in->key_frame.key_info.key_index != 0)
+            rt2501_set_key(fr_in->key_frame.key_info.key_index,
+                           gtk.s.ek, gtk.s.mick.tx, gtk.s.mick.rx, RT2501_CIPHER_AES);
+      }
+      break;
+    default:
+      break;
+  };
 	eapol_state = EAPOL_S_RUN;
 	ieee80211_state = IEEE80211_S_RUN;
 	ieee80211_timeout = IEEE80211_RUN_TIMEOUT;
