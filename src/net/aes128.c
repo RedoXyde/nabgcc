@@ -6,19 +6,19 @@
  */
 #include "net/aes128.h"
 
-void aes128_init(struct aes128_context *aes, const unsigned char *key, unsigned int length)
+void aes128_init(struct aes128_context *aes, const uint8_t *key, uint16_t length)
 {
 
 }
 
-void aes128_crypt(struct aes128_context *aes, unsigned char *out,
-		const unsigned char *in, unsigned int length)
+void aes128_crypt(struct aes128_context *aes, uint8_t *out,
+		const uint8_t *in, uint16_t length)
 {
 
 }
 
-void aes128_decrypt(struct aes128_context *aes, unsigned char *out,
-		const unsigned char *in, unsigned int length)
+void aes128_decrypt(struct aes128_context *aes, uint8_t *out,
+		const uint8_t *in, uint16_t length)
 {
 
 }

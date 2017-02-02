@@ -7,6 +7,8 @@
 #ifndef _AES128_H
 #define _AES128_H_
 
+#include <stdint.h>
+
 struct aes128_context {
 	uint8_t state[256];
 };
