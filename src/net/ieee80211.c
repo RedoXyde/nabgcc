@@ -658,7 +658,8 @@ static void ieee80211_associate(void)
 	*(write_ptr++) = 0x18;
 	*(write_ptr++) = 0x60;
 
-    int8_t off_size=0;  // FIXME
+  int8_t off_size=0;  // FIXME
+  (void)off_size;
 	switch(ieee80211_encryption&0xF0)
   {
     case IEEE80211_CRYPT_WPA:
@@ -2014,12 +2015,24 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
 			encryption_overhead = 8; /* IV[4] + ICV [4] */
 			break;
 		case IEEE80211_CRYPT_WPA:
-			encryption_overhead = 20; /* (TKIP) IV[4] + EIV[4] + ICV[4] + MIC[8] */
-			break;
     case IEEE80211_CRYPT_WPA2:
-			encryption_overhead = 16; /* FIXME (TKIP) IV[4] + EIV[4] + ICV[4] + MIC[8] */
-			break;
-	}
+      {
+        switch(encryption&0x0F)
+        {
+          case IEEE80211_CIPHER_TKIP:
+            encryption_overhead = 20; /* (TKIP) IV[8] + MIC[8] + ICV[4] */
+            break;
+          case IEEE80211_CIPHER_CCMP:
+            encryption_overhead = 16; /* (AES) IV[8] + MIC[8] // FIXME May be 20... ? */
+            break;
+          default:
+            break;
+        };
+        break;
+      }
+    default:
+      break;
+	};
 
 	if((ieee80211_mode == IEEE80211_M_MASTER) && (IEEE80211_IS_MULTICAST(dest_mac)))
 		duration = 0;
@@ -2071,34 +2084,71 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
         break;
       case IEEE80211_CRYPT_WPA:
       case IEEE80211_CRYPT_WPA2:
-      {
-        struct ieee80211_tkip_iv iv;
-        uint32_t i;
+        switch(encryption & 0x0F)
+        {
+          case IEEE80211_CIPHER_TKIP:
+            {
+              struct ieee80211_tkip_iv iv;
+              uint32_t i;
 
-        iv.iv16.field.rc0 = ptk_tsc[1];
-        iv.iv16.field.rc1 = (iv.iv16.field.rc0 | 0x20) & 0x7f;
-        iv.iv16.field.rc2 = ptk_tsc[0];
-        iv.iv16.field.control.field.reserved = 0;
-        iv.iv16.field.control.field.ext_iv = 1;
-        iv.iv16.field.control.field.key_id = 0;
-    //		iv.iv32 = *((uint32_t *)&ptk_tsc[2]);
-                    iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
+              iv.iv16.field.rc0 = ptk_tsc[1];
+              iv.iv16.field.rc1 = (iv.iv16.field.rc0 | 0x20) & 0x7f;
+              iv.iv16.field.rc2 = ptk_tsc[0];
+              iv.iv16.field.control.field.reserved = 0;
+              iv.iv16.field.control.field.ext_iv = 1;
+              iv.iv16.field.control.field.key_id = 0;
+          //		iv.iv32 = *((uint32_t *)&ptk_tsc[2]);
+                          iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
 
 
-        fr->txd.Iv = iv.iv16.word;
-        fr->txd.Eiv = iv.iv32;
-        fr->txd.IvOffset = sizeof(struct ieee80211_frame);
+              fr->txd.Iv = iv.iv16.word;
+              fr->txd.Eiv = iv.iv32;
+              fr->txd.IvOffset = sizeof(struct ieee80211_frame);
 
-        i = 0;
-        while(++ptk_tsc[i] == 0) {													\
-          i++;
-          if(i == EAPOL_TSC_LENGTH) {
-            DBG_WIFI("TSC cycle !!!"EOL);
+              i = 0;
+              while(++ptk_tsc[i] == 0) {													\
+                i++;
+                if(i == EAPOL_TSC_LENGTH) {
+                  DBG_WIFI("TSC cycle !!!"EOL);
+                  break;
+                }
+              }
+            }
             break;
-          }
-        }
-      }
-      break;
+          case IEEE80211_CIPHER_CCMP:
+            {
+              struct ieee80211_ccmp_iv iv;
+              uint32_t i;
+
+                // PN0,1
+              iv.iv16.field.pn0 = ptk_tsc[0];
+              iv.iv16.field.pn1 = ptk_tsc[1];
+                // Ctrl
+              iv.iv16.field.reserved = 0x00;
+              iv.iv16.field.control.field.reserved = 0;
+              iv.iv16.field.control.field.ext_iv = 1;
+              iv.iv16.field.control.field.key_id = 0;
+                // PN2,3,4,5
+              iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
+
+
+              fr->txd.Iv = iv.iv16.word;
+              fr->txd.Eiv = iv.iv32;
+              fr->txd.IvOffset = sizeof(struct ieee80211_frame);
+
+              i = 0;
+              while(++ptk_tsc[i] == 0) {													\
+                i++;
+                if(i == EAPOL_TSC_LENGTH) {
+                  DBG_WIFI("TSC cycle !!!"EOL);
+                  break;
+                }
+              }
+            }
+            break;
+          default:
+            break;
+        };
       default:
         break;
   };

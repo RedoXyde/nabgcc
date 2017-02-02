@@ -279,6 +279,27 @@ struct ieee80211_tkip_iv {
 	uint32_t iv32;
 };
 
+struct ieee80211_ccmp_iv {
+	union {
+		struct {
+			uint8_t pn0;
+			uint8_t pn1;
+      uint8_t reserved;
+			union {
+				struct {
+					uint8_t reserved:5;
+					uint8_t ext_iv:1;
+					uint8_t key_id:2;
+				} field;
+				uint8_t byte;
+			} control;
+		} field;
+		uint32_t word;
+	} iv16;
+	uint32_t iv32;
+};
+
+
 //#pragma pack()
 
 extern int32_t ieee80211_mode;
