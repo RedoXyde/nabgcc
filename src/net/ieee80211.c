@@ -83,7 +83,6 @@ static uint16_t ieee80211_rate_to_mask(uint8_t rate)
 			return IEEE80211_RATEMASK_5_5;
 		case 22:
 			return IEEE80211_RATEMASK_11;
-
 		case 12:
 			return IEEE80211_RATEMASK_6;
 		case 18:
@@ -697,14 +696,14 @@ static void ieee80211_associate(void)
       /* Group cipher: AES */
       for(i=0;i<IEEE80211_OUI_LEN-1;i++)
         *(write_ptr++) = ieee80211_wpa2_oui[i];
-      *(write_ptr++) = IEEE80211_CIPHER_TKIP;
+      *(write_ptr++) = IEEE80211_CIPHER_CCMP;
       /* 1 pairwise */
       *(write_ptr++) = 0x01;
       *(write_ptr++) = 0x00;
       /* Unicast cipher: TKIP or AES */
       for(i=0;i<IEEE80211_OUI_LEN-1;i++)
         *(write_ptr++) = ieee80211_wpa2_oui[i];
-      *(write_ptr++) = IEEE80211_CIPHER_TKIP;
+      *(write_ptr++) = IEEE80211_CIPHER_CCMP;
       //for(i=0;i<IEEE80211_OUI_LEN;i++)
       //  *(write_ptr++) = ieee80211_wpa2_oui[i];
       //*(write_ptr-1) = IEEE80211_CIPHER_TKIP;

@@ -687,15 +687,19 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 	/* Check MIC */
 	memcpy(old_mic, fr_in->key_frame.key_mic, EAPOL_KEYMIC_LENGTH);
 	memset(fr_in->key_frame.key_mic, 0, EAPOL_KEYMIC_LENGTH);
-  if((ieee80211_encryption&0xF0) == IEEE80211_CIPHER_CCMP)
+  if((ieee80211_encryption&0x0F) == IEEE80211_CIPHER_CCMP)
   {
     uint8_t kt[20]={0};
+    //DBG_WIFI("Before MIC"EOL);
+    //dump((uint8_t *)&frame+LLC_LENGTH,((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4);
      hmac_sha1(ptk.s.kck, EAPOL_MICK_LENGTH, frame+LLC_LENGTH,
      ((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4,
      kt);
     //DBG_WIFI("MIC:");
     //dump(kt,EAPOL_MICK_LENGTH);
     memcpy(fr_in->key_frame.key_mic,kt,EAPOL_KEYMIC_LENGTH);
+    //DBG_WIFI("After MIC"EOL);
+    //dump((uint8_t *)&frame+LLC_LENGTH,((fr_in->body_length[0] << 8)|fr_in->body_length[1])+4);
   }
   else
     hmac_md5(ptk.s.kck, EAPOL_MICK_LENGTH, frame+LLC_LENGTH,
@@ -711,7 +715,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
     DBG_WIFI("MIC NOK. Drop !"EOL);
     return;
   }
-	DBG_WIFI("MIC OK"EOL);
+	//DBG_WIFI("MIC OK"EOL);
 
 	/* Make response frame */
 	memcpy(fr_out.llc, eapol_llc, LLC_LENGTH);
@@ -796,11 +800,6 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
         #ifdef DEBUG_WIFI
         DBG_WIFI("GTK is ");
         dump(gtk.b,EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
-        //for(i=0;i<EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH;i++) {
-        //	sprintf(dbg_buffer, "%02x", gtk[i]);
-        //	DBG_WIFI(dbg_buffer);
-        //}
-        //DBG_WIFI(EOL);
         #endif
 
         // FIXME
@@ -811,6 +810,7 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
       break;
     case IEEE80211_CIPHER_CCMP: // Decrypt CCMP/AES
       {
+        // FIXME Actually do something...
         memcpy(&key[0], ptk.s.kek, 16);
         aes128_init(&aes, key, 16); // 16 or 128 ?
         aes128_decrypt(&aes, gtk.b, fr_in->key_frame.key_data,
@@ -818,11 +818,6 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
         #ifdef DEBUG_WIFI
         DBG_WIFI("GTK is ");
         dump(gtk.b,EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
-        //for(i=0;i<EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH;i++) {
-        //	sprintf(dbg_buffer, "%02x", gtk[i]);
-        //	DBG_WIFI(dbg_buffer);
-        //}
-        //DBG_WIFI(EOL);
         #endif
 
         // FIXME
