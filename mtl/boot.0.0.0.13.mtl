@@ -11,11 +11,11 @@ var RECLIB;;
 
 ifdef SIMU
 {
-var HARDWARE=5;;
+const HARDWARE=5;;
 }
 else
 {
-var HARDWARE=4;;
+const HARDWARE=4;;
 }
 
 
@@ -29,30 +29,29 @@ var netdns="\0\0\0\0";;
 
 var mymac;;
 
-var macbroadcast="\$ff\$ff\$ff\$ff\$ff\$ff";;
-var ipbroadcast="\$ff\$ff\$ff\$ff";;
+const macbroadcast="\$ff\$ff\$ff\$ff\$ff\$ff";;
+const ipbroadcast="\$ff\$ff\$ff\$ff";;
 
 var master=0;;
 
-var netip_empty="\0\0\0\0";;
+const netip_empty="\0\0\0\0";;
 
-var netip_master="\192\168\0\1";;
-var netmask_master="\255\255\255\0";;
-var netgateway_master="\192\168\0\1";;
+const netip_master="\192\168\0\1";;
+const netmask_master="\255\255\255\0";;
+const netgateway_master="\192\168\0\1";;
 
 var wifiscans;;
 
-var IEEE80211_CRYPT_NONE=0;;
-var IEEE80211_CRYPT_WEP64=1;;
-var IEEE80211_CRYPT_WEP128=2;;
-var IEEE80211_CRYPT_WPA=3;;
-var IEEE80211_CRYPT_WPA2=4;;
-var IEEE80211_CRYPT_WPA_UNSUPPORTED=5;;
+const IEEE80211_CRYPT_NONE=0;;
+const IEEE80211_CRYPT_WEP=10;;
+const IEEE80211_CRYPT_WPA=20;;
+const IEEE80211_CRYPT_WPA2=40;;
+const IEEE80211_CRYPT_WPA_UNSUPPORTED=80;;
 
-var IEEE80211_AUTH_OPEN=0;;
-var IEEE80211_AUTH_SHARED=1;;
+const IEEE80211_AUTH_OPEN=0;;
+const IEEE80211_AUTH_SHARED=1;;
 
-var FIRMWARE="\0\0\0\13";;
+const FIRMWARE="\0\0\0\13";;
 
 
 // --------------- UTIL debut
@@ -200,28 +199,28 @@ fun dumpscan l0=
 	l0;;
 
 // ------------- Config debut
-var CONF_SERVERURL=0;;		//41
-var CONF_NETDHCP=41;;		//1
-var CONF_NETIP=42;;			//4
-var CONF_NETMASK=46;;		//4
-var CONF_NETGATEWAY=50;;	//4
-var CONF_NETDNS=54;;		//4
-var CONF_WIFISSID=58;;		//32
-var CONF_WIFIAUTH=90;;		//1
-var CONF_WIFICRYPT=91;;		//1
-var CONF_WIFIKEY0=92;;		//64
-var CONF_PROXYENABLE=156;;	//1
-var CONF_PROXYIP=157;;		//4
-var CONF_PROXYPORT=161;;	//2
-var CONF_LOGIN=163;;		//6
-var CONF_PWD=169;;			//6
-var CONF_WIFIPMK=175;;		//32
-var CONF_MAGIC=207;;		//1
-var CONF_LENGTH=208;;
+const CONF_SERVERURL=0;;		//41
+const CONF_NETDHCP=41;;		//1
+const CONF_NETIP=42;;			//4
+const CONF_NETMASK=46;;		//4
+const CONF_NETGATEWAY=50;;	//4
+const CONF_NETDNS=54;;		//4
+const CONF_WIFISSID=58;;		//32
+const CONF_WIFIAUTH=90;;		//1
+const CONF_WIFICRYPT=91;;		//1
+const CONF_WIFIKEY0=92;;		//64
+const CONF_PROXYENABLE=156;;	//1
+const CONF_PROXYIP=157;;		//4
+const CONF_PROXYPORT=161;;	//2
+const CONF_LOGIN=163;;		//6
+const CONF_PWD=169;;			//6
+const CONF_WIFIPMK=175;;		//32
+const CONF_MAGIC=207;;		//1
+const CONF_LENGTH=208;;
 
 var conf;;
 
-var conf0=
+const conf0=
 "r.nabaztag.com/vl\0-----------------------\
 \1\0\0\0\0\255\255\255\0\0\0\0\0\0\0\0\0\
 \0-------------------------------\
@@ -317,8 +316,8 @@ fun strputchk s i w=
 // ------------- IP fin
 
 // ------------- ARP debut
-var ARPREQ=1;;
-var ARPANS=2;;
+const ARPREQ=1;;
+const ARPANS=2;;
 
 var larp;;
 var larpreq;;
@@ -465,28 +464,28 @@ fun cbnetudp src mac=
 // -------------- UDP fin
 
 // ------------- TCP debut
-var TFIN=0x01;;
-var TSYN=0x02;;
-var TRST=0x04;;
-var TPUSH=0x08;;
-var TACK=0x10;;
-var TURGE=0x20;;
+const TFIN=0x01;;
+const TSYN=0x02;;
+const TRST=0x04;;
+const TPUSH=0x08;;
+const TACK=0x10;;
+const TURGE=0x20;;
 
-var STOFF=-1;;
-var STSYN=0;;
-var STEST=1;;
-var STLISTEN=2;;
-var STFIN=3;;
+const STOFF=-1;;
+const STSYN=0;;
+const STEST=1;;
+const STLISTEN=2;;
+const STFIN=3;;
 
-var CLIENT_SEQ_START="\0\0\1\0";;
-var CLIENT_SEQ_NULL="\0\0\0\0";;
+const CLIENT_SEQ_START="\0\0\1\0";;
+const CLIENT_SEQ_NULL="\0\0\0\0";;
 
-var TCPWRITE=0;;
-var TCPREAD=1;;
-var TCPCLOSE=-1;;
-var TCPSTART=2;;
+const TCPWRITE=0;;
+const TCPREAD=1;;
+const TCPCLOSE=-1;;
+const TCPSTART=2;;
 
-var TCPMAX=1024;;
+const TCPMAX=1024;;
 
 type Tcp=[stateT locT dstT locpT dstpT seqT ackT cbT macT lastsentT retryT locksendT enableT];;
 
@@ -745,11 +744,11 @@ fun resettcp=
 
 // --------------- DHCP debut
 
-var DHCP_DISCOVER=1;;
-var DHCP_OFFER=2;;
-var DHCP_REQUEST=3;;
-var DHCP_DECLINE=4;;
-var DHCP_ACK=5;;
+const DHCP_DISCOVER=1;;
+const DHCP_OFFER=2;;
+const DHCP_REQUEST=3;;
+const DHCP_DECLINE=4;;
+const DHCP_ACK=5;;
 
 fun mkdhcp op netip hostip newip =
 	let 236+16+14->n in
@@ -1106,9 +1105,9 @@ ifdef BOOT
 
 type Sock=[sockCnx sockInput sockSize sockOutput sockIndex sockCloseAfter sockCallback];;
 
-var http_header="HTTP/1.0 200 OK\13\10Server: MTL HTTP server\13\10Content-Type: text/html\13\10\13\10";;
+const http_header="HTTP/1.0 200 OK\13\10Server: MTL HTTP server\13\10Content-Type: text/html\13\10\13\10";;
 
-var http_sep="\13\n\13\n";;	// séparateur entre l'en-tête et le corps de la réponse à une requête
+const http_sep="\13\n\13\n";;	// séparateur entre l'en-tête et le corps de la réponse à une requête
 var http_content_start="ontent-Length: ";;
 var http_content_start2="ontent-length: ";;
 var http_content_end="\13\n";;
@@ -1333,8 +1332,8 @@ a:hover {
         </p>
       </blockquote>
       <ul>
-<li>Your encryption type (WEP/WPA)</li>
-<li>Your wi-fi encryption key (WEP/WPA)</li>
+<li>Your encryption type (WEP/WPA/WA2)</li>
+<li>Your wi-fi encryption key (WEP/WPA/WPA2)</li>
 <li>Your authentication method (WEP)</li>
 </ul>
 
@@ -1377,13 +1376,13 @@ a:hover {
     <td colspan=\"2\" class=\"subhead\">Encryption</td>
   </tr>
   <tr>
-    <td><input type=\"radio\" name=\"m\" "::"<ENC-NONE>"::" value=\"0\" />
+    <td><input type=\"radio\" name=\"m\" "::"<ENC-NONE>"::" value=\"<ENC-NONE-VAL>\" />
       No encryption<br />
-      <input type=\"radio\" name=\"m\" "::"<ENC-WEP>"::" value=\"1\" />
+      <input type=\"radio\" name=\"m\" "::"<ENC-WEP>"::" value=\"<ENC-WEP-VAL>\" />
       WEP encryption<br />
-      <input type=\"radio\" name=\"m\" "::"<ENC-WPA>"::" value=\"2\" />
+      <input type=\"radio\" name=\"m\" "::"<ENC-WPA>"::" value=\"<ENC-WPA-VAL>\" />
       WPA encryption<br />
-      <input type=\"radio\" name=\"m\" "::"<ENC-WPA2>"::" value=\"3\" />
+      <input type=\"radio\" name=\"m\" "::"<ENC-WPA2>"::" value=\"<ENC-WPA2-VAL>\" />
       WPA2 encryption</td>
     <td class=\"hint\">Select your network's encryption type.</td>
   </tr>
@@ -1697,8 +1696,7 @@ fun filterweb val=
 
 fun webcrypt i=
 	if i==IEEE80211_CRYPT_NONE then "No encryption"
-	else if i==IEEE80211_CRYPT_WEP64 then "Wep64 encryption"
-	else if i==IEEE80211_CRYPT_WEP128 then "Wep128 encryption"
+	else if i==IEEE80211_CRYPT_WEP then "WEP encryption"
 	else if i==IEEE80211_CRYPT_WPA then "WPA-PSK encryption"
   else if i==IEEE80211_CRYPT_WPA2 then "WPA2-PSK encryption"
 	else "Unkown encryption";;
@@ -1770,19 +1768,21 @@ fun httpindex=
 			["<PROXY>" webSelect proxy]::
 			["<SSID>" if (!isinscan ssid wifiscans) then filterweb ssid]::
 			["<SCAN>" strcatlist selectscan ssid wifiscans]::
-			["<ENC-NONE>" if crypt==0 then "checked"]::
-			["<ENC-WEP>" if crypt==1 then "checked"]::
-			["<ENC-WPA>" if crypt==2 then "checked"]::
-      ["<ENC-WPA2>" if crypt==3 then "checked"]::
-			["<AUTH>" webSelectList auth [0 "OpenSystem"]::[1 "SharedKey"]::nil]::
+			["<ENC-NONE>" if crypt==IEEE80211_CRYPT_NONE then "checked"]::
+			["<ENC-WEP>" if crypt==IEEE80211_CRYPT_WEP then "checked"]::
+			["<ENC-WPA>" if crypt==IEEE80211_CRYPT_WPA then "checked"]::
+      ["<ENC-WPA2>" if crypt==IEEE80211_CRYPT_WPA2 then "checked"]::
+      ["<ENC-NONE-VAL>" itoa IEEE80211_CRYPT_NONE]::
+			["<ENC-WEP-VAL>" itoa IEEE80211_CRYPT_WEP]::
+			["<ENC-WPA-VAL>" itoa IEEE80211_CRYPT_WPA]::
+      ["<ENC-WPA2-VAL>" itoa IEEE80211_CRYPT_WPA2]::
+			["<AUTH>" webSelectList auth [IEEE80211_AUTH_OPEN "OpenSystem"]::[IEEE80211_AUTH_SHARED "SharedKey"]::nil]::
 			["<KEY>" filterweb key]::
 			["<FIRMWARE>" webip FIRMWARE]::
 
 			nil
 		page_a
 	;;
-
-
 
 fun useparamcheck val=
 	let strget val 0 -> i in
@@ -1871,7 +1871,7 @@ fun updateconf args=
 	);;
 			
 
-var firmwarelimit="-violet-";;
+const firmwarelimit="-violet-";;
 
 fun getbinary bin src i off len=
 /*	while i<len do
@@ -1947,13 +1947,13 @@ fun startconfigserver port=	0;;
 }
 
 //-------------------
-var HTTP_NORMAL=0;;
-var HTTP_STREAM=1;;
-var HTTP_DIRECT=2;;
+const HTTP_NORMAL=0;;
+const HTTP_STREAM=1;;
+const HTTP_DIRECT=2;;
 
-var HTTP_SOLVE=0;;
-var HTTP_REACH=1;;
-var HTTP_CONNECTED=2;;
+const HTTP_SOLVE=0;;
+const HTTP_REACH=1;;
+const HTTP_CONNECTED=2;;
 
 var lasthttpevent;;
 
@@ -2087,7 +2087,7 @@ fun httpstate httpreq = httpreq.stateH;;
 fun httpstart httpreq = httpreq.startH;;
 
 
-var http_sep="\13\n\13\n";;	// séparateur entre l'en-tête et le corps de la réponse à une requête
+const http_sep="\13\n\13\n";;	// séparateur entre l'en-tête et le corps de la réponse à une requête
 
 	
 
@@ -2106,15 +2106,15 @@ fun httpgetcontent res =
 //-------------------
 ifdef AUDIOLIB {
 
-var WAV_IDLE=0;;
-var WAV_RUN=1;;
-var WAV_EOF=2;;
+const WAV_IDLE=0;;
+const WAV_RUN=1;;
+const WAV_EOF=2;;
 
-var WAV_BUFFER_STARTSIZE=80000;;
-var WAV_BUFFER_MAXSIZE=400000;;
+const WAV_BUFFER_STARTSIZE=80000;;
+const WAV_BUFFER_MAXSIZE=400000;;
 
-var WAV_END_TIMEOUT=500;;
-var WAV_NET_TIMEOUT=10000;;
+const WAV_END_TIMEOUT=500;;
+const WAV_NET_TIMEOUT=10000;;
 
 
 var wav_state=0;;
@@ -2276,15 +2276,15 @@ fun wavtime =
 
 
 
-var RT2501_S_BROKEN=0;;
-var RT2501_S_IDLE=1;;
-var RT2501_S_SCAN=2;;
-var RT2501_S_CONNECTING=3;;
-var RT2501_S_CONNECTED=4;;
-var RT2501_S_MASTER=5;;
+const RT2501_S_BROKEN=0;;
+const RT2501_S_IDLE=1;;
+const RT2501_S_SCAN=2;;
+const RT2501_S_CONNECTING=3;;
+const RT2501_S_CONNECTED=4;;
+const RT2501_S_MASTER=5;;
 
-var IEEE80211_M_MANAGED=0;;
-var IEEE80211_M_MASTER=1;;
+const IEEE80211_M_MANAGED=0;;
+const IEEE80211_M_MASTER=1;;
 
 var wifitry;;
 
@@ -2415,13 +2415,6 @@ fun wifiwepkey val=
 	let if len<10 then 0 else if len<26 then 5 else 13 -> len in
 	listtostr _wifiwepkey val 0 len<<1;;
 
-fun wificrypttype crypt key=
-	if crypt==1 then if 5==strlen key then IEEE80211_CRYPT_WEP64 else IEEE80211_CRYPT_WEP128
-	else if crypt==2 then IEEE80211_CRYPT_WPA
-  else if crypt==3 then IEEE80211_CRYPT_WPA2
-
-	else IEEE80211_CRYPT_NONE;;
-
 fun wifiAuth=
 	setleds 0xff8000;
 	if wifiscans==nil then 0
@@ -2433,7 +2426,7 @@ fun wifiAuth=
 		(
 			dump key;
 			set wifitry=time;
-			netAuth hd wifiscans Iecholn auth (Iecholn wificrypttype crypt key) key;	//## ajouter les paramètres de crypto
+			netAuth hd wifiscans Iecholn auth crypt key;
 			1
 		);;
 
@@ -2542,13 +2535,13 @@ fun wifiConnected= match wifi with (stationW -> 1)|(_ -> 0);;
 
 ifdef BOOT 
 {
-var BOOT_HTTPTIMEOUT=10;;
-var BOOT_WIFITIMEOUT=20;;
+const BOOT_HTTPTIMEOUT=10;;
+const BOOT_WIFITIMEOUT=20;;
 var httpboot;;
 
-var GREEN=0xff00;;
-var AMBER=0xff8000;;
-var BLACK=0;;
+const GREEN=0xff00;;
+const AMBER=0xff8000;;
+const BLACK=0;;
 
 fun boot_leds=
 	let
@@ -2781,7 +2774,7 @@ fun _wavtestcb i=
 	if fifoind>=strlen hd fifotest then set fifotest=tl fifotest;
 	0;;
 
-var TESTDELAY=7000;;
+const TESTDELAY=7000;;
 
 fun loop=
 	if !master then
