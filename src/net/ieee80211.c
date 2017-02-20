@@ -1793,6 +1793,9 @@ void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userp
     {
 			DBG_WIFI("Unable to send probe request !"EOL);
     }
+
+    hcd_free(probe);
+
 		DelayMs(350);
 	}
 	DBG_WIFI(EOL);
