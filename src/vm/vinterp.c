@@ -919,11 +919,16 @@ void interpGo()
 						int32_t bssid=VALTOPNT(VFETCH(scan,2));
 						int32_t chn=VALTOINT(VFETCH(scan,4));
 						int32_t rate=VALTOINT(VFETCH(scan,5));
-						if ((mac!=NIL)&&(bssid!=NIL))
+						int32_t crypt=VALTOINT(VFETCH(scan,6));
+						/* FIXME: 20170822: Really necessary ?
+						 * Check upper part of encrypt (config) and crypt (scan)
+						 * before using crypt (which has the supported cipher infos
+						*/
+						if ((mac!=NIL)&&(bssid!=NIL)&&(crypt&0xF0)==encrypt)
 						{
 							netAuth((ssid==NIL)?NULL:VSTARTBIN(ssid),VSTARTBIN(mac),
 								VSTARTBIN(bssid),chn,rate,authmode,
-								encrypt,(key==NIL)?NULL:VSTARTBIN(key));
+								crypt,(key==NIL)?NULL:VSTARTBIN(key));
 						}
 					}
 				}
