@@ -152,7 +152,7 @@ void prf(const uint8_t *key, uint16_t key_len,
 	uint16_t total_len;
 
 	disable_ohci_irq();
-	input = hcd_malloc(1024, EXTRAM,1);
+	input = hcd_malloc(1024, EXTRAM,1); // Free in eapol.c:173, prf()
 	enable_ohci_irq();
 	if(input == NULL) {
 		DBG_WIFI("hcd_malloc failed in prf"EOL);
@@ -910,6 +910,10 @@ void eapol_input(uint8_t *frame, uint32_t length)
 	DBG_WIFI(dbg_buffer);
 	sprintf(dbg_buffer, "KeyInfo EKD_DL %d"EOL, fr->key_frame.key_info.ekd);
 	DBG_WIFI(dbg_buffer);
+	uint16_t s = (fr->key_frame.key_data_length[0]<<8) | fr->key_frame.key_data_length[1];
+	sprintf(dbg_buffer, "KeyData (%d)"EOL, s);
+	DBG_WIFI(dbg_buffer);
+	dump(fr->key_frame.key_data,s);
 #endif
 
 	if((fr->key_frame.key_info.key_type == 1) &&
