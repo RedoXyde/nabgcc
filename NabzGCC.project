@@ -1,5 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="NabzGCC" InternalType="" Version="10.0.0">
+  <VirtualDirectory Name="mtl">
+    <VirtualDirectory Name="mtl_linux">
+      <VirtualDirectory Name="inc">
+        <VirtualDirectory Name="simu">
+          <VirtualDirectory Name="win">
+            <File Name="mtl/mtl_linux/inc/simu/win/simunet.h"/>
+            <File Name="mtl/mtl_linux/inc/simu/win/simuaudio.h"/>
+          </VirtualDirectory>
+          <VirtualDirectory Name="linux">
+            <File Name="mtl/mtl_linux/inc/simu/linux/simunet.h"/>
+            <File Name="mtl/mtl_linux/inc/simu/linux/simuaudio.h"/>
+          </VirtualDirectory>
+        </VirtualDirectory>
+        <VirtualDirectory Name="vcomp">
+          <File Name="mtl/mtl_linux/inc/vcomp/param.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/parser.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/util.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/prodbuffer.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/memory.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/resource.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/terminal.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/interpreter.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/compiler.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/file.h"/>
+          <File Name="mtl/mtl_linux/inc/vcomp/filesystem.h"/>
+        </VirtualDirectory>
+        <VirtualDirectory Name="vm">
+          <File Name="mtl/mtl_linux/inc/vm/vinterp.h"/>
+          <File Name="mtl/mtl_linux/inc/vm/vlog.h"/>
+          <File Name="mtl/mtl_linux/inc/vm/vnet.h"/>
+          <File Name="mtl/mtl_linux/inc/vm/vbc.h"/>
+          <File Name="mtl/mtl_linux/inc/vm/vbc_str.h"/>
+          <File Name="mtl/mtl_linux/inc/vm/vloader.h"/>
+          <File Name="mtl/mtl_linux/inc/vm/vmem.h"/>
+          <File Name="mtl/mtl_linux/inc/vm/vaudio.h"/>
+        </VirtualDirectory>
+        <File Name="mtl/mtl_linux/inc/log.h"/>
+        <File Name="mtl/mtl_linux/inc/properties.h"/>
+      </VirtualDirectory>
+      <VirtualDirectory Name="src">
+        <VirtualDirectory Name="simu">
+          <VirtualDirectory Name="win">
+            <VirtualDirectory Name="mp3">
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/dct64_i386.c"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/huffman.h"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/GTKANAL.H"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/TABINIT.C"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/LAYER3.C"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/decode_i386.c"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/common.c"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/mpglib.h"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/mpg123.h"/>
+              <File Name="mtl/mtl_linux/src/simu/win/mp3/interface.c"/>
+            </VirtualDirectory>
+            <File Name="mtl/mtl_linux/src/simu/win/simuaudio.c"/>
+            <File Name="mtl/mtl_linux/src/simu/win/simunet.c"/>
+            <File Name="mtl/mtl_linux/src/simu/win/simu.c"/>
+          </VirtualDirectory>
+          <VirtualDirectory Name="linux">
+            <File Name="mtl/mtl_linux/src/simu/linux/simuaudio.c"/>
+            <File Name="mtl/mtl_linux/src/simu/linux/simunet.c"/>
+            <File Name="mtl/mtl_linux/src/simu/linux/simu.c"/>
+            <File Name="mtl/mtl_linux/src/simu/linux/main.cpp"/>
+          </VirtualDirectory>
+          <File Name="mtl/mtl_linux/src/simu/log.c"/>
+          <File Name="mtl/mtl_linux/src/simu/properties.c"/>
+          <File Name="mtl/mtl_linux/src/simu/dumpbc.c"/>
+        </VirtualDirectory>
+        <VirtualDirectory Name="vcomp">
+          <File Name="mtl/mtl_linux/src/vcomp/compiler_prog.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/compiler.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/compiler_var.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/file.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/parser_xml.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/stdlib_core.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/memory.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/util.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/terminal.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/prodbuffer.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/bootstrap.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/compiler_file.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/interpreter.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/compiler_term.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/parser.cpp"/>
+          <File Name="mtl/mtl_linux/src/vcomp/compiler_type.cpp"/>
+        </VirtualDirectory>
+        <VirtualDirectory Name="comp">
+          <File Name="mtl/mtl_linux/src/comp/main.cpp"/>
+        </VirtualDirectory>
+        <VirtualDirectory Name="vm">
+          <File Name="mtl/mtl_linux/src/vm/vnet.c"/>
+          <File Name="mtl/mtl_linux/src/vm/vmem.c"/>
+          <File Name="mtl/mtl_linux/src/vm/vlog.c"/>
+          <File Name="mtl/mtl_linux/src/vm/vloader.c"/>
+          <File Name="mtl/mtl_linux/src/vm/vaudio.c"/>
+          <File Name="mtl/mtl_linux/src/vm/vinterp.c"/>
+        </VirtualDirectory>
+      </VirtualDirectory>
+      <File Name="mtl/mtl_linux/mtl_compiler"/>
+      <File Name="mtl/mtl_linux/Makefile"/>
+      <File Name="mtl/mtl_linux/mtl_simu"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="boot">
+      <File Name="mtl/boot/boot.0.0.0.8.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.10.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.6.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.13.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.5.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.12.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.2.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.7.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.9.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.3.mtl"/>
+      <File Name="mtl/boot/boot.0.0.0.11.mtl"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
   <Plugins>
     <Plugin Name="qmake">
       <![CDATA[00010001N0005Debug000000000000]]>
@@ -131,19 +247,6 @@
       <File Name="inc/usb/rt2501usb_buffer.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
-  <VirtualDirectory Name="mtl">
-    <File Name="mtl/boot.0.0.0.10.mtl"/>
-    <File Name="mtl/boot.0.0.0.2.mtl"/>
-    <File Name="mtl/boot.0.0.0.5.mtl"/>
-    <File Name="mtl/boot.0.0.0.7.mtl"/>
-    <File Name="mtl/boot.0.0.0.8.mtl"/>
-    <File Name="mtl/boot.0.0.0.11.mtl"/>
-    <File Name="mtl/boot.0.0.0.12.mtl"/>
-    <File Name="mtl/boot.0.0.0.6.mtl"/>
-    <File Name="mtl/boot.0.0.0.3.mtl"/>
-    <File Name="mtl/boot.0.0.0.9.mtl"/>
-    <File Name="mtl/boot.0.0.0.13.mtl"/>
-  </VirtualDirectory>
   <VirtualDirectory Name="src">
     <File Name="src/bc.c"/>
     <File Name="src/main.c"/>
@@ -186,9 +289,12 @@
       <File Name="src/utils/mem.c"/>
       <File Name="src/utils/sys.c"/>
     </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="NabGCC">
+    <File Name="gdb_load"/>
+    <File Name="Doxyfile"/>
     <File Name="Makefile"/>
   </VirtualDirectory>
-  <VirtualDirectory Name="NabGCC"/>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>
   <Settings Type="Executable">
