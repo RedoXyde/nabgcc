@@ -77,5 +77,8 @@ function mkfirmware($src,$out)
   echo "\n\r\t".'Saving file'."\t".$out."\n";
   file_put_contents($out,
                 $firmwarelimit.itoh8(2*$size).$binhex.$firmwarelimit);}
-mkfirmware("Nab.bin","firmware0.0.0.13.sim");
+if($argc==3)
+	mkfirmware($argv[1],$argv[2]);
+else
+	mkfirmware("Nab.bin","firmware0.0.0.13.sim");
 ?>
