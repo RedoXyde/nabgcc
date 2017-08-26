@@ -669,7 +669,7 @@ static void ieee80211_associate(void)
         *(write_ptr++) = ieee80211_wpa_oui[i];
       *(write_ptr++) = IEEE80211_CIPHER_TKIP;
       /* 1 unicast cipher suite */
-      *(write_ptr++) = 0x02;
+      *(write_ptr++) = 0x01;
       *(write_ptr++) = 0x00;
       /* Unicast cipher suites: TKIP or CCMP */
       for(i=0;i<IEEE80211_OUI_LEN-1;i++)
