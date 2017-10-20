@@ -12,7 +12,7 @@ This a port of the Nabaztag's firmware sources for ARM GCC (and OSS tools).
 ## Howto
 ### Requirements
 
-    sudo apt install g++ gcc-arm-none-eabi gdb-arm-none-eabi php-cli 
+    sudo apt install g++ gcc-arm-none-eabi gdb-arm-none-eabi php-cli g++-multilib 
 
 ### Get the sources
 
