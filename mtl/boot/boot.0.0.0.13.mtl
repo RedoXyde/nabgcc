@@ -1699,7 +1699,7 @@ fun webcrypt i=
 	else if i==IEEE80211_CRYPT_WEP then "WEP"
 	else if i==IEEE80211_CRYPT_WPA then "WPA"
   else if i==IEEE80211_CRYPT_WPA2 then "WPA2"
-	else "Unkown ";;
+	else "Unknown ";;
 
 fun isinscan s l=
 	if l==nil then 0
@@ -1709,7 +1709,7 @@ fun isinscan s l=
 fun selectscan s l=
 	if l!=nil then let hd l->[ssid mac bssid rssi channel rateset encryption] in
 	"<option value=\""::(filterweb ssid)::"\""::(if !strcmp ssid s then " selected")::">"::
-	(filterweb ssid)::" - "::(webcrypt encryption)::" - Channel "::(itoa channel)::" - Power "::(itoa rssi)::"</option>"::selectscan s tl l;;
+	(filterweb ssid)::" - "::(webcrypt encryption & 0xf0)::" - Channel "::(itoa channel)::" - Power "::(itoa rssi)::"</option>"::selectscan s tl l;;
 
 
 
