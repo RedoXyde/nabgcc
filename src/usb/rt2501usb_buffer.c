@@ -112,7 +112,7 @@ struct rt2501buffer *rt2501_receive(void)
     enable_ohci_irq();
 /*
     sprintf(dbg_buffer,"rt2501_receive: %x"EOL, r);
-    DBG(dbg_buffer);
+    DBG_WIFI(dbg_buffer);
 */
     if((r->length < LLC_LENGTH)
        || (memcmp(r->data, eapol_llc, LLC_LENGTH) != 0))

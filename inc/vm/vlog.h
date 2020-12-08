@@ -8,13 +8,7 @@
 #ifndef _LOGGER_
 #define _LOGGER_
 
-#include "hal/uart.h"
-#define consolestr(val) putst_uart((uint8_t*)val)
-#define consolebin(val,len) putbin_uart(val,len)
-#define consoleint(val) putint_uart(val)
-#define consolehx(val) puthx_uart(val)
-
-#define EOL "\n\r"
+#include "common.h"
 
 void logSecho(int32_t p,int32_t nl);
 void logIecho(int32_t i,int32_t nl);

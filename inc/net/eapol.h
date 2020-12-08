@@ -39,6 +39,7 @@ struct eapol_key_info {
 #define EAPOL_KEYRSC_LENGTH       8
 #define EAPOL_KEYID_LENGTH        8
 #define EAPOL_KEYMIC_LENGTH       16
+#define EAPOL_RSN_LENGTH          24
 
 struct eapol_key_frame {
  uint8_t descriptor_type;
@@ -51,7 +52,7 @@ struct eapol_key_frame {
  uint8_t key_id[EAPOL_KEYID_LENGTH];
  uint8_t key_mic[EAPOL_KEYMIC_LENGTH];
  uint8_t key_data_length[2];
- uint8_t key_data[];
+ uint8_t key_data[EAPOL_RSN_LENGTH]; // Max RSN size
 };
 
 #define EAPOL_VERSION             0x01

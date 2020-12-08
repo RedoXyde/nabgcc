@@ -415,17 +415,17 @@ static void rt2501_antenna_setting()
 {
   uint8_t R3 = 0, R4 = 0, R77 = 0;
   uint8_t FrameTypeMaskBit5 = 0;
-
+#ifdef DEBUG_WIFI
   sprintf(dbg_buffer, "RxDefaultAntenna=%x"EOL"RfIcType=%x",rt2501_Antenna.field.RxDefaultAntenna,rt2501_Antenna.field.RfIcType);
-  DBG(dbg_buffer);
-
-        if(rt2501_Antenna.field.RxDefaultAntenna == RT2501_SOFTWARE_DIVERSITY)
+  DBG_WIFI(dbg_buffer);
+#endif
+  if(rt2501_Antenna.field.RxDefaultAntenna == RT2501_SOFTWARE_DIVERSITY)
     rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_A;
 
-        // SH 060918 : on force le mode HARDWARE_DIVERSITY pour améliorer la réception de l'antenne
+  // SH 060918 : on force le mode HARDWARE_DIVERSITY pour améliorer la réception de l'antenne
 //        rt2501_Antenna.field.RxDefaultAntenna = RT2501_HARDWARE_DIVERSITY;
-        rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_A;
-        rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_B;
+  rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_A;
+  rt2501_Antenna.field.RxDefaultAntenna = RT2501_ANTENNA_B;
   /*
      driver must disable Rx when switching antenna, otherwise ASIC will keep default state
      after switching, driver needs to re-enable Rx later
@@ -441,7 +441,8 @@ static void rt2501_antenna_setting()
 
   FrameTypeMaskBit5 = ~(rt2501_Antenna.field.FrameType << 5);
 
-  switch(rt2501_Antenna.field.RfIcType) {
+  switch(rt2501_Antenna.field.RfIcType) 
+  {
   case RT2501_RFIC_5226:
     if(rt2501_Antenna.field.RxDefaultAntenna == RT2501_ANTENNA_A) {
       R4 = R4 | 0x01;

@@ -32,10 +32,23 @@
 #include "utils/mem.h"
 #include "hal/motor.h"
 #include "hal/rfid.h"
+#include "hal/uart.h"
 
 #include "vm/vmem.h"
 #include "vm/vloader.h"
 #include "vm/vlog.h"
+
+#ifndef HIDE_VM_OUTPUT
+  #define consolestr(val)     putst_uart((uint8_t*)val)
+  #define consolebin(val,len) putbin_uart(val,len)
+  #define consoleint(val)     putint_uart(val)
+  #define consolehx(val)      puthx_uart(val)
+#else
+  #define consolestr(val)     do {} while(0)
+  #define consolebin(val,len) do {} while(0)
+  #define consoleint(val)     do {} while(0)
+  #define consolehx(val)      do {} while(0)
+#endif
 
 void logSecho(int32_t p,int32_t nl)
 {
@@ -76,6 +89,7 @@ void logGC(void)
 // pour le firmware, le "fichier" ouvert est toujours l'eeprom
 int32_t sysLoad(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len)
 {
+  (void)filename;
 	if ((j<0)||(i<0)||(len<=0))
     return 0;
 	if (i+len>ldst)
@@ -95,6 +109,7 @@ static uint8_t  buffer_temp[4096];
 // pour le firmware, le "fichier" ouvert est toujours l'eeprom
 int32_t sysSave(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len)
 {
+  (void)filename;
 	if ((j<0)||(i<0)||(len<=0))
     return 0;
 	if (i+len>ldst)

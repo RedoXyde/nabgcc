@@ -57,7 +57,7 @@ void vmemGCfirst()
 		if ((ISVALPNT(k))&&(k!=NIL))
 		{
 			k=VALTOPNT(k);
-//      if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.k out of space"EOL);
+//      if ((k<0)||(k>=VMEM_LENGTH)) DBG_VM("1.k out of space"EOL);
 			if (!HEADER_USED(k))
 			{
 				HEADER_MARK(k);
@@ -69,7 +69,7 @@ void vmemGCfirst()
 	while(first!=-1)
 	{
 		k=first;
-//    if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.first out of space"EOL);
+//    if ((k<0)||(k>=VMEM_LENGTH)) DBG_VM("1.first out of space"EOL);
 		first=_vmem_heap[k+HEADER_LIST];
 		if (HEADER_TYPE(k))        // bloc table
 		{
@@ -81,7 +81,7 @@ void vmemGCfirst()
 				if ((ISVALPNT(k))&&(k!=NIL))
 				{
 					k=VALTOPNT(k);
-//          if ((k<0)||(k>=VMEM_LENGTH)) consolestr("1.k2 out of space"EOL);
+//          if ((k<0)||(k>=VMEM_LENGTH)) DBG_VM("1.k2 out of space"EOL);
 					if (!HEADER_USED(k))
 					{
 						HEADER_MARK(k);
@@ -103,12 +103,16 @@ void dumpheap()
 	while(pos < _vmem_heapindex)
 	{
 		realsize=VSIZE(pos)+HEADER_LENGTH;
-                consolehx(pos); consolestr(":pos ");consolehx(realsize);
-    consolestr(":realsize"EOL);
+#ifdef DEBUG_VM
+  sprintf(dbg_buffer, "pos 0x%08lX realsize: %ld",pos,realsize);
+  DBG_VM(dbg_buffer);
+#endif
   if ((realsize<0)||(realsize>=VMEM_LENGTH))
   {
-    consolestr("2.realsize out of range"EOL);
-    dump((uint8_t*)&_vmem_heap[pos-32],128);
+    DBG_VM("2.realsize out of range"EOL);
+		#ifdef DEBUG_VM
+    	dump((uint8_t*)&_vmem_heap[pos-32],128);
+		#endif
     return;
   }
     dump((uint8_t*)&_vmem_heap[pos],32);
@@ -128,7 +132,7 @@ void vmemGCsecond()
 /*  if ((realsize<0)||(realsize>=VMEM_LENGTH))
   {
     dumpheap();
-//    consolestr("2.realsize out of range"EOL);
+//    DBG_VM("2.realsize out of range"EOL);
 //    dump((uint8_t*)&vmem_heap[pos-32],128);
   }
 */
@@ -206,7 +210,7 @@ void vmemGCfourth()
           memcpy(&_vmem_heap[newpos],&_vmem_heap[pos],realsize<<2);
         else
         {
-          consolestr("########GC : BIG MOVE"EOL);
+          DBG_VM("########GC : BIG MOVE"EOL);
           for(i=0;i<realsize;i++)
             _vmem_heap[newpos+i]=_vmem_heap[pos+i];
         }
@@ -250,7 +254,7 @@ int8_t vmem_check(int32_t wsize)
 		vmemGC();
 		if (VMEM_LENGTH+_vmem_stack-_vmem_heapindex-wsize<VMEM_GCTHRESHOLD)
 		{
-      consolestr("?OM Error"EOL);
+      DBG_VM("?OM Error"EOL);
       _vmem_broken=1;
       sysReboot();
 			return -1;
@@ -339,27 +343,26 @@ void vmemStacktotab(int32_t n)
 
 void vmemDumpHeap()
 {
-  #ifdef DEBUG_VM
-	consolestr("---HEAP"EOL);
-  int32_t i,n,pos,realsize;
-  char buff[50];
+  #ifdef DEBUG_VM_FULL // FIXME
+	DBG_VM("---HEAP"EOL);
+  uint32_t i,n,pos,realsize;
   pos=_vmem_start;
 	n=0;
   while(pos < _vmem_heapindex)
 	{
 		realsize=VSIZE(pos)+HEADER_LENGTH;
-		sprintf(buff,"0x%08X : %s %d\t",pos,HEADER_TYPE(pos)?"Tab":"Bin",VSIZE(pos));
-    consolestr(buff);
+		sprintf(dbg_buffer,"0x%08lX : %s %ld"EOL,pos,HEADER_TYPE(pos)?"Tab":"Bin",VSIZE(pos));
+    DBG_VM(dbg_buffer);
 		for(i=0;i<realsize;i++)
     {
-      sprintf(buff,"0x%08x ",_vmem_heap[pos+i]);
-      consolestr(buff);
+      sprintf(dbg_buffer,"0x%08lX ",_vmem_heap[pos+i]);
+      DBG_VM(dbg_buffer);
     }
-		consolestr(EOL);
+		DBG_VM(EOL);
 		pos+=realsize;
 		n++;
 	}
-  consolestr("---"EOL);
+  DBG_VM("---"EOL);
   #ifdef _NAB_SIM
   getchar();
   #endif
@@ -370,18 +373,16 @@ void vmemDumpHeap()
 
 void vmemDumpStack()
 {
-  #ifdef DEBUG_VM
-	consolestr("---STACK"EOL);
+  #ifdef DEBUG_VM_FULL // FIXME
+	DBG_VM("---STACK"EOL);
   int32_t i,k;
-  char buff[50];
 	for(i=-1;i>=_vmem_stack;i--)
 	{
 		k=_vmem_top[i];
-
-		sprintf(buff, "% 4d: 0x%08X -> 0x%08X (%d)"EOL,i,k,k>>1,k>>1);
-    consolestr(buff);
+		sprintf(dbg_buffer, "% 8ld: 0x%08lX -> 0x%08lX (%ld)"EOL,i,k,k>>1,k>>1);
+    DBG_VM(dbg_buffer);
 	}
-  consolestr("---"EOL);
+  DBG_VM("---"EOL);
   #ifdef _NAB_SIM
   getchar();
   #endif

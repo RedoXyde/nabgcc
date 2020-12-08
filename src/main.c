@@ -138,53 +138,18 @@ void wdt_start(void)
   CLR_WDT;
 }
 
-char dbg_buffer[256];
-
-void dump(uint8_t *src,int32_t len)
-{
-  int32_t i,j;
-  uint8_t buffer[64];
-  consolestr(EOL);
-  for(i=0;i<len;i+=16)
-  {
-    sprintf((char*)buffer,"%04lx ",i);
-    consolestr(buffer);
-    for(j=0;j<16;j++) if (i+j<len)
-    {
-      sprintf((char*)buffer,"%02x ",src[i+j]); consolestr(buffer);
-    }
-    else consolestr((uint8_t*)"   ");
-    for(j=0;j<16;j++) if (i+j<len) putch_uart(((src[i+j]>=32)&&(src[i+j]<128))?src[i+j]:'.');
-    consolestr(EOL);
-//    DelayMs(100);
-  }
-}
-
-void dumpbin(uint8_t * p,int32_t n,int32_t ln)
-{
-  int32_t i;
-  uint8_t buffer[6];
-  for(i=0;i<n;i++)
-  {
-    sprintf((char*)buffer,"%02x.",(p[i])&255);
-    consolestr(buffer);
-  }
-  if (ln)
-    consolestr(EOL);
-}
-
-char buffer[256];
-
 /**
  * Usercode Entry point
  */
 int main(void)
 {
+  #ifdef DEBUG_MAIN
   int32_t iii;
+  uint8_t *ptest;
+  #endif
 	int32_t ret;
 //        int st;
 //        int sendarp=0;
-  uint8_t *ptest;
   //~ uint8_t buf[64];
 
   uint8_t *address; /* address of read/write area */
@@ -261,20 +226,22 @@ int main(void)
 
   //Init Uart
   init_uart();
-  consolestr(EOL"****Reset"EOL);
+  DBG_MAIN(EOL"****Reset"EOL);
+  #ifdef DEBUG_MAIN
   ptest=(uint8_t *)&iii;
   iii=1;
   if (ptest[0])
-    consolestr("Little Endian"EOL);
+    DBG_MAIN("Little Endian"EOL);
   else if (ptest[3])
-    consolestr("Big Endian"EOL);
+    DBG_MAIN("Big Endian"EOL);
+  #endif
 
   // Configure USB
 	usbctrl_host_driver_set(NULL, usbhost_interrupt);
 	ret = usbctrl_init(USB_HOST);
 	if(ret != OK)
   {
-    consolestr("USB Controller initialization failed"EOL);
+    DBG_MAIN("USB Controller initialization failed"EOL);
     while(1);
   };
 
@@ -288,34 +255,34 @@ int main(void)
   ret = usbhost_init();
 	if(ret != OK)
   {
-    consolestr("USB Host initialization failed"EOL);
+    DBG_MAIN("USB Host initialization failed"EOL);
     while(1);
   };
 
 	ret = rt2501_driver_install();
 	if(ret != OK)
   {
-    consolestr("RT2501 Driver installation failed"EOL);
+    DBG_MAIN("RT2501 Driver installation failed"EOL);
     while(1);
   };
 
-  consolestr("Nabaztag firmware ("__DATE__" "__TIME__") ready."EOL);
-  consolestr("vmemInit"EOL);
+  DBG_MAIN("Nabaztag firmware ("__DATE__" "__TIME__") ready."EOL);
+  DBG_MAIN("vmemInit"EOL);
   vmemInit(0);
 
-  consolestr("loaderInit"EOL);
+  DBG_MAIN("loaderInit"EOL);
   loaderInit((uint8_t*)&dumpbc);
 
-//  consolestr("dumpShort"EOL);
+//  DBG_MAIN("dumpShort"EOL);
 //  vmemDumpShort();
 //  vmemDump();
 
 //  uint8_t i;
 //	for(i=0;i<6;i++) {
 //    sprintf(buffer,"fun %d at %d"EOL,i,loaderFunstart(i));
-//    consolestr(buffer);
+//    DBG_MAIN(buffer);
 //  }
-  //~ consolestr("main"EOL);
+  //~ DBG_MAIN("main"EOL);
 
   VPUSH(INTTOVAL(0));
   interpGo();
@@ -346,7 +313,7 @@ int main(void)
         CLR_WDT;
 
 //        sprintf(buffer,"receive frame size %ld"EOL,r->length);
-//        DBG(buffer);
+//        DBG_MAIN(buffer);
 //        dump(r->data,r->length);
         netCb(r->data,r->length,r->source_mac);
         disable_ohci_irq();
@@ -360,7 +327,7 @@ int main(void)
     if (!counttimer)
     {
       rt2501_timer();
-      consolestr(".");
+      DBG_MAIN(".");
     }
   }
 }

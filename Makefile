@@ -8,6 +8,12 @@ OPTIONS =
 #OPTIONS += -DDEBUG
 #OPTIONS += -DDEBUG_WIFI
 #OPTIONS += -DDEBUG_USB
+OPTIONS += -DDEBUG_VM
+#OPTIONS += -DDEBUG_VM_FULL
+OPTIONS += -DHIDE_VM_OUTPUT
+#OPTIONS += -DDEBUG_AUDIO
+#OPTIONS += -DDEBUG_RFID
+OPTIONS += -DDEBUG_MAIN
 
 # C Files to compile (take all)
 #C_FILES = $(wildcard src/*.c)
@@ -19,9 +25,9 @@ AS_FILES = $(wildcard sys/asm/*.s)
 # Compiler options
 CFLAGS =
 CFLAGS += -O1
-CFLAGS += -g
+#CFLAGS += -g
 CFLAGS += -mthumb -mthumb-interwork
-CFLAGS += -Wall -Wextra -Wno-unused-parameter -Wpointer-arith
+CFLAGS += -Wall -Wextra -Wpedantic -Wpointer-arith
 CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -fno-exceptions -fno-delete-null-pointer-checks
 CFLAGS += -mcpu=arm7tdmi -MMD

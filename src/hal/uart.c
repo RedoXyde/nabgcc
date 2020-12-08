@@ -267,3 +267,36 @@ void uart0_interrupt(void)
   else
     uart_buffer_pointer = 0;
 }
+
+void dump(uint8_t *src,int32_t len)
+{
+  int32_t i,j;
+  uint8_t buffer[64];
+  putst_uart((uint8_t*)EOL);
+  for(i=0;i<len;i+=16)
+  {
+    sprintf((char*)buffer,"%04lx ",i);
+    putst_uart(buffer);
+    for(j=0;j<16;j++) if (i+j<len)
+    {
+      sprintf((char*)buffer,"%02x ",src[i+j]); putst_uart(buffer);
+    }
+    else putst_uart((uint8_t*)"   ");
+    for(j=0;j<16;j++) if (i+j<len) putch_uart(((src[i+j]>=32)&&(src[i+j]<128))?src[i+j]:'.');
+    putst_uart((uint8_t*)EOL);
+//    DelayMs(100);
+  }
+}
+
+void dumpbin(uint8_t * p,int32_t n,int32_t ln)
+{
+  int32_t i;
+  uint8_t buffer[6];
+  for(i=0;i<n;i++)
+  {
+    sprintf((char*)buffer,"%02x.",(p[i])&255);
+    putst_uart(buffer);
+  }
+  if (ln)
+    putst_uart((uint8_t*)EOL);
+}

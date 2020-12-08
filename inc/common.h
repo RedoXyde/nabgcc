@@ -6,7 +6,7 @@
  * @date 2015/09/07
  * @brief Common defs
  */
- #ifndef _COMMON_H_
+#ifndef _COMMON_H_
 #define _COMMON_H_
 
 #include <stdint.h>
@@ -32,6 +32,9 @@ extern void __enable_interrupt(void);
 
 #define MAX_ADDR	  0x20000
 #define UART_BUFFER_SIZE 135
+
+#include "utils/debug.h"
+#define EOL "\r\n"
 
 //#define SINUS_TEST
 

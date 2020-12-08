@@ -58,6 +58,8 @@ void    putst_uart(uint8_t *str);
 void    putint_uart(int32_t v);
 void    puthx_uart(uint32_t v);
 void    putbin_uart(uint8_t *str,uint32_t len);
+void    dump(uint8_t *src,int32_t len);
+void    dumpbin(uint8_t * p,int32_t n,int32_t ln);
 
 uint64_t xmodem_recv(uint8_t *addr_mem);
 void xmodem_send(uint8_t *addr_mem, uint32_t nb_bytes_to_send);

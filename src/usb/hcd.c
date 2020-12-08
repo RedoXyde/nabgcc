@@ -187,7 +187,7 @@ static void hcd_delete_td(PHCD_ED ed)
       list_del(&td_next->list);
       if(urb->status>=0)
       {
-        DBG("ABORT 1"EOL);
+        DBG_USB("ABORT 1"EOL);
         urb->status = URB_ABORT;
       }
     }
@@ -466,7 +466,7 @@ void hcd_transfer_wait(PURB urb)
     DelayMs(1);
     if(timeout++ > urb->timeout)
     {
-      DBG("HCD: hcd_transfer_wait timeout!!"EOL);
+      DBG_USB("HCD: hcd_transfer_wait timeout!!"EOL);
       hcd_pause_ed((PHCD_ED)urb->ed);
       urb->status = URB_TIMEOUT;
       return;
@@ -656,7 +656,7 @@ void hcd_bulk_transfer_start(PURB urb)
     if(hcd_add_td(ed, HcTD_CC | HcTD_DI, buffer, TD_BUFFER_MAX, urb, cnt) < 0)
     {
       urb->status = URB_ADDTDERR;
-      DBG("x0");
+      DBG_USB("x0");
       return;
     }
     buffer += TD_BUFFER_MAX;
@@ -667,7 +667,7 @@ void hcd_bulk_transfer_start(PURB urb)
   if(hcd_add_td(ed, HcTD_CC, buffer, length, urb, cnt) < 0)
   {
     urb->status = URB_ADDTDERR;
-    DBG("x1");
+    DBG_USB("x1");
     return;
   }
 
@@ -718,7 +718,7 @@ void hcd_bulk_transfer(PURB urb)
   if(hcd_malloc_check(urb->buffer) != COMRAM)
   {
     urb->status = URB_ADDTDERR;
-    DBG("x2");
+    DBG_USB("x2");
     return;
   }
   hcd_bulk_transfer_start(urb);
@@ -732,7 +732,7 @@ int8_t hcd_transfer_request(PURB urb)
 
   if (hcd_info.disabled)
   {
-    DBG("ABORT 2"EOL);
+    DBG_USB("ABORT 2"EOL);
     urb->status = URB_ABORT;
     return urb->status;
   }
@@ -740,7 +740,7 @@ int8_t hcd_transfer_request(PURB urb)
   switch(((PHCD_ED)urb->ed)->type)
   {
     case USB_CTRL:
-//      DBG("Ctrl"EOL);
+//      DBG_USB("Ctrl"EOL);
       #ifdef DEBUG_RAMAC_ERR
       hcd_info.hc_control &= ~OHCI_CTRL_PLE;
       put_wvalue(HcControl, hcd_info.hc_control);
@@ -749,12 +749,12 @@ int8_t hcd_transfer_request(PURB urb)
       break;
 
     case USB_BULK:
-//      DBG("Bulk"EOL);
+//      DBG_USB("Bulk"EOL);
       hcd_bulk_transfer(urb);
       break;
 
     default:
-      DBG("ABORT 3"EOL);
+      DBG_USB("ABORT 3"EOL);
       urb->status = URB_ABORT;
   }
   return urb->status;
@@ -930,13 +930,13 @@ void hcd_rh_irq(void)
 
   if(hub_status & RH_HS_OCIC)
   {
-    DBG(" root hub: Overcurrent Indicator Changed."EOL);
-     DBG(" root hub: please debug this code."EOL);
+    DBG_USB(" root hub: Overcurrent Indicator Changed."EOL);
+     DBG_USB(" root hub: please debug this code."EOL);
     return;
   }
   else if(hub_status)
   {
-     DBG(" root hub: please debug this code."EOL);
+     DBG_USB(" root hub: please debug this code."EOL);
     return;
   }
 
@@ -980,14 +980,14 @@ void hcd_rh_irq(void)
   }
   else if(port_status & RH_PS_PSSC)
   {
-     DBG(" root hub: Port Suspend Status Changed."EOL);
-     DBG(" root hub: please debug this code."EOL);
+     DBG_USB(" root hub: Port Suspend Status Changed."EOL);
+     DBG_USB(" root hub: please debug this code."EOL);
     /*writel_reg(HcRhPortStatus0, RH_PS_PSSC);*/
   }
   else if(port_status & RH_PS_OCIC)
   {
-     DBG(" root hub: Port Overcurrent Indicator Status Changed."EOL);
-     DBG(" root hub: please debug this code."EOL);
+     DBG_USB(" root hub: Port Overcurrent Indicator Status Changed."EOL);
+     DBG_USB(" root hub: please debug this code."EOL);
     put_wvalue(HcRhPortStatus, RH_PS_PRS);
     /*writel_reg(HcRhPortStatus, RH_PS_OCIC);*/
   }
@@ -1024,7 +1024,7 @@ void usbhost_interrupt(void)
 
   status = get_wvalue(SttTrnsCnt);
   if(status & B_DMAIRQ) {
-    DBG("USB DMA interrupt"EOL);
+    DBG_USB("USB DMA interrupt"EOL);
     /* DMA not used */
     put_wvalue(SttTrnsCnt, B_DMAIRQ);
   } else if(status & B_OHCIIRQ) {
@@ -1048,7 +1048,7 @@ void usbhost_interrupt(void)
     if(status & OHCI_INTR_UE) {
       hcd_info.disabled++;
       put_wvalue(HcInterruptDisable, 0xFFFFFFFF);
-      DBG(" HCD: Unrecoverable Error, controller disabled"EOL);
+      DBG_USB(" HCD: Unrecoverable Error, controller disabled"EOL);
     }
 
     if(status & OHCI_INTR_WDH) {

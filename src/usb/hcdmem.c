@@ -112,13 +112,13 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
   }
   else
   {
-    DBG(" hcd_malloc: Bad number of Bank."EOL);
+    DBG_USB(" hcd_malloc: Bad number of Bank."EOL);
     return NULL;
   }
 
   if(Buffer->Address == 0)
   {
-    DBG("hcd_malloc: No memory for buffer."EOL);
+    DBG_USB("hcd_malloc: No memory for buffer."EOL);
     return NULL;
   }
 
@@ -127,7 +127,7 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 
   if( Size > (Buffer->Size - sizeof(MMDL)) )
   {
-    DBG("hcd_malloc: Size > (Buffer->Size - sizeof(MMDL)"EOL);
+    DBG_USB("hcd_malloc: Size > (Buffer->Size - sizeof(MMDL)"EOL);
     return NULL;
   }
 
@@ -174,18 +174,18 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
 
   if(NextBufferAddress + Area > Buffer->Address + Buffer->Size)
   {
-    DBG("hcd_malloc: NextBufferAddress + Area > Buffer->Address + Buffer->Size"EOL);
+    DBG_USB("hcd_malloc: NextBufferAddress + Area > Buffer->Address + Buffer->Size"EOL);
     pNextMMDL = Buffer->MMDLs;
     while(pNextMMDL != NULL)
     {
       sprintf(dbg_buffer,"addr=0x%lX area=0x%lX size=0x%lX tag=0x%lX time=%ld"EOL,
               pNextMMDL->Address,pNextMMDL->Area,pNextMMDL->Size,
               pNextMMDL->tag,pNextMMDL->time);
-      DBG(dbg_buffer);
+      DBG_USB(dbg_buffer);
       pNextMMDL = pNextMMDL->Next;
     }
     sprintf(dbg_buffer,"time=%ld"EOL,counter_timer);
-    DBG(dbg_buffer);
+    DBG_USB(dbg_buffer);
     return NULL;
   }
 
@@ -209,7 +209,7 @@ void *hcd_malloc(uint32_t Size, int8_t Bank,int32_t tag)
   pNewMMDL->Next = pNextMMDL;
 
 //  sprintf(dbg_buffer, "hcd_malloc: %08lX (%d,%d)"EOL, NextBufferAddress, Size, Area);
-//  DBG(dbg_buffer);
+//  DBG_USB(dbg_buffer);
 
   return (uint8_t *)NextBufferAddress;
 }
@@ -237,7 +237,7 @@ int8_t hcd_free(void * pAddress)
 //    if (pNowMMDL->tag==19)
 //    {
 //      sprintf(dbg_buffer,"hcd_free: %x"EOL, pAddress);
-//      DBG(dbg_buffer);
+//      DBG_USB(dbg_buffer);
 //    }
 
     Buffer->MMDLs = pNowMMDL->Next;
@@ -254,7 +254,7 @@ int8_t hcd_free(void * pAddress)
 //      if (pNowMMDL->tag==19)
 //      {
 //        sprintf(dbg_buffer,"hcd_free: %x"EOL, pAddress);
-//        DBG(dbg_buffer);
+//        DBG_USB(dbg_buffer);
 //      }
       pLastMMDL->Next = pNowMMDL->Next;
       return 1;

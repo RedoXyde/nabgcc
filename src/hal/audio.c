@@ -262,7 +262,7 @@ void rec_start(uint16_t sampling_frequency,uint16_t gain)
   // Playing something, exit
   if (play_state)
     return;
-  consolestr("rec_start"EOL);
+  DBG_AUD("rec_start"EOL);
   clear_vlsi_fifo();
   vlsi_ampli(0);  // Turn off amplifier
   init_adpcm_encode(sampling_frequency,gain);
@@ -277,7 +277,7 @@ void rec_stop()
   // Not recording, exit
   if (!rec_state)
     return;
-  consolestr("rec_stop"EOL);
+  DBG_AUD("rec_stop"EOL);
   stop_adpcm_encode();
   vlsi_ampli(0);  // Turn off amplifier
   clear_vlsi_fifo();
@@ -322,7 +322,7 @@ void play_start(int32_t trytofeed)
   // Recording something, exit
   if (rec_state)
     return;
-  consolestr("play_start"EOL);
+  DBG_AUD("play_start"EOL);
   clear_vlsi_fifo();
   patchwma();
 
@@ -341,7 +341,7 @@ void play_stop()
   // Not playing, exit
   if (!play_state)
     return;
-  consolestr("play_stop"EOL);
+  DBG_AUD("play_stop"EOL);
   vlsi_ampli(0);  // Turn ampli OFF
   clear_vlsi_fifo();
   play_state=0;
@@ -411,7 +411,7 @@ void play_eof()
  */
 void clear_vlsi_fifo(void)
 {
-  consolestr("clear_vlsi_fifo"EOL);
+  DBG_AUD("clear_vlsi_fifo"EOL);
   sw_reset_vlsi();
 }
 

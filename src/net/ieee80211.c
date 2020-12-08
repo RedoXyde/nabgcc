@@ -194,7 +194,8 @@ static uint16_t ieee80211_mask_to_rt2501mask(unsigned short ieee80211mask)
 
 static uint8_t ieee80211_crypt_to_rt2501cipher(uint8_t crypt)
 {
-	switch(crypt&0xF0) {
+	switch(crypt&0xF0) 
+	{
 		case IEEE80211_CRYPT_WEP:
       switch(crypt)
       {
@@ -203,6 +204,7 @@ static uint8_t ieee80211_crypt_to_rt2501cipher(uint8_t crypt)
         case IEEE80211_CRYPT_WEP128:
           return RT2501_CIPHER_WEP128;
         default:
+					DBG_WIFI("Unknown WEP Crypt");
           break;
       };
     case IEEE80211_CRYPT_WPA:
@@ -214,12 +216,15 @@ static uint8_t ieee80211_crypt_to_rt2501cipher(uint8_t crypt)
         case IEEE80211_CIPHER_CCMP:
           return RT2501_CIPHER_AES;
         default:
+					DBG_WIFI("Unknown WPA Crypt");
           break;
       };
     case IEEE80211_CRYPT_NONE:
-		default:
 			return RT2501_CIPHER_NONE;
+		default:
+			DBG_WIFI("Unknown IEEE80211 Crypt");
 	}
+	return RT2501_CIPHER_NONE;
 }
 
 /* IEEE80211_RATEMASK_* */
@@ -695,12 +700,14 @@ static void ieee80211_associate(void)
        *
        * There's one more line for the hack just before the "break"
        */
-      if(ieee80211_encryption&0b1000)      /* Group cipher */
-        ieee80211_encryption &= ~(0b0100);
-      if(ieee80211_encryption&0b0010)     /* Pairwise cipher */
-        ieee80211_encryption &= ~0b0001;
-      //sprintf(dbg_buffer,"ieee80211_assoc Encryption: %d"EOL,ieee80211_encryption);
-      //DBG_WIFI(dbg_buffer);
+      if(ieee80211_encryption&0x08)       /* 0x08 = 0b1000 */     /* Group cipher */
+        ieee80211_encryption &= ~(0x04);  /* 0x04 = 0b0100 */
+      if(ieee80211_encryption&0x02)       /* 0x02 = 0b0010 */     /* Pairwise cipher */
+        ieee80211_encryption &= ~0x01;    /* 0x01 = 0b0001 */
+#ifdef DEBUG_WIFI
+      sprintf(dbg_buffer,"ieee80211_assoc Encryption: 0x%02X"EOL,ieee80211_encryption);
+      DBG_WIFI(dbg_buffer);
+#endif
 
       *(write_ptr++) = 0x30;   // RSN IE
       *(write_ptr++) = 0x14;//+4; // Length
@@ -709,14 +716,14 @@ static void ieee80211_associate(void)
       /* Group cipher: AES */
       for(i=0;i<IEEE80211_OUI_LEN-1;i++)
         *(write_ptr++) = ieee80211_wpa2_oui[i];
-      *(write_ptr++) = (ieee80211_encryption&0b1100)>>1;
+      *(write_ptr++) = (ieee80211_encryption&0x0C)>>1; /* 0x0C = 0b1100 */
       /* 1 pairwise */
       *(write_ptr++) = 0x01;
       *(write_ptr++) = 0x00;
       /* Unicast cipher: TKIP or AES */
       for(i=0;i<IEEE80211_OUI_LEN-1;i++)
         *(write_ptr++) = ieee80211_wpa2_oui[i];
-      *(write_ptr++) = (ieee80211_encryption&0b0011)<<1;
+      *(write_ptr++) = (ieee80211_encryption&0x03)<<1; /* 0x03 = 0b0011 */
       /* 1 auth key management */
       *(write_ptr++) = 0x01;
       *(write_ptr++) = 0x00;
@@ -727,12 +734,14 @@ static void ieee80211_associate(void)
           /* RSN Capability */
       *(write_ptr++) = 0x00;
       *(write_ptr++) = 0x00;
-      /* Final line for this hack, reset "normal" cipher using pairwise cipher */
-      ieee80211_encryption = (ieee80211_encryption&0xF0)|((ieee80211_encryption&0b0011)<<1);
+      /* Final line for this hack, reset "normal" cipher using pairwise cipher 0x03 = 0b0011 */
+      ieee80211_encryption = (ieee80211_encryption&0xF0)|((ieee80211_encryption&0x03)<<1);
       break;
     default:
+#ifdef DEBUG_WIFI
       sprintf(dbg_buffer,"ieee80211_assoc Unknown encryption: %d"EOL,ieee80211_encryption);
       DBG_WIFI(dbg_buffer);
+#endif
       break;
   }
 	
@@ -1421,6 +1430,7 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 			break;
 		case IEEE80211_FC0_SUBTYPE_DISASSOC:
       DBG_WIFI("Disassoc"EOL);
+			// fall through
 		case IEEE80211_FC0_SUBTYPE_DEAUTH:
       DBG_WIFI("Deauth"EOL);
 			if(ieee80211_mode == IEEE80211_M_MANAGED) {
@@ -1460,6 +1470,8 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 static void ieee80211_input_ctl(uint8_t *frame, uint32_t length)
 {
 	DBG_WIFI("Received control frame"EOL);
+  (void)frame;
+  (void)length;
 	/* handled by the RT2501 ASIC */
 }
 
@@ -1549,7 +1561,7 @@ static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 
 void ieee80211_input(uint8_t *frame, uint32_t length, int16_t rssi)
 {
-//#ifdef DBG_WIFI
+//#ifdef DEBUG_WIFI
 //  DBG_WIFI("Rxed:"EOL);
 //  dump(frame,length);
 //#endif
@@ -2134,7 +2146,6 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
           //		iv.iv32 = *((uint32_t *)&ptk_tsc[2]);
                           iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
 
-
               fr->txd.Iv = iv.iv16.word;
               fr->txd.Eiv = iv.iv32;
               fr->txd.IvOffset = sizeof(struct ieee80211_frame);
@@ -2165,13 +2176,12 @@ int32_t rt2501_send(const uint8_t *frame, uint32_t length, const uint8_t *dest_m
                 // PN2,3,4,5
               iv.iv32 = ptk_tsc[2] | (ptk_tsc[3] << 8) | (ptk_tsc[4] << 16) | (ptk_tsc[5] << 24);
 
-
               fr->txd.Iv = iv.iv16.word;
               fr->txd.Eiv = iv.iv32;
               fr->txd.IvOffset = sizeof(struct ieee80211_frame);
 
               i = 0;
-              while(++ptk_tsc[i] == 0) {													\
+              while(++ptk_tsc[i] == 0) {
                 i++;
                 if(i == EAPOL_TSC_LENGTH) {
                   DBG_WIFI("TSC cycle !!!"EOL);
