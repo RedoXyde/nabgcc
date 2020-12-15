@@ -1254,7 +1254,7 @@ void interpGo()
     _currentop=-1;
     if (callstack>0)
       return;
-    #ifdef DEBUG_VM
+    #ifdef DEBUG_VM_FULL
     if(pc>=0)
       vmemDump();
     #endif
