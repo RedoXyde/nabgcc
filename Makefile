@@ -99,6 +99,9 @@ clean:
 program: bin/$(TARGET).elf
 	$(PROGRAM) $< < gdb_load
 
+reset:
+	$(PROGRAM) < gdb_reset
+
 mtl_boot: mtl/boot/$(MTL_BOOT).mtl
 	@cd mtl/mtl_linux; \
 	make
