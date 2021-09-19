@@ -32,6 +32,8 @@ const uint8_t ieee80211_broadcast_address[IEEE80211_ADDR_LEN] =
 { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 const uint8_t ieee80211_null_address[IEEE80211_ADDR_LEN] =
 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+const uint8_t ieee80211_multicast_address[IEEE80211_ADDR_LEN] =
+{ 0x01, 0x00, 0x5e, 0xff, 0xff, 0xff };
 
 static const uint8_t ieee80211_vendor_wpa_id[] =
 { 0x00, 0x50, 0xf2, 0x01, 0x01, 0x00 };
@@ -1497,7 +1499,9 @@ static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 		    && (ieee80211_mode == IEEE80211_M_MANAGED)) {
 		/* Destination address */
 		if((memcmp(fr->header.i_addr1, rt2501_mac, IEEE80211_ADDR_LEN) != 0)
-				  && (memcmp(fr->header.i_addr1, ieee80211_broadcast_address, IEEE80211_ADDR_LEN) != 0)) return;
+				  && (memcmp(fr->header.i_addr1, ieee80211_broadcast_address, IEEE80211_ADDR_LEN) != 0)
+				  && (memcmp(fr->header.i_addr1, ieee80211_multicast_address, IEEE80211_ADDR_LEN/2) != 0)
+	          ) return;
 		dest_mac = fr->header.i_addr1;
 		/* BSSID */
 		if(memcmp(fr->header.i_addr2, ieee80211_assoc_bssid, IEEE80211_ADDR_LEN) != 0) return;
@@ -1528,11 +1532,13 @@ static void ieee80211_input_data(uint8_t *frame, uint32_t length, int16_t rssi)
 
 			/*
 			Destination address must be the device's MAC or
-			broadcast, as we don't route frames between
+			broadcast or multicast, as we don't route frames between
 			associated stations in this driver.
 			*/
 			if((memcmp(fr->header.i_addr3, rt2501_mac, IEEE80211_ADDR_LEN) != 0)
-				&& (memcmp(fr->header.i_addr3, ieee80211_broadcast_address, IEEE80211_ADDR_LEN) != 0)) return;
+				 && (memcmp(fr->header.i_addr3, ieee80211_broadcast_address, IEEE80211_ADDR_LEN) != 0)
+				 && (memcmp(fr->header.i_addr3, ieee80211_multicast_address, IEEE80211_ADDR_LEN/2) != 0)
+			  ) return;
 			dest_mac = fr->header.i_addr3;
 		} else return; /* Drop other frames */
 	}
