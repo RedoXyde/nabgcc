@@ -1912,7 +1912,7 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 		case IEEE80211_CRYPT_WPA:
     case IEEE80211_CRYPT_WPA2:
 			ieee80211_authmode = IEEE80211_AUTH_OPEN;
-			strcpy((char *)ieee80211_key, (const char *)key);
+			memcpy(ieee80211_key, key, IEEE80211_MAX_KEYLEN);
 			rt2501_set_key(0, NULL, NULL, NULL, RT2501_CIPHER_NONE);
 			eapol_init();
 			break;
