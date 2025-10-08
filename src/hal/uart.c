@@ -155,7 +155,7 @@ void xmodem_send(uint8_t *addr_mem, uint32_t nb_bytes_to_send)
 {
   uint8_t cmpt_frame=0;
   uint8_t cmpt_char=0;
-  ushort crc;
+  int16_t crc;
 
   //wait for a NAK
   uart_buffer_pointer=0;

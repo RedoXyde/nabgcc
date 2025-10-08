@@ -74,14 +74,14 @@ void usbhost_events(void)
   hcd_rh_events();
 }
 
-void *usbh_create_pipe(PDEVINFO dev, uint8_t type, uint8_t ep_num, ushort maxpacket,
+void *usbh_create_pipe(PDEVINFO dev, uint8_t type, uint8_t ep_num, uint16_t maxpacket,
                        uint8_t interval)
 {
   return hcd_create_ed((uint8_t)dev->dev_speed, dev->dev_addr, type,
                           ep_num, maxpacket, interval);
 }
 
-int8_t usbh_update_pipe0(PDEVINFO dev, ushort maxpacket)
+int8_t usbh_update_pipe0(PDEVINFO dev, uint16_t maxpacket)
 {
   return hcd_update_ed((PHCD_ED)dev->pipe[0], dev->dev_addr, maxpacket);
 }
@@ -366,7 +366,7 @@ int32_t usbh_get_descriptor_all(PDEVINFO dev)
       *pinterface = NULL;
       pendpoint = NULL;
 
-      memcpy((ulong *)*pconfiguration, (uint8_t *)ptr, bLength);
+      memcpy((uint32_t *)*pconfiguration, (uint8_t *)ptr, bLength);
     }
 
     else if(bDescriptorType == USB_DT_INTERFACE){
@@ -384,7 +384,7 @@ int32_t usbh_get_descriptor_all(PDEVINFO dev)
       pendpoint = &((*pinterface)->endpoint);
       *pendpoint = NULL;
 
-      memcpy((ulong *)*pinterface, (uint8_t *)ptr, *ptr);
+      memcpy((uint32_t *)*pinterface, (uint8_t *)ptr, *ptr);
     }
 
     else if(bDescriptorType == USB_DT_ENDPOINT){
@@ -399,7 +399,7 @@ int32_t usbh_get_descriptor_all(PDEVINFO dev)
 
       (*pendpoint)->next = NULL;
 
-      memcpy((ulong *)*pendpoint, (uint8_t *)ptr, *ptr);
+      memcpy((uint32_t *)*pendpoint, (uint8_t *)ptr, *ptr);
     }
 
     else if(bDescriptorType == USB_DT_OTG){
