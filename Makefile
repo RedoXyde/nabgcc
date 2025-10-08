@@ -24,6 +24,7 @@ AS_FILES = $(wildcard sys/asm/*.s)
 
 # Compiler options
 CFLAGS =
+CFLAGS += --specs=nosys.specs
 CFLAGS += -O1
 #CFLAGS += -g
 CFLAGS += -mthumb -mthumb-interwork
