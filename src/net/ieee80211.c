@@ -50,6 +50,15 @@ uint32_t ieee80211_timeout;
 static rt2501_scan_callback ieee80211_scallback;
 static void *ieee80211_scallback_userparam;
 
+/* Ciphers each AP advertised during the last scan, so an association can use
+ * them even when the caller only knows "WPA2" (see ieee80211_scanned_ciphers). */
+#define IEEE80211_SCAN_CACHE_SIZE 8
+static struct {
+	uint8_t bssid[IEEE80211_ADDR_LEN];
+	uint8_t encryption;
+} ieee80211_scan_cache[IEEE80211_SCAN_CACHE_SIZE];
+static uint8_t ieee80211_scan_cache_len;
+
 uint8_t ieee80211_assoc_mac[IEEE80211_ADDR_LEN];
 uint8_t ieee80211_assoc_bssid[IEEE80211_ADDR_LEN];
 uint8_t ieee80211_assoc_ssid[IEEE80211_SSID_MAXLEN+1];
@@ -1297,6 +1306,20 @@ static void ieee80211_input_mgt(uint8_t *frame, uint32_t length, int16_t rssi)
 					}
 					if(scan_result.rateset == 0) scan_result.rateset = IEEE80211_RATEMASK_1;
 
+					/* Remember the ciphers this AP advertised: the caller of
+					 * rt2501_auth may only know the broad encryption type. */
+					if(ieee80211_scan_cache_len < IEEE80211_SCAN_CACHE_SIZE) {
+						uint8_t s;
+						for(s=0;s<ieee80211_scan_cache_len;s++)
+							if(memcmp(ieee80211_scan_cache[s].bssid,
+							          scan_result.bssid, IEEE80211_ADDR_LEN) == 0)
+								break;
+						memcpy(ieee80211_scan_cache[s].bssid, scan_result.bssid,
+						       IEEE80211_ADDR_LEN);
+						ieee80211_scan_cache[s].encryption = scan_result.encryption;
+						if(s == ieee80211_scan_cache_len) ieee80211_scan_cache_len++;
+					}
+
 					ieee80211_scallback(&scan_result, ieee80211_scallback_userparam);
 				}
 				if(ieee80211_state == IEEE80211_S_RUN) {
@@ -1740,6 +1763,27 @@ void rt2501_setmode(int32_t mode, const uint8_t *ssid, uint8_t channel)
 	enable_ohci_irq();
 }
 
+/**
+ * @brief Cipher bits (low nibble of an encryption byte) this AP advertised
+ *
+ * The RSN IE we send is built from those bits alone, so associating without
+ * them advertises cipher suite 00-0F-AC-00 for both group and pairwise —
+ * which lenient APs ignore but a WPA2/WPA3-transition AP rejects.
+ */
+static uint8_t ieee80211_scanned_ciphers(const uint8_t *bssid)
+{
+	uint8_t i;
+
+	for(i=0;i<ieee80211_scan_cache_len;i++)
+		if(memcmp(ieee80211_scan_cache[i].bssid, bssid, IEEE80211_ADDR_LEN) == 0)
+			if(ieee80211_scan_cache[i].encryption & 0x0F)
+				return ieee80211_scan_cache[i].encryption & 0x0F;
+
+	/* Never scanned, or the AP advertised nothing we parsed: CCMP for both,
+	 * the one pair every WPA2 (and every transition-mode) AP must accept. */
+	return (IEEE80211_CIPHER_CCMP << 1) | (IEEE80211_CIPHER_CCMP >> 1);
+}
+
 void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userparam)
 {
 //#pragma pack(1)
@@ -1754,6 +1798,8 @@ void rt2501_scan(const uint8_t *ssid, rt2501_scan_callback callback, void *userp
 	uint8_t channel, i, j;
 
 	if(ieee80211_mode != IEEE80211_M_MANAGED) return;
+
+	ieee80211_scan_cache_len = 0;
 
 	DBG_WIFI("Scanning..."EOL);
 
@@ -1911,6 +1957,20 @@ void rt2501_auth(const uint8_t *ssid, const uint8_t *mac,
 			break;
 		case IEEE80211_CRYPT_WPA:
     case IEEE80211_CRYPT_WPA2:
+			/* Callers that only know the broad encryption type — the VM passes
+			 * the config sector's crypt byte, plain WPA2 with no cipher bits —
+			 * would build an RSN IE advertising suite 00-0F-AC-00 for both
+			 * group and pairwise. Lenient APs let that through (which is why a
+			 * phone hotspot worked), a Freebox in WPA2/WPA3 transition mode
+			 * refuses the association. Fill the ciphers in from the beacon. */
+			if((ieee80211_encryption & 0x0F) == 0) {
+				ieee80211_encryption |= ieee80211_scanned_ciphers(bssid);
+#ifdef DEBUG_WIFI
+				sprintf(dbg_buffer, "No cipher requested, using scanned 0x%02x"EOL,
+					ieee80211_encryption);
+				DBG_WIFI(dbg_buffer);
+#endif
+			}
 			ieee80211_authmode = IEEE80211_AUTH_OPEN;
 			memcpy(ieee80211_key, key, IEEE80211_MAX_KEYLEN);
 			rt2501_set_key(0, NULL, NULL, NULL, RT2501_CIPHER_NONE);
