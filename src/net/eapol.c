@@ -332,6 +332,13 @@ void eapol_init(void)
  * @param [in]  frame   Frame buffer
  * @param [in]  length  Frame length
  */
+/* Largest AES-Key-Wrapped Key Data we accept from msg 3/4, unwrapped
+ * size: RSN IE + GTK KDE + padding fits well within this. */
+#define EAPOL_KEYDATA_MAX 128
+
+static int32_t eapol_install_msg3_gtk(struct eapol_frame *fr_in,
+                                      uint32_t length);
+
 static void eapol_input_msg1(uint8_t *frame, uint32_t length)
 {
   struct eapol_frame *fr_in = (struct eapol_frame *)frame;
@@ -660,6 +667,74 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
   eapol_state = EAPOL_S_GROUP;
   ieee80211_state = IEEE80211_S_RUN;
   ieee80211_timeout = IEEE80211_RUN_TIMEOUT;
+
+  /*
+   * Install the group key carried in this message. On WPA2 the AP sends
+   * the GTK here, inside AES-Key-Wrapped Key Data - not in a separate
+   * group-key message - so a supplicant that ignores it never installs a
+   * GTK at all and is deaf to every broadcast and multicast frame for the
+   * whole life of the association. That was this driver until now:
+   * SEC_CSR0 held a single pairwise slot forever, and the "wedge" was
+   * simply peers ageing us out of their ARP caches and re-ARPing by
+   * broadcast into the void.
+   */
+  if((ieee80211_encryption&0x0F) == IEEE80211_CIPHER_CCMP)
+    eapol_install_msg3_gtk(fr_in, length);
+}
+
+/**
+ * @brief Unwrap and install the GTK from message 3/4 Key Data (CCMP)
+ *
+ * Key Data is AES-Key-Wrapped (RFC 3394) under the KEK, and holds an RSN
+ * KDE list from which the GTK KDE is picked. Any failure leaves the group
+ * slot untouched and returns 0: a wrong key installed silently is what
+ * cost us three nights.
+ */
+static int32_t eapol_install_msg3_gtk(struct eapol_frame *fr_in,
+                                      uint32_t length)
+{
+  uint8_t plain[EAPOL_KEYDATA_MAX];
+  uint32_t wlen = (uint32_t)((fr_in->key_frame.key_data_length[0] << 8)
+                             | fr_in->key_frame.key_data_length[1]);
+  uint32_t glen = 0;
+  uint8_t key_id = 0;
+
+  /* key_data_length is attacker-controlled until checked against the
+   * frame the radio actually delivered. key_data is a fixed 24-byte
+   * field inside the struct here, so the frame-header size is sizeof
+   * minus EAPOL_RSN_LENGTH - the same convention as eapol_input's
+   * minimum-length check. */
+  if((wlen < 24) || (wlen % 8) || (wlen > sizeof(plain)+8) ||
+     (sizeof(struct eapol_frame) - EAPOL_RSN_LENGTH + wlen > length)) {
+    DBG_WIFI("GTK: implausible key data length"EOL);
+    return 0;
+  }
+  if(!aes_key_unwrap(ptk.s.kek, fr_in->key_frame.key_data, wlen, plain)) {
+    DBG_WIFI("GTK: key unwrap integrity check failed"EOL);
+    return 0;
+  }
+  if(!rsn_find_gtk(plain, wlen-8, gtk.s.ek, sizeof(gtk.s.ek),
+                   &glen, &key_id)) {
+    DBG_WIFI("GTK: no GTK KDE in key data"EOL);
+    return 0;
+  }
+  if(key_id == 0) {
+    /* Slot 0 carries the pairwise key; overwriting it would break
+     * unicast, which is the one thing that currently works. */
+    DBG_WIFI("GTK: refusing key id 0"EOL);
+    return 0;
+  }
+
+#ifdef DEBUG_WIFI
+  sprintf(dbg_buffer, "GTK: %lu bytes, key id %d"EOL,
+          (unsigned long)glen, key_id);
+  DBG_WIFI(dbg_buffer);
+#endif
+
+  /* CCMP uses no MIC keys; pass the union's own (zeroed) fields. */
+  rt2501_set_key(key_id, gtk.s.ek, gtk.s.mick.tx, gtk.s.mick.rx,
+                 RT2501_CIPHER_AES);
+  return 1;
 }
 
 /**
@@ -670,14 +745,11 @@ static void eapol_input_msg3(uint8_t *frame, uint32_t length)
  */
 static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
 {
-  // FIXME Check length before cast ?
-  (void)length;
   uint32_t i;
   struct eapol_frame *fr_in = (struct eapol_frame *)frame;
   uint8_t old_mic[EAPOL_KEYMIC_LENGTH];
   uint8_t key[32];
   struct rc4_context rc4;
-  struct aes128_context aes;
   struct eapol_frame fr_out;
 
   DBG_WIFI("Received GTK message"EOL);
@@ -813,22 +885,16 @@ static void eapol_input_group_msg1(uint8_t *frame, uint32_t length)
                            gtk.s.ek, gtk.s.mick.tx, gtk.s.mick.rx, RT2501_CIPHER_TKIP);
       }
       break;
-    case IEEE80211_CIPHER_CCMP: // Decrypt CCMP/AES
-      {
-        // FIXME Actually do something...
-        memcpy(&key[0], ptk.s.kek, 16);
-        aes128_init(&aes, key, 16); // 16 or 128 ?
-        aes128_decrypt(&aes, gtk.b, fr_in->key_frame.key_data,
-                                                   EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
-        #ifdef DEBUG_WIFI
-        DBG_WIFI("GTK is ");
-        dump(gtk.b,EAPOL_MICK_LENGTH+EAPOL_EK_LENGTH);
-        #endif
-
-        // FIXME
-        if(fr_in->key_frame.key_info.key_index != 0)
-            rt2501_set_key(fr_in->key_frame.key_info.key_index,
-                           gtk.s.ek, gtk.s.mick.tx, gtk.s.mick.rx, RT2501_CIPHER_AES);
+    case IEEE80211_CIPHER_CCMP:
+      /* Same wrapped-and-KDE-encoded layout as message 3/4, so the same
+       * code handles a rotation. A failure here must NOT be swallowed:
+       * announcing RUN with a stale group key is what made the radio go
+       * silently deaf between rekeys. */
+      if(!eapol_install_msg3_gtk(fr_in, length)) {
+        DBG_WIFI("GTK rotation failed, dropping the link"EOL);
+        eapol_state = EAPOL_S_MSG1;
+        ieee80211_state = IEEE80211_S_IDLE;
+        return;
       }
       break;
     default:
