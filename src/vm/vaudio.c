@@ -15,7 +15,7 @@
 #include "vm/vloader.h"
 #include "vm/vmem.h"
 
-uint8_t audioFifoPlay[AUDIO_FIFOPLAY];
+uint8_t audioFifoPlay[AUDIO_FIFOPLAY] __attribute__((section(".extbss"))); /* see .extbss in ml67q4051.ld */
 
 int32_t play_w;
 int32_t play_r;

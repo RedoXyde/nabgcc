@@ -11,7 +11,9 @@ MEMORY
   IntROM  (rx) : ORIGIN = 0x08000000, LENGTH = 124k /* Actually 128k, but last sector is config data*/
   IntRAM  (rw) : ORIGIN = 0x10000000, LENGTH = 16k
   ExtROM  (rx) : ORIGIN = 0xC8000000, LENGTH = 0k
-  ExtRAM  (rx) : ORIGIN = 0xD0000000, LENGTH = 1024k
+  /* 0xD0000000-0xD0007FFF free (used for .extbss below),
+     0xD0008000 hcd_malloc pool (32k), 0xD0010000 VM heap (800k) */
+  ExtRAM  (rwx) : ORIGIN = 0xD0000000, LENGTH = 32k
 }
 
 ENTRY(Reset_Handler)
@@ -62,10 +64,31 @@ SECTIONS
     __bss_start = . ;
     __bss_start__ = . ;
     *(.bss)
+    *(.bss.*)   /* -fdata-sections puts each variable in its own .bss.NAME
+                   subsection; without this pattern they all end up as
+                   orphan sections PAST __bss_end__ and are never zeroed
+                   at boot (usbhost_init_status etc.) */
     *(COMMON)
     } >IntRAM
   . = ALIGN(4);
   __bss_end__ = . ;
+
+  /* Everything below is IntRAM arithmetic (stack and newlib heap bounds
+     derive from the location counter), so remember it here and put it back
+     after the ExtRAM section: an output section in another region moves the
+     counter into that region, which would send __heap_start__ to ExtRAM
+     while __heap_end__ stayed in IntRAM, and _sbrk would then hand out
+     memory forever without ever hitting its limit. */
+  _intram_end = . ;
+
+  /* Big scratch buffers in external RAM (never zero-initialized at boot —
+     pure scratch only). Lives below the hcd_malloc pool at 0xD0008000. */
+  .extbss (NOLOAD):
+  {
+    *(.extbss)
+  } >ExtRAM
+
+  . = _intram_end ;
 
   /* Stack */
   . = ALIGN(4);
