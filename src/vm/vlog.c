@@ -104,7 +104,7 @@ int32_t sysLoad(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,
   return len;
 }
 
-static uint8_t  buffer_temp[4096];
+static uint8_t  buffer_temp[4096] __attribute__((section(".extbss"))); /* see .extbss in ml67q4051.ld */
 
 // pour le firmware, le "fichier" ouvert est toujours l'eeprom
 int32_t sysSave(uint8_t *dst,int32_t i,int32_t ldst,uint8_t *filename,int32_t j,int32_t len)
